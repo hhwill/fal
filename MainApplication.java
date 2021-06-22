@@ -278,6 +278,8 @@ public class MainApplication {
     }
 
     public void processPJTX(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) {
+        System.out.println(lstPrevious.size());
+        /*
         for (Map<String, String> record : lstPrevious) {
             String billref = record.get("BILLREF");
             if (billref == null || !(billref.startsWith("BBE") || billref.startsWith("XBG")|| billref.startsWith("FAO")|| billref.startsWith("FAW")|| billref.startsWith("FAT")|| billref.startsWith("BAT")|| billref.startsWith("BDP")|| billref.startsWith("DPF")|| billref.startsWith("BBS")) ) {
@@ -289,16 +291,19 @@ public class MainApplication {
                 continue;
             }
         }
+        */
        for (Map<String, String> record : lstNow) {
            String billref = record.get("BILLREF");
            if (billref == null || !(billref.startsWith("BBE") || billref.startsWith("XBG")|| billref.startsWith("FAO")|| billref.startsWith("FAW")|| billref.startsWith("FAT")|| billref.startsWith("BAT")|| billref.startsWith("BDP")|| billref.startsWith("DPF")|| billref.startsWith("BBS")) ) {
-                lstNow.remove(record);
                 continue;
            }
            boolean find = false;
            boolean match = false;
            for (Map<String, String> orecord : lstPrevious) {
                String obillref = orecord.get("BILLREF");
+               if (obillref == null || !(obillref.startsWith("BBE") || obillref.startsWith("XBG")|| obillref.startsWith("FAO")|| obillref.startsWith("FAW")|| obillref.startsWith("FAT")|| obillref.startsWith("BAT")|| obillref.startsWith("BDP")|| obillref.startsWith("DPF")|| obillref.startsWith("BBS")) ) {
+                   continue;
+               }
                if (obillref.equals(billref)) {
                    find = true;
                    String advos = record.get("ADVOS");
@@ -320,8 +325,6 @@ public class MainApplication {
            }
 
        }
-
-       System.out.println(lstNow);
     }
 
     public boolean process(String type, String now, String previous) throws Exception {
