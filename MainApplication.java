@@ -279,10 +279,16 @@ public class MainApplication {
         }
     }
 
-    public static int differentDaysByMillisecond(Date date1,Date date2)
+    public static int differentDaysByMillisecond(String date1, String date2)
     {
-        int days = (int) ((date2.getTime() - date1.getTime()) / (1000*3600*24));
-        return days;
+        try {
+            Date ddate1 = new SimpleDateFormat("yyyyMMdd").parse(date1);
+            Date ddate2 = new SimpleDateFormat("yyyyMMdd").parse(date2);
+            int days = (int) ((ddate2.getTime() - ddate1.getTime()) / (1000 * 3600 * 24));
+            return Math.abs(days);
+        } catch (Exception ex) {
+            return 0;
+        }
     }
 
     private List<String> addBase(String now, Map<String, String> src) {
@@ -293,11 +299,20 @@ public class MainApplication {
 
         result.add(map.get("X2").get(src.get("ACCOUNTNO").substring(0,3)));
         result.add(src.get("BILLREF"));
-        //TODO A
         result.add(map.get("X1").get(src.get("ACCOUNTNO").substring(0,3)));
         result.add(src.get("BBDTAV"));
         result.add(src.get("BBDUDT"));
-        result.add(src.get("BBPRCY"));
+
+        int daydiff = differentDaysByMillisecond(src.get("BBDUDT"),src.get("BBINSD"));
+        if (daydiff <= 90) {
+            result.add("01");
+        } else if (daydiff <= 180) {
+            result.add("02");
+        } else if (daydiff <= 365){
+            result.add("03");
+        } else {
+            result.add("");
+        }
         result.add(src.get("BBDRSP"));
         return result;
     }
