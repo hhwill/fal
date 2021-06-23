@@ -320,6 +320,7 @@ public class MainApplication {
         result.add(src.get("ACCOUNTNO"));
         result.add(src.get("BILLREF"));
         result.add(src.get("BILLREF")+src.get("交易方向"));
+        result.add(src.get("BBPRCY"));
         result.add(now);
         result.add(src.get("BILLAMT"));
         result.add(src.get("BBDRSP"));
