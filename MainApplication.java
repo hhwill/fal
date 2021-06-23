@@ -1,7 +1,4 @@
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.*;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -15,6 +12,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -416,36 +414,78 @@ public class MainApplication {
                occur.add(addOccur(now, record));
            }
        }
-        BufferedWriter out = new BufferedWriter(new FileWriter("occur20210531.csv"));
-        for (List<String> record : occur) {
-            String s = "";
-            for (String field : record) {
-                s += field + ",";
+       writeExcel("ExcelTemplate_票据贴现及转贴现发生额信息表补录_HSBC_HSBC01.xlsx", occur);
+       writeExcel("ExcelTemplate_票据贴现及转贴现余额信息表补录_HSBC_HSBC01.xlsx", balance);
+       writeExcel("ExcelTemplate_票据贴现及转贴现基础信息表补录_HSBC_HSBC01.xlsx", base);
+////        BufferedWriter out = new BufferedWriter(new FileWriter("occur20210531.csv"));
+////        for (List<String> record : occur) {
+////            String s = "";
+////            for (String field : record) {
+////                s += field + ",";
+////            }
+////            s += "\n";
+////            out.write(s);
+////        }
+//        out.close();
+//        out = new BufferedWriter(new FileWriter("balance20210531.csv"));
+//        for (List<String> record : balance) {
+//            String s = "";
+//            for (String field : record) {
+//                s += field + ",";
+//            }
+//            s += "\n";
+//            out.write(s);
+//        }
+//        out.close();
+//        out = new BufferedWriter(new FileWriter("base20210531.csv"));
+//        for (List<String> record : base) {
+//            String s = "";
+//            for (String field : record) {
+//                s += field + ",";
+//            }
+//            s += "\n";
+//            out.write(s);
+//        }
+//        out.close();
+    }
+
+    private void writeExcel(String fileName, List<List<String>> src) throws Exception{
+        SXSSFWorkbook book = new SXSSFWorkbook(1000);
+        Sheet sheet = book.createSheet("sheet1");
+        Row row0 = sheet.createRow(0);
+        FileInputStream in = new FileInputStream(fileName);
+        try {
+            Workbook wk = StreamingReader.builder()
+                    .rowCacheSize(100)  //缓存到内存中的行数，默认是10
+                    .bufferSize(4096)  //读取资源时，缓存到内存的字节大小，默认是1024
+                    .open(in);  //打开资源，必须，可以是InputStream或者是File，注意：只能打开XLSX格式的文件
+            Sheet sheet0 = wk.getSheetAt(0);
+            for (Row row : sheet0) {
+                if (row.getRowNum() == 0) {
+                    int cnt = 0;
+                    for (Cell cell : row) {
+                        Cell cell0 = row0.createCell(cnt);
+                        cell0.setCellValue(getCellValue(cell));
+                        cnt++;
+                    }
+                }
             }
-            s += "\n";
-            out.write(s);
+
+        } finally {
+            in.close();
         }
-        out.close();
-        out = new BufferedWriter(new FileWriter("balance20210531.csv"));
-        for (List<String> record : balance) {
-            String s = "";
+        int rcnt = 1;
+        for (List<String> record : src) {
+            Row row1 = sheet.createRow(rcnt);
+            rcnt++;
+            int ccnt = 0;
             for (String field : record) {
-                s += field + ",";
+                Cell cell1 = row1.createCell(ccnt);
+                cell1.setCellValue(field);
+                ccnt++;
             }
-            s += "\n";
-            out.write(s);
         }
-        out.close();
-        out = new BufferedWriter(new FileWriter("base20210531.csv"));
-        for (List<String> record : base) {
-            String s = "";
-            for (String field : record) {
-                s += field + ",";
-            }
-            s += "\n";
-            out.write(s);
-        }
-        out.close();
+        book.write(new FileOutputStream(fileName.substring(0, fileName.length()-5) + "_data.xlsx"));
     }
 
     Map<String, Map<String, String>> map = new HashMap<String, Map<String, String>>();
@@ -542,10 +582,20 @@ public class MainApplication {
 
     }
 
+    public void test() throws Exception {
+        List<List<String>> n1 = new ArrayList<List<String>>();
+        List<String> nn1 = new ArrayList<String>();
+        nn1.add("01");
+        nn1.add("02");
+        n1.add(nn1);
+        writeExcel("ExcelTemplate_票据贴现及转贴现发生额信息表补录_HSBC_HSBC01.xlsx", n1);
+    }
+
     public static void main(String[] args) throws Exception {
         //System.out.println(args[0]);
         if (args.length == 0) {
             System.out.println("C - create table with giving excelname");
+
             return;
         }
         String mode = args[0];
@@ -589,6 +639,9 @@ public class MainApplication {
             MainApplication t = new MainApplication();
             t.loadProperties();
             t.createMap();
+        } else if (mode.equals("T")) {
+            MainApplication t = new MainApplication();
+            t.test();
         }
 
     }
