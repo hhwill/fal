@@ -291,25 +291,34 @@ public class MainApplication {
         }
     }
 
+    private String getMap(String type_no, String key) {
+        String result = "";
+        result = map.get(type_no).get(key);
+        if (result == null || result.equals("null")) {
+            result = "";
+        }
+        return result;
+    }
     private List<String> addBase(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
-        result.add(src.get("ACCOUNTNO").substring(0,3));
-        result.add(src.get("ACCOUNTNO"));
+        result.add("'"+src.get("ACCOUNTNO").substring(0,3));
+        result.add("'"+src.get("ACCOUNTNO"));
 
-        result.add(map.get("X2").get(src.get("ACCOUNTNO").substring(0,3)));
+
+        result.add(getMap("X2", src.get("BILLREF").substring(0,3)));
         result.add(src.get("BILLREF"));
-        result.add(map.get("X1").get(src.get("ACCOUNTNO").substring(0,3)));
+        result.add(getMap("X1", src.get("BILLREF").substring(0,3)));
         result.add(src.get("BBDTAV"));
         result.add(src.get("BBDUDT"));
 
         int daydiff = differentDaysByMillisecond(src.get("BBDUDT"),src.get("BBINSD"));
         if (daydiff <= 90) {
-            result.add("01");
+            result.add("'01");
         } else if (daydiff <= 180) {
-            result.add("02");
+            result.add("'02");
         } else if (daydiff <= 365){
-            result.add("03");
+            result.add("'03");
         } else {
             result.add("");
         }
@@ -320,8 +329,8 @@ public class MainApplication {
     private List<String> addBalance(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
-        result.add(src.get("ACCOUNTNO").substring(0,3));
-        result.add(src.get("ACCOUNTNO"));
+        result.add("'"+src.get("ACCOUNTNO").substring(0,3));
+        result.add("'"+src.get("ACCOUNTNO"));
         result.add(src.get("BILLREF"));
         result.add(src.get("BBPRCY"));
         result.add(src.get("ADVOS"));
@@ -331,8 +340,8 @@ public class MainApplication {
     private List<String> addOccur(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
-        result.add(src.get("ACCOUNTNO").substring(0,3));
-        result.add(src.get("ACCOUNTNO"));
+        result.add("'"+src.get("ACCOUNTNO").substring(0,3));
+        result.add("'"+src.get("ACCOUNTNO"));
         result.add(src.get("BILLREF"));
         result.add(src.get("BILLREF")+src.get("交易方向"));
         result.add(src.get("BBPRCY"));
