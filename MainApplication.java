@@ -1,5 +1,7 @@
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -277,7 +279,55 @@ public class MainApplication {
         }
     }
 
-    public void processPJTX(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) {
+    public static int differentDaysByMillisecond(Date date1,Date date2)
+    {
+        int days = (int) ((date2.getTime() - date1.getTime()) / (1000*3600*24));
+        return days;
+    }
+
+    private List<String> addBase(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("ACCOUNTNO").substring(0,3));
+        result.add(src.get("ACCOUNTNO"));
+
+        result.add(map.get("X2").get(src.get("ACCOUNTNO").substring(0,3)));
+        result.add(src.get("BILLREF"));
+        //TODO A
+        result.add(map.get("X1").get(src.get("ACCOUNTNO").substring(0,3)));
+        result.add(src.get("BBDTAV"));
+        result.add(src.get("BBDUDT"));
+        result.add(src.get("BBPRCY"));
+        result.add(src.get("BBDRSP"));
+        return result;
+    }
+
+    private List<String> addBalance(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("ACCOUNTNO").substring(0,3));
+        result.add(src.get("ACCOUNTNO"));
+        result.add(src.get("BILLREF"));
+        result.add(src.get("BBPRCY"));
+        result.add(src.get("ADVOS"));
+        return result;
+    }
+
+    private List<String> addOccur(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("ACCOUNTNO").substring(0,3));
+        result.add(src.get("ACCOUNTNO"));
+        result.add(src.get("BILLREF"));
+        result.add(src.get("BILLREF")+src.get("交易方向"));
+        result.add(now);
+        result.add(src.get("BILLAMT"));
+        result.add(src.get("BBDRSP"));
+        result.add(src.get("交易方向"));
+        return result;
+    }
+
+    public void processPJTX(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
         System.out.println(lstPrevious.size());
         /*
         for (Map<String, String> record : lstPrevious) {
@@ -292,13 +342,21 @@ public class MainApplication {
             }
         }
         */
+        List<List<String>> base = new ArrayList<List<String>>();
+        List<List<String>> balance = new ArrayList<List<String>>();
+        List<List<String>> occur = new ArrayList<List<String>>();
        for (Map<String, String> record : lstNow) {
            String billref = record.get("BILLREF");
            if (billref == null || !(billref.startsWith("BBE") || billref.startsWith("XBG")|| billref.startsWith("FAO")|| billref.startsWith("FAW")|| billref.startsWith("FAT")|| billref.startsWith("BAT")|| billref.startsWith("BDP")|| billref.startsWith("DPF")|| billref.startsWith("BBS")) ) {
                 continue;
            }
            boolean find = false;
-           boolean match = false;
+           boolean matchOccur = false;
+           boolean matchBase = false;
+           String advos = record.get("ADVOS");
+           if (advos != null && !advos.equals("0")) {
+               matchBase = true;
+           }
            for (Map<String, String> orecord : lstPrevious) {
                String obillref = orecord.get("BILLREF");
                if (obillref == null || !(obillref.startsWith("BBE") || obillref.startsWith("XBG")|| obillref.startsWith("FAO")|| obillref.startsWith("FAW")|| obillref.startsWith("FAT")|| obillref.startsWith("BAT")|| obillref.startsWith("BDP")|| obillref.startsWith("DPF")|| obillref.startsWith("BBS")) ) {
@@ -306,25 +364,71 @@ public class MainApplication {
                }
                if (obillref.equals(billref)) {
                    find = true;
-                   String advos = record.get("ADVOS");
                    String badvos = orecord.get("ADVOS");
                    if (badvos == null || badvos.equals("0")) {
                        break;
                    }
                    if (!advos.equals(badvos)) {
-                       match = true;
+                       matchOccur = true;
+                       matchBase = true;
                        break;
                    }
                }
            }
            if (!find) {
-               match = true;
+               matchOccur = true;
            }
-           if (match) {
-               System.out.println(billref);
+           if (matchBase) {
+               if (advos.equals("0")) {
+                   record.put("交易方向", "0");
+               } else {
+                   record.put("交易方向", "1");
+               }
+               base.add(addBase(now, record));
+               balance.add(addBalance(now, record));
            }
-
+           if (matchOccur) {
+               occur.add(addOccur(now, record));
+           }
        }
+        BufferedWriter out = new BufferedWriter(new FileWriter("occur20210531.csv"));
+        for (List<String> record : occur) {
+            String s = "";
+            for (String field : record) {
+                s += field + ",";
+            }
+            s += "\n";
+            out.write(s);
+        }
+        out.close();
+        out = new BufferedWriter(new FileWriter("balance20210531.csv"));
+        for (List<String> record : balance) {
+            String s = "";
+            for (String field : record) {
+                s += field + ",";
+            }
+            s += "\n";
+            out.write(s);
+        }
+        out.close();
+    }
+
+    Map<String, Map<String, String>> map = new HashMap<String, Map<String, String>>();
+
+    private void initMap() throws Exception {
+        map.clear();
+        String sql = "select * from map_info";
+        statement = conn.createStatement();
+        resultSet = statement.executeQuery(sql);
+        List<Map<String, String>> lst = handle(resultSet);
+        for (Map<String, String> record : lst) {
+            Map<String, String> srecord = new HashMap<String, String>();
+            if (map.containsKey(record.get("TYPE_NO"))) {
+                srecord = map.get(record.get("TYPE_NO"));
+            }
+            srecord.put(record.get("src"), record.get("dest"));
+            map.put(record.get("TYPE_NO"), srecord);
+        }
     }
 
     public boolean process(String type, String now, String previous) throws Exception {
@@ -341,6 +445,7 @@ public class MainApplication {
             System.out.println("无法连接数据库");
             return false;
         }
+        initMap();
         String sql = "select * from " + type + " where data_date = '" + now + "'";
         statement = conn.createStatement();
         resultSet = statement.executeQuery(sql);
