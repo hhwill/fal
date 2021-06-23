@@ -427,6 +427,16 @@ public class MainApplication {
             out.write(s);
         }
         out.close();
+        out = new BufferedWriter(new FileWriter("base20210531.csv"));
+        for (List<String> record : base) {
+            String s = "";
+            for (String field : record) {
+                s += field + ",";
+            }
+            s += "\n";
+            out.write(s);
+        }
+        out.close();
     }
 
     Map<String, Map<String, String>> map = new HashMap<String, Map<String, String>>();
