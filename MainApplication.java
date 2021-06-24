@@ -640,7 +640,7 @@ public class MainApplication {
                 base.add(addFtyscsaiBase(now, record));
                 balance.add(addFtyscsaiBalance(now, record));
             }
-            if (matchOccur || (matchBase && !advos.equals("0"))) {
+            if (matchOccur)) {
                 occur.add(addFtyscsaiOccur(now, record));
             }
         }
@@ -714,7 +714,7 @@ public class MainApplication {
                 base.add(addFtydwdkBase(now, record));
                 balance.add(addFtydwdkBalance(now, record));
             }
-            if (matchOccur || (matchBase && !advos.equals("0"))) {
+            if (matchOccur) {
                 occur.add(addFtydwdkOccur(now, record));
             }
         }
@@ -956,6 +956,7 @@ public class MainApplication {
             processTYJD(now, lst, lst1);
         } else if (type.equals("GTRF_FTYDWDK")) {
             processFTYDWDK(now, lst, lst1);
+        } else if (type.equals("GTRF_FTYSCSAI")) {
             processFTYSCSAI(now, lst, lst1);
         }
         return true;
