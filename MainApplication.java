@@ -361,7 +361,12 @@ public class MainApplication {
         result.add(src.get("C3INMG"));
         result.add("");
         String purposeCode = getMap("X35", src.get("C3CUNO"));
-        result.add(getMap("X36", purposeCode.substring(0,3)));
+        if (purposeCode != null && purposeCode.length() >= 3) {
+            result.add(getMap("X36", purposeCode.substring(0, 3)));
+        } else {
+            System.out.println("No PurposeCode:>>>" + src.get("C3BLRF"));
+            result.add("");
+        }
         result.add("01");
         result.add("");
         return result;
@@ -640,7 +645,7 @@ public class MainApplication {
                 base.add(addFtyscsaiBase(now, record));
                 balance.add(addFtyscsaiBalance(now, record));
             }
-            if (matchOccur)) {
+            if (matchOccur) {
                 occur.add(addFtyscsaiOccur(now, record));
             }
         }
