@@ -339,11 +339,14 @@ public class MainApplication {
         result.add(getMap("X31", src.get("C3CUNO")));
         result.add(src.get("C3RCDT"));
         result.add(src.get("C3DUDT"));
-        //TODO repayment填写当期日期
-        result.add("");
+        if (src.get("C3INVA").equals("0")) {
+            result.add(now);
+        } else {
+            result.add("");
+        }
 
         int days = differentDaysByMillisecond(src.get("C3DUDT"), src.get("C3ISDT"));
-        result.add(checkTyjdTenor(String.valueOf(days), map.get("X32")));
+        result.add(checkTyjdTenor(String.valueOf(days), map.get("X0")));
         result.add("RF01");
         String c3inty = src.get("C3INTY");
         String c3cycd = src.get("C3CYCD");
@@ -414,9 +417,12 @@ public class MainApplication {
         result.add(src.get("BBDTAV"));
         result.add(src.get("BBDUDT"));
         //TODO 结清填当天
-        result.add("");
+        if (src.get("ADVOS").equals("0"))
+            result.add(now);
+        else
+            result.add("");
         String days = src.get("BBUSAN");
-        result.add(checkTyjdTenor(days, map.get("X23")));
+        result.add(checkTyjdTenor(days, map.get("X0")));
         result.add("RF01");
         result.add(getMap("X22", src.get("BBDRTY")));
         result.add("");
@@ -631,11 +637,11 @@ public class MainApplication {
                 } else {
                     record.put("交易方向", "1");
                 }
-                base.add(addFtydwdkBase(now, record));
-                balance.add(addFtydwdkBalance(now, record));
+                base.add(addFtyscsaiBase(now, record));
+                balance.add(addFtyscsaiBalance(now, record));
             }
-            if (matchOccur) {
-                occur.add(addFtydwdkOccur(now, record));
+            if (matchOccur || (matchBase && !advos.equals("0"))) {
+                occur.add(addFtyscsaiOccur(now, record));
             }
         }
         writeExcel("ExcelTemplate_非同业单位贷款放款信息表补录_HSBC_HSBC011.xlsx", occur);
@@ -708,7 +714,7 @@ public class MainApplication {
                 base.add(addFtydwdkBase(now, record));
                 balance.add(addFtydwdkBalance(now, record));
             }
-            if (matchOccur) {
+            if (matchOccur || (matchBase && !advos.equals("0"))) {
                 occur.add(addFtydwdkOccur(now, record));
             }
         }
