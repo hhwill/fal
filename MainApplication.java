@@ -1,4 +1,5 @@
 import java.io.*;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -297,6 +298,222 @@ public class MainApplication {
         }
         return result;
     }
+    private String checkTyjdTenor(String sdays, Map<String, String> dict) {
+        if (sdays.equals("")) {
+            if (dict.containsKey("")) {
+                return dict.get("");
+            }
+        }
+        int days = Integer.parseInt(sdays);
+        String result = "";
+        for (String key : dict.keySet()) {
+            if (key.contains("-")) {
+                String[] ss = key.split("-");
+                int s0 = Integer.parseInt(ss[0]);
+                int s1 = Integer.parseInt(ss[1]);
+                if (days >= s0 && days <= s1) {
+                    return dict.get(key);
+                }
+            } else if (key.startsWith(">")) {
+                int s0 = Integer.parseInt(key.substring(1));
+                if (days >= s0) {
+                    return dict.get(key);
+                }
+            } else {
+                int s0 = Integer.parseInt(key);
+                if (days == s0) {
+                    return dict.get(key);
+                }
+            }
+        }
+        return result;
+    }
+
+    private List<String> addFtyscsaiBase(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("C3BLRF"));
+        result.add(src.get("C3BLRF"));
+        result.add("F082");
+        result.add(src.get("C3CUNO"));
+        result.add(getMap("X31", src.get("C3CUNO")));
+        result.add(src.get("C3RCDT"));
+        result.add(src.get("C3DUDT"));
+        //TODO repayment填写当期日期
+        result.add("");
+
+        int days = differentDaysByMillisecond(src.get("C3DUDT"), src.get("C3ISDT"));
+        result.add(checkTyjdTenor(String.valueOf(days), map.get("X32")));
+        result.add("RF01");
+        String c3inty = src.get("C3INTY");
+        String c3cycd = src.get("C3CYCD");
+        String c3cuno = src.get("C3CUNO");
+        String effectiveDate = getMap("X34", c3cuno);
+        days = differentDaysByMillisecond(src.get("C3RCDT"), effectiveDate);
+        if (days > 0 && c3cycd.equals("CNY")) {
+            c3inty = "LP1";
+        }
+        result.add(getMap("X33", c3inty));
+        result.add("");
+        result.add(src.get("C3INMG"));
+        result.add("");
+        String purposeCode = getMap("X35", src.get("C3CUNO"));
+        result.add(getMap("X36", purposeCode.substring(0,3)));
+        result.add("01");
+        result.add("");
+        return result;
+    }
+
+    private List<String> addFtyscsaiBalance(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("C3BLRF"));
+        result.add(src.get("C3CUNO"));
+        result.add(getMap("X31", src.get("C3CUNO")));
+        result.add(src.get("BBPRCY"));
+        result.add(src.get("C3INVA"));
+        return result;
+    }
+
+    private List<String> addFtyscsaiOccur(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("C3BLRF"));
+        result.add(src.get("C3CUNO"));
+        result.add(getMap("X31", src.get("C3CUNO")));
+
+
+        result.add(src.get("C3BLRF")+src.get("交易方向"));
+        result.add(src.get("C3RCDT"));
+        result.add(src.get("C3CYCD"));
+        result.add(src.get("C3BLAM"));
+        result.add("");
+        String bbdrsp = src.get("C3INMG");
+        return result;
+    }
+
+    private List<String> addFtydwdkBase(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("BILLREF"));
+        result.add(src.get("BILLREF"));
+        String zzlf04 = src.get("ZZLF04");
+        if (zzlf04 != null) {
+            if (zzlf04.equals("1")) {
+                result.add("F082");
+            } else if (zzlf04.equals("0")) {
+                result.add("F081");
+            } else {
+                result.add("");
+            }
+        } else {
+            result.add("");
+        }
+        result.add(src.get("CUS"));
+        result.add(src.get("ACCOUNTNO").substring(0,3));
+        result.add(src.get("BBDTAV"));
+        result.add(src.get("BBDUDT"));
+        //TODO 结清填当天
+        result.add("");
+        String days = src.get("BBUSAN");
+        result.add(checkTyjdTenor(days, map.get("X23")));
+        result.add("RF01");
+        result.add(getMap("X22", src.get("BBDRTY")));
+        result.add("");
+        result.add(src.get("BBDRSP"));
+        result.add("");
+        String zzlf05 = src.get("ZZLF05");
+        if (zzlf05 != null && zzlf05.length() >= 3) {
+            result.add(getMap("X24",  zzlf05.substring(0,3)));
+        } else{
+            result.add("");
+        }
+        result.add("01");
+        return result;
+    }
+
+    private List<String> addFtydwdkBalance(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("BILLREF"));
+        result.add(src.get("CUS"));
+        result.add(src.get("ACCOUNTNO").substring(0,3));
+        result.add(src.get("BBPRCY"));
+        result.add(formatJPY(src.get("BBPRCY"),src.get("ADVOS")));
+        return result;
+    }
+
+    private List<String> addFtydwdkOccur(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("BILLREF"));
+        result.add(src.get("CUS"));
+        result.add(src.get("ACCOUNTNO").substring(0,3));
+
+
+        result.add(src.get("BILLREF")+src.get("交易方向"));
+        result.add(now);
+        result.add(src.get("BBPRCY"));
+        result.add(formatJPY(src.get("BBPRCY"),src.get("BILLAMT")));
+        result.add("");
+        String bbdrsp = src.get("BBDRSP");
+        if (src.get("BBDRTY").equals("LP1")) {
+           bbdrsp =  new BigDecimal(bbdrsp).add(new BigDecimal("3.85")).toString();
+        }
+        result.add(bbdrsp);
+        return result;
+    }
+
+    private List<String> addTyjdBase(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("ACCOUNTNO").substring(0,3));
+        result.add(src.get("CUS"));
+        result.add(getMap("X13", src.get("BAACSN")));
+        result.add(src.get("BILLREF"));
+        result.add("A01");
+        result.add(src.get("BBDTAV"));
+        result.add(src.get("BBDUDT"));
+        //TODO 结清填当天
+        result.add("");
+        String days = src.get("BBUSAN");
+        result.add(checkTyjdTenor(days, map.get("X14")));
+        result.add("RF01");
+        result.add(src.get("BBDRSP"));
+        result.add(getMap("X12", src.get("BBDRTY")));
+        result.add("");
+        result.add("04");
+        result.add("");
+        return result;
+    }
+
+    private List<String> addTyjdBalance(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("BILLREF"));
+        result.add(src.get("ACCOUNTNO").substring(0,3));
+        result.add(src.get("CUS"));
+        result.add(src.get("BBPRCY"));
+        result.add(formatJPY(src.get("BBPRCY"),src.get("ADVOS")));
+        return result;
+    }
+
+    private List<String> addTyjdOccur(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("BILLREF"));
+        result.add(src.get("ACCOUNTNO").substring(0,3));
+        result.add(src.get("CUS"));
+
+        result.add(src.get("BILLREF")+src.get("交易方向"));
+        result.add(now);
+        result.add(src.get("BBPRCY"));
+        result.add(src.get("BBDRSP"));
+        result.add(src.get("BILLAMT"));
+        result.add(src.get("交易方向"));
+        return result;
+    }
+
     private List<String> addBase(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
@@ -350,21 +567,220 @@ public class MainApplication {
         return result;
     }
 
-    public void processPJTX(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
-        System.out.println(lstPrevious.size());
-        /*
-        for (Map<String, String> record : lstPrevious) {
-            String billref = record.get("BILLREF");
-            if (billref == null || !(billref.startsWith("BBE") || billref.startsWith("XBG")|| billref.startsWith("FAO")|| billref.startsWith("FAW")|| billref.startsWith("FAT")|| billref.startsWith("BAT")|| billref.startsWith("BDP")|| billref.startsWith("DPF")|| billref.startsWith("BBS")) ) {
-                lstPrevious.remove(record);
-            }
-            String ADVOS = record.get("ADVOS");
-            if (ADVOS.equals("0")) {
-                lstPrevious.remove(record);
-                continue;
+    public String formatJPY(String ccy, String src) {
+        String result = src;
+        if (!ccy.equals("JPY") && !ccy.equals("KRW") ) {
+            return result;
+        }
+        if (!src.contains(".")) {
+            result = src + "00";
+        } else {
+            if (src.indexOf(".") == src.length()-1) {
+                result = src.substring(0, src.indexOf(".")) + "00";
+            } else if (src.indexOf(".") == src.length()-2) {
+                result = src.substring(0, src.indexOf(".")) + src.substring(src.length()-1) + "0";
+            } else if (src.indexOf(".") == src.length()-3) {
+                result = src.substring(0, src.indexOf(".")) + src.substring(src.length()-2);
             }
         }
-        */
+        return result;
+    }
+
+    public void processFTYSCSAI(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
+        List<List<String>> base = new ArrayList<List<String>>();
+        List<List<String>> balance = new ArrayList<List<String>>();
+        List<List<String>> occur = new ArrayList<List<String>>();
+        for (Map<String, String> record : lstNow) {
+            String billref = record.get("C3BLRF");
+            String c3isdt = record.get("C3ISDT");
+            if (c3isdt == null || c3isdt.equals("0")) {
+                continue;
+            }
+            boolean find = false;
+            boolean matchOccur = false;
+            boolean matchBase = false;
+            String advos = record.get("C3INVA");
+            if (advos != null && !advos.equals("0")) {
+                matchBase = true;
+            }
+            for (Map<String, String> orecord : lstPrevious) {
+                String oc3isdt = orecord.get("C3ISDT");
+                if (oc3isdt == null || oc3isdt.equals("0")) {
+                    continue;
+                }
+                String obillref = orecord.get("C3BLRF");
+                if (obillref.equals(billref)) {
+                    find = true;
+                    String badvos = orecord.get("C3INVA");
+                    if (badvos == null || badvos.equals("0")) {
+                        break;
+                    }
+                    if (new BigDecimal(advos).compareTo(new BigDecimal(badvos)) == 1) {
+                        matchOccur = true;
+                        matchBase = true;
+                        break;
+                    }
+                }
+            }
+            if (!find) {
+                matchOccur = true;
+            }
+            if (matchBase) {
+                if (advos.equals("0")) {
+                    record.put("交易方向", "0");
+                } else {
+                    record.put("交易方向", "1");
+                }
+                base.add(addFtydwdkBase(now, record));
+                balance.add(addFtydwdkBalance(now, record));
+            }
+            if (matchOccur) {
+                occur.add(addFtydwdkOccur(now, record));
+            }
+        }
+        writeExcel("ExcelTemplate_非同业单位贷款放款信息表补录_HSBC_HSBC011.xlsx", occur);
+        writeExcel("ExcelTemplate_非同业单位贷款余额信息表补录_HSBC_HSBC011.xlsx", balance);
+        writeExcel("ExcelTemplate_非同业单位贷款基础信息表补录_HSBC_HSBC011.xlsx", base);
+    }
+
+    public void processFTYDWDK(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
+        List<List<String>> base = new ArrayList<List<String>>();
+        List<List<String>> balance = new ArrayList<List<String>>();
+        List<List<String>> occur = new ArrayList<List<String>>();
+        for (Map<String, String> record : lstNow) {
+            String billref = record.get("BILLREF");
+            //保证金
+            if (billref == null || billref.startsWith("M") || billref.startsWith("YM") ) {
+                continue;
+            }
+            String productType = getMap("X21", billref.substring(0,3));
+            if (productType.equals("同业")||productType.equals("票据贴现及转贴现")||productType.equals("GTE")||productType.equals(
+                    "Standby DC")||productType.equals("DC")||productType.equals("BADI")) {
+                continue;
+            }
+            String bbprcy = record.get("BBPRCY");
+            if (bbprcy == null || !(bbprcy.startsWith("JPY") || bbprcy.startsWith("USD") || bbprcy.startsWith("EUR") || bbprcy.startsWith("HKD")) ) {
+                continue;
+            }
+            boolean find = false;
+            boolean matchOccur = false;
+            boolean matchBase = false;
+            String advos = record.get("ADVOS");
+            if (advos != null && !advos.equals("0")) {
+                matchBase = true;
+            }
+            for (Map<String, String> orecord : lstPrevious) {
+                String obillref = orecord.get("BILLREF");
+                if (obillref == null || obillref.startsWith("M") || billref.startsWith("YM") ) {
+                    continue;
+                }
+                String oproductType = getMap("X21", obillref.substring(0,3));
+                if (oproductType.equals("同业")||oproductType.equals("票据贴现及转贴现")||oproductType.equals("GTE")||oproductType.equals(
+                        "Standby DC")||oproductType.equals("DC")||oproductType.equals("BADI")) {
+                    continue;
+                }
+                String obbprcy = orecord.get("BBPRCY");
+                if (obbprcy == null || !(obbprcy.startsWith("JPY") || obbprcy.startsWith("USD") || obbprcy.startsWith("EUR") || obbprcy.startsWith("HKD")) ) {
+                    continue;
+                }
+                if (obillref.equals(billref)) {
+                    find = true;
+                    String badvos = orecord.get("ADVOS");
+                    if (badvos == null || badvos.equals("0")) {
+                        break;
+                    }
+                    if (new BigDecimal(advos).compareTo(new BigDecimal(badvos)) == 1) {
+                        matchOccur = true;
+                        matchBase = true;
+                        break;
+                    }
+                }
+            }
+            if (!find) {
+                matchOccur = true;
+            }
+            if (matchBase) {
+                if (advos.equals("0")) {
+                    record.put("交易方向", "0");
+                } else {
+                    record.put("交易方向", "1");
+                }
+                base.add(addFtydwdkBase(now, record));
+                balance.add(addFtydwdkBalance(now, record));
+            }
+            if (matchOccur) {
+                occur.add(addFtydwdkOccur(now, record));
+            }
+        }
+        writeExcel("ExcelTemplate_非同业单位贷款放款信息表补录_HSBC_HSBC01.xlsx", occur);
+        writeExcel("ExcelTemplate_非同业单位贷款余额信息表补录_HSBC_HSBC01.xlsx", balance);
+        writeExcel("ExcelTemplate_非同业单位贷款基础信息表补录_HSBC_HSBC01.xlsx", base);
+    }
+
+    public void processTYJD(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
+        List<List<String>> base = new ArrayList<List<String>>();
+        List<List<String>> balance = new ArrayList<List<String>>();
+        List<List<String>> occur = new ArrayList<List<String>>();
+        for (Map<String, String> record : lstNow) {
+            String billref = record.get("BILLREF");
+            if (billref == null || !(billref.startsWith("SBN") || billref.startsWith("MIR")) ) {
+                continue;
+            }
+            String bbprcy = record.get("BBPRCY");
+            if (bbprcy == null || !(bbprcy.startsWith("JPY") || bbprcy.startsWith("USD") || bbprcy.startsWith("EUR") || bbprcy.startsWith("HKD")) ) {
+                continue;
+            }
+            boolean find = false;
+            boolean matchOccur = false;
+            boolean matchBase = false;
+            String advos = record.get("ADVOS");
+            if (advos != null && !advos.equals("0")) {
+                matchBase = true;
+            }
+            for (Map<String, String> orecord : lstPrevious) {
+                String obillref = orecord.get("BILLREF");
+                if (billref == null || !(billref.startsWith("SBN") || billref.startsWith("MIR")) ) {
+                    continue;
+                }
+                String obbprcy = orecord.get("BBPRCY");
+                if (obbprcy == null || !(obbprcy.startsWith("JPY") || obbprcy.startsWith("USD") || obbprcy.startsWith("EUR") || obbprcy.startsWith("HKD")) ) {
+                    continue;
+                }
+                if (obillref.equals(billref)) {
+                    find = true;
+                    String badvos = orecord.get("ADVOS");
+                    if (badvos == null || badvos.equals("0")) {
+                        break;
+                    }
+                    if (!advos.equals(badvos)) {
+                        matchOccur = true;
+                        matchBase = true;
+                        break;
+                    }
+                }
+            }
+            if (!find) {
+                matchOccur = true;
+            }
+            if (matchBase) {
+                if (advos.equals("0")) {
+                    record.put("交易方向", "0");
+                } else {
+                    record.put("交易方向", "1");
+                }
+                base.add(addTyjdBase(now, record));
+                balance.add(addTyjdBalance(now, record));
+            }
+            if (matchOccur) {
+                occur.add(addTyjdOccur(now, record));
+            }
+        }
+        writeExcel("ExcelTemplate_同业借贷发生额信息表补录_HSBC_HSBC01.xlsx", occur);
+        writeExcel("ExcelTemplate_同业借贷余额信息表补录_HSBC_HSBC01.xlsx", balance);
+        writeExcel("ExcelTemplate_同业借贷基础信息表补录_HSBC_HSBC01.xlsx", base);
+    }
+
+    public void processPJTX(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
         List<List<String>> base = new ArrayList<List<String>>();
         List<List<String>> balance = new ArrayList<List<String>>();
         List<List<String>> occur = new ArrayList<List<String>>();
@@ -501,7 +917,7 @@ public class MainApplication {
             if (map.containsKey(record.get("TYPE_NO"))) {
                 srecord = map.get(record.get("TYPE_NO"));
             }
-            srecord.put(record.get("src"), record.get("dest"));
+            srecord.put(record.get("SRC"), record.get("DEST"));
             map.put(record.get("TYPE_NO"), srecord);
         }
     }
@@ -528,7 +944,14 @@ public class MainApplication {
         sql = "select * from " + type + " where data_date = '" + previous + "'";
         resultSet = statement.executeQuery(sql);
         List<Map<String, String>> lst1 = handle(resultSet);
-        processPJTX(now, lst, lst1);
+        if (type.equals("GTRF_PJTX")) {
+            processPJTX(now, lst, lst1);
+        } else if (type.equals("GTRF_TYJD")) {
+            processTYJD(now, lst, lst1);
+        } else if (type.equals("GTRF_FTYDWDK")) {
+            processFTYDWDK(now, lst, lst1);
+            processFTYSCSAI(now, lst, lst1);
+        }
         return true;
     }
 
@@ -553,6 +976,7 @@ public class MainApplication {
     }
 
     public void createMap() throws Exception {
+        System.out.println("delete from MAP_INFO;");
         Workbook wb = new XSSFWorkbook(new FileInputStream("票据贴现.xlsx"));
         Sheet st = wb.getSheet("mapping");
         for (int i = 1; i < 10; i++) {
@@ -579,7 +1003,119 @@ public class MainApplication {
                 printDict("X3", type_no, type_value);
             }
         }
-
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("同业借贷.xlsx"));
+        st = wb.getSheet("mapping");
+        for (int i = 3; i < 136; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(1));
+                printDict("X11", type_no, type_value);
+            }
+        }
+        for (int i = 2; i < 16; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(3));
+                String type_value = getCellValue(row.getCell(4));
+                printDict("X12", type_no, type_value);
+            }
+        }
+        for (int i = 2; i < 6; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(6));
+                String type_value = getCellValue(row.getCell(7));
+                printDict("X13", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 16; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(10));
+                String type_value = getCellValue(row.getCell(11));
+                printDict("X14", type_no, type_value);
+            }
+        }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("非同业单位贷款.xlsx"));
+        st = wb.getSheet("mapping");
+        for (int i = 1; i < 36; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(1));
+                printDict("X21", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 15; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(3));
+                String type_value = getCellValue(row.getCell(4));
+                printDict("X22", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 17; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(7));
+                String type_value = getCellValue(row.getCell(8));
+                printDict("X23", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 472; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(11));
+                String type_value = getCellValue(row.getCell(12));
+                printDict("X24", type_no, type_value);
+            }
+        }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("非同业-scsai.xlsx"));
+        st = wb.getSheet("mapping");
+        for (int i = 1; i < 116; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(1));
+                printDict("X31", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 17; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(4));
+                String type_value = getCellValue(row.getCell(5));
+                printDict("X32", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 15; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(7));
+                String type_value = getCellValue(row.getCell(8));
+                printDict("X33", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 164; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(10));
+                String type_value = getCellValue(row.getCell(11));
+                printDict("X34", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 90; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(14));
+                String type_value = getCellValue(row.getCell(15));
+                printDict("X35", type_no, type_value);
+            }
+        }
     }
 
     public void test() throws Exception {
