@@ -1123,9 +1123,17 @@ public class MainApplication {
         for (int i = 1; i < 90; i++) {
             Row row = st.getRow(i);
             if (row != null) {
-                String type_no = getCellValue(row.getCell(14));
-                String type_value = getCellValue(row.getCell(15));
+                String type_no = getCellValue(row.getCell(13));
+                String type_value = getCellValue(row.getCell(14));
                 printDict("X35", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 472; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(17));
+                String type_value = getCellValue(row.getCell(18));
+                printDict("X36", type_no, type_value);
             }
         }
     }
