@@ -25,6 +25,333 @@ public class MainApplication {
 
     public static int batchCount = 3;
 
+    private static String SQL_PJTXFS = "INSERT INTO `IMAS_PM_PJTXFS`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`NBJGH`,\n" +
+            "`KHH`,\n" +
+            "`YWBM`,\n" +
+            "`JYLSH`,\n" +
+            "`BZ`,\n" +
+            "`JYRQ`,\n" +
+            "`FSJE`,\n" +
+            "`TXLL`,\n" +
+            "`JYFX`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+    private static String SQL_PJTXJC = "INSERT INTO `IMAS_PM_PJTXJC`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`NBJGH`,\n" +
+            "`KHH`,\n" +
+            "`JRJGLXDM`,\n" +
+            "`YWBM`,\n" +
+            "`PJRZYWLX`,\n" +
+            "`QSRQ`,\n" +
+            "`DQRQ`,\n" +
+            "`PJRZQXLX`,\n" +
+            "`TXLL`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+    private static String SQL_PJTXYE = "INSERT INTO `imas`.`IMAS_PM_PJTXYE`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`NBJGH`,\n" +
+            "`KHH`,\n" +
+            "`YWBM`,\n" +
+            "`BZ`,\n" +
+            "`YE`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+    private static String SQL_TYJDFS = "INSERT INTO `IMAS_PM_TYJDFS`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`YWBM`,\n" +
+            "`NBJGH`,\n" +
+            "`KHH`,\n" +
+            "`JYLSH`,\n" +
+            "`JYRQ`,\n" +
+            "`BZ`,\n" +
+            "`SJLL`,\n" +
+            "`JZLL`,\n" +
+            "`FSJE`,\n" +
+            "`JYFX`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport'," +
+            "?," +
+            "?)";
+    private static String SQL_TYJDJC = "INSERT INTO `IMAS_PM_TYJDJC`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`NBJGH`,\n" +
+            "`KHH`,\n" +
+            "`JRJGLXDM`,\n" +
+            "`YWBM`,\n" +
+            "`JDYWLX`,\n" +
+            "`QSRQ`,\n" +
+            "`DQRQ`,\n" +
+            "`SJZZRQ`,\n" +
+            "`TYJDQXLX`,\n" +
+            "`LLLX`,\n" +
+            "`SJLL`,\n" +
+            "`JDDJJZLX`,\n" +
+            "`JZLL`,\n" +
+            "`JXFS`,\n" +
+            "`LLFDPL`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+    private static String SQL_TYJDYE = "INSERT INTO `IMAS_PM_TYJDYE`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`YWBM`,\n" +
+            "`NBJGH`,\n" +
+            "`KHH`,\n" +
+            "`BZ`,\n" +
+            "`YE`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+    private static String SQL_DWDKFK = "INSERT INTO `IMAS_PM_DWDKFK`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`DKJJBH`,\n" +
+            "`KHH`,\n" +
+            "`NBJGH`,\n" +
+            "`JYLSH`,\n" +
+            "`JYRQ`,\n" +
+            "`BZ`,\n" +
+            "`FSJE`,\n" +
+            "`JZLL`,\n" +
+            "`SJLL`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+    private static String SQL_DWDKJC = "INSERT INTO `IMAS_PM_DWDKJC`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`DKHTBM`,\n" +
+            "`DKJJBH`,\n" +
+            "`DKCPLB`,\n" +
+            "`KHH`,\n" +
+            "`NBJGH`,\n" +
+            "`DKFFRQ`,\n" +
+            "`YSDQRQ`,\n" +
+            "`SJZZRQ`,\n" +
+            "`DKQXLX`,\n" +
+            "`LLLX`,\n" +
+            "`DJJZLX`,\n" +
+            "`JZLL`,\n" +
+            "`SJLL`,\n" +
+            "`LLFDPL`,\n" +
+            "`DKSJTX`,\n" +
+            "`DKBLQD`,\n" +
+            "`CZBL`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+    private static String SQL_DWDKYE = "INSERT INTO `IMAS_PM_DWDKYE`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`DKJJBH`,\n" +
+            "`KHH`,\n" +
+            "`NBJGH`,\n" +
+            "`BZ`,\n" +
+            "`DKYE`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+
+    private boolean insertData(String sql, String groupId, List<List<String>> params) {
+        int times = params.size() / 1000;
+        if (params.size() % 1000 != 0) {
+            times += 1;
+        }
+        for (int i = 0; i < times; i++) {
+            List<List<String>> currentUpdates = new ArrayList<List<String>>();
+            if (i == times - 1) {
+                for (int m = i * 1000; m < params.size(); m++) {
+                    currentUpdates.add(params.get(m));
+                }
+            } else {
+                for (int m = i * 1000; m < (i + 1) * 1000; m++) {
+                    currentUpdates.add(params.get(m));
+                }
+            }
+            batchInsert(sql, groupId, currentUpdates);
+        }
+        return true;
+    }
+
+    private boolean batchInsert(String sql, String groupId, List<List<String>> params) {
+        Date now = new Date();
+        String date = new SimpleDateFormat("yyyyMMdd").format(now);
+        String time = new SimpleDateFormat("yyyyMMddhhmmss").format(now);
+        try {
+            if (conn == null) {
+                Driver driver = new com.mysql.cj.jdbc.Driver();
+                DriverManager.deregisterDriver(driver);
+                Properties pro = new Properties();
+                pro.put("user", properties.getProperty("jdbc.username"));
+                pro.put("password", properties.getProperty("jdbc.password"));
+                conn = driver.connect(properties.getProperty("jdbc.url"), pro);
+            }
+        } catch (Exception ex) {
+            System.out.println("无法连接数据库");
+            return false;
+        }
+        try {
+            pstmt = conn.prepareStatement(sql);
+            for (int i = 0; i < params.size(); i++) {
+                int index = 1;
+                List<String> param = params.get(i);
+                pstmt.setString(index, UUID.randomUUID().toString().replace("-", ""));
+                index++;
+                pstmt.setString(index, param.get(0));
+                index++;
+                pstmt.setString(index, groupId);
+                index++;
+                for (int j = 0; j < param.size(); j++) {
+                    pstmt.setString(index, param.get(j));
+                    index++;
+                }
+                pstmt.setString(index, date);
+                index++;
+                pstmt.setString(index, time);
+                //log.error(sqls.get(i).toString());
+                pstmt.addBatch();
+            }
+            try {
+                pstmt.executeBatch();
+            } catch (BatchUpdateException exx) {
+                //log.error("batch失败"+String.valueOf(rowcountbase),exx);
+                //单独执行
+                //statement = conn.createStatement();
+                for (int i = 0; i < params.size(); i++) {
+                    int index = 1;
+                    List<String> param = params.get(i);
+                    pstmt.setString(index, UUID.randomUUID().toString().replace("-", ""));
+                    index++;
+                    pstmt.setString(index, param.get(0));
+                    index++;
+                    pstmt.setString(index, groupId);
+                    index++;
+                    for (int j = 0; j < param.size(); j++) {
+                        pstmt.setString(index, param.get(j));
+                        index++;
+                    }
+                    pstmt.setString(index, date);
+                    index++;
+                    pstmt.setString(index, time);
+                    try {
+                        pstmt.execute();
+                    } catch (Exception exxx) {
+                        exxx.printStackTrace();
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            System.out.println("执行批量插入准备失败");
+            ex.printStackTrace();
+        } finally {
+        }
+        return true;
+    }
+
     private String sql;
 
     public Properties properties = new Properties();
@@ -335,8 +662,8 @@ public class MainApplication {
         result.add(src.get("C3BLRF"));
         result.add(src.get("C3BLRF"));
         result.add("F082");
-        result.add(src.get("C3CUNO"));
-        result.add(getMap("X31", src.get("C3CUNO")));
+        result.add(formatKHH(src.get("C3CUNO")));
+        result.add(formatNBJGH(getMap("X31", src.get("C3CUNO"))));
         result.add(src.get("C3RCDT"));
         result.add(src.get("C3DUDT"));
         if (src.get("C3INVA").equals("0")) {
@@ -364,7 +691,7 @@ public class MainApplication {
         if (purposeCode != null && purposeCode.length() >= 3) {
             result.add(getMap("X36", purposeCode.substring(0, 3)));
         } else {
-            System.out.println("No PurposeCode:>>>" + src.get("C3BLRF"));
+            //System.out.println("No PurposeCode:>>>" + src.get("C3BLRF"));
             result.add("");
         }
         result.add("01");
@@ -376,10 +703,10 @@ public class MainApplication {
         List<String> result = new ArrayList<String>();
         result.add(now);
         result.add(src.get("C3BLRF"));
-        result.add(src.get("C3CUNO"));
-        result.add(getMap("X31", src.get("C3CUNO")));
+        result.add(formatKHH(src.get("C3CUNO")));
+        result.add(formatNBJGH(getMap("X31", src.get("C3CUNO"))));
         result.add(src.get("BBPRCY"));
-        result.add(src.get("C3INVA"));
+        result.add(formatJPY(src.get("BBPRCY"),src.get("C3INVA")));
         return result;
     }
 
@@ -387,16 +714,16 @@ public class MainApplication {
         List<String> result = new ArrayList<String>();
         result.add(now);
         result.add(src.get("C3BLRF"));
-        result.add(src.get("C3CUNO"));
-        result.add(getMap("X31", src.get("C3CUNO")));
+        result.add(formatKHH(src.get("C3CUNO")));
+        result.add(formatNBJGH(getMap("X31", src.get("C3CUNO"))));
 
 
         result.add(src.get("C3BLRF")+src.get("交易方向"));
         result.add(src.get("C3RCDT"));
         result.add(src.get("C3CYCD"));
-        result.add(src.get("C3BLAM"));
+        result.add(formatJPY(src.get("BBPRCY"),src.get("C3BLAM")));
         result.add("");
-        String bbdrsp = src.get("C3INMG");
+        result.add(src.get("C3INMG"));
         return result;
     }
 
@@ -417,8 +744,8 @@ public class MainApplication {
         } else {
             result.add("");
         }
-        result.add(src.get("CUS"));
-        result.add(src.get("ACCOUNTNO").substring(0,3));
+        result.add(formatKHH(src.get("CUS")));
+        result.add(formatNBJGH(src.get("ACCOUNTNO").substring(0,3)));
         result.add(src.get("BBDTAV"));
         result.add(src.get("BBDUDT"));
         //TODO 结清填当天
@@ -447,8 +774,8 @@ public class MainApplication {
         List<String> result = new ArrayList<String>();
         result.add(now);
         result.add(src.get("BILLREF"));
-        result.add(src.get("CUS"));
-        result.add(src.get("ACCOUNTNO").substring(0,3));
+        result.add(formatKHH(src.get("CUS")));
+        result.add(formatNBJGH(src.get("ACCOUNTNO").substring(0,3)));
         result.add(src.get("BBPRCY"));
         result.add(formatJPY(src.get("BBPRCY"),src.get("ADVOS")));
         return result;
@@ -458,8 +785,8 @@ public class MainApplication {
         List<String> result = new ArrayList<String>();
         result.add(now);
         result.add(src.get("BILLREF"));
-        result.add(src.get("CUS"));
-        result.add(src.get("ACCOUNTNO").substring(0,3));
+        result.add(formatKHH(src.get("CUS")));
+        result.add(formatNBJGH(src.get("ACCOUNTNO").substring(0,3)));
 
 
         result.add(src.get("BILLREF")+src.get("交易方向"));
@@ -478,8 +805,8 @@ public class MainApplication {
     private List<String> addTyjdBase(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
-        result.add(src.get("ACCOUNTNO").substring(0,3));
-        result.add(src.get("CUS"));
+        result.add(formatNBJGH(src.get("ACCOUNTNO").substring(0,3)));
+        result.add(formatKHH(src.get("CUS")));
         result.add(getMap("X13", src.get("BAACSN")));
         result.add(src.get("BILLREF"));
         result.add("A01");
@@ -502,8 +829,8 @@ public class MainApplication {
         List<String> result = new ArrayList<String>();
         result.add(now);
         result.add(src.get("BILLREF"));
-        result.add(src.get("ACCOUNTNO").substring(0,3));
-        result.add(src.get("CUS"));
+        result.add(formatNBJGH(src.get("ACCOUNTNO").substring(0,3)));
+        result.add(formatKHH(src.get("CUS")));
         result.add(src.get("BBPRCY"));
         result.add(formatJPY(src.get("BBPRCY"),src.get("ADVOS")));
         return result;
@@ -513,8 +840,8 @@ public class MainApplication {
         List<String> result = new ArrayList<String>();
         result.add(now);
         result.add(src.get("BILLREF"));
-        result.add(src.get("ACCOUNTNO").substring(0,3));
-        result.add(src.get("CUS"));
+        result.add(formatNBJGH(src.get("ACCOUNTNO").substring(0,3)));
+        result.add(formatKHH(src.get("CUS")));
 
         result.add(src.get("BILLREF")+src.get("交易方向"));
         result.add(now);
@@ -525,11 +852,48 @@ public class MainApplication {
         return result;
     }
 
+    private String formatNBJGH(String src) {
+        String result = src;
+        if (result.length() == 3) {
+            result = "CNHSBC"+ result;
+        }
+        return result;
+    }
+
+    private String formatKHH(String src) {
+        String result = src;
+        if (result.startsWith("CNHSBC")) {
+            return result;
+        }
+        if (result.contains("-")) {
+            String[] ss = result.split("-");
+
+            while (ss[0].length() < 3) {
+                ss[0] = "0" + ss[0];
+            }
+            if (ss[0].length() > 3) {
+                ss[0] = ss[0].substring(0,3);
+            }
+            while (ss[1].length() < 6) {
+                ss[1] = "0" + ss[1];
+            }
+            if (ss[1].length() > 6) {
+                ss[1] = ss[1].substring(0,6);
+            }
+            result = ss[0] + ss[1];
+        }
+        result = "CNHSBC" + result;
+        if (result.length() >15) {
+            result = result.substring(0,15);
+        }
+        return result;
+    }
+
     private List<String> addBase(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
-        result.add(src.get("ACCOUNTNO").substring(0,3));
-        result.add(src.get("ACCOUNTNO"));
+        result.add(formatNBJGH(src.get("ACCOUNTNO").substring(0,3)));
+        result.add(formatKHH(src.get("CUS")));
 
 
         result.add(getMap("X2", src.get("BILLREF").substring(0,3)));
@@ -555,8 +919,8 @@ public class MainApplication {
     private List<String> addBalance(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
-        result.add(src.get("ACCOUNTNO").substring(0,3));
-        result.add(src.get("ACCOUNTNO"));
+        result.add(formatNBJGH(src.get("ACCOUNTNO").substring(0,3)));
+        result.add(formatKHH(src.get("CUS")));
         result.add(src.get("BILLREF"));
         result.add(src.get("BBPRCY"));
         result.add(src.get("ADVOS"));
@@ -566,8 +930,8 @@ public class MainApplication {
     private List<String> addOccur(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
-        result.add(src.get("ACCOUNTNO").substring(0,3));
-        result.add(src.get("ACCOUNTNO"));
+        result.add(formatNBJGH(src.get("ACCOUNTNO").substring(0,3)));
+        result.add(formatKHH(src.get("CUS")));
         result.add(src.get("BILLREF"));
         result.add(src.get("BILLREF")+src.get("交易方向"));
         result.add(src.get("BBPRCY"));
@@ -649,9 +1013,9 @@ public class MainApplication {
                 occur.add(addFtyscsaiOccur(now, record));
             }
         }
-        writeExcel("ExcelTemplate_非同业单位贷款放款信息表补录_HSBC_HSBC011.xlsx", occur);
-        writeExcel("ExcelTemplate_非同业单位贷款余额信息表补录_HSBC_HSBC011.xlsx", balance);
-        writeExcel("ExcelTemplate_非同业单位贷款基础信息表补录_HSBC_HSBC011.xlsx", base);
+        insertData(SQL_DWDKFK, "GTRF-RFN", occur);
+        insertData(SQL_DWDKYE, "GTRF-RFN", balance);
+        insertData(SQL_DWDKJC, "GTRF-RFN", base);
     }
 
     public void processFTYDWDK(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
@@ -723,9 +1087,9 @@ public class MainApplication {
                 occur.add(addFtydwdkOccur(now, record));
             }
         }
-        writeExcel("ExcelTemplate_非同业单位贷款放款信息表补录_HSBC_HSBC01.xlsx", occur);
-        writeExcel("ExcelTemplate_非同业单位贷款余额信息表补录_HSBC_HSBC01.xlsx", balance);
-        writeExcel("ExcelTemplate_非同业单位贷款基础信息表补录_HSBC_HSBC01.xlsx", base);
+        insertData(SQL_DWDKFK, "GTRF-Core Trade", occur);
+        insertData(SQL_DWDKYE, "GTRF-Core Trade", balance);
+        insertData(SQL_DWDKJC, "GTRF-Core Trade", base);
     }
 
     public void processTYJD(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
@@ -786,9 +1150,9 @@ public class MainApplication {
                 occur.add(addTyjdOccur(now, record));
             }
         }
-        writeExcel("ExcelTemplate_同业借贷发生额信息表补录_HSBC_HSBC01.xlsx", occur);
-        writeExcel("ExcelTemplate_同业借贷余额信息表补录_HSBC_HSBC01.xlsx", balance);
-        writeExcel("ExcelTemplate_同业借贷基础信息表补录_HSBC_HSBC01.xlsx", base);
+        insertData(SQL_TYJDFS, "GTRF-Core Trade", occur);
+        insertData(SQL_TYJDYE, "GTRF-Core Trade", balance);
+        insertData(SQL_TYJDJC, "GTRF-Core Trade", base);
     }
 
     public void processPJTX(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
@@ -841,9 +1205,9 @@ public class MainApplication {
                occur.add(addOccur(now, record));
            }
        }
-       writeExcel("ExcelTemplate_票据贴现及转贴现发生额信息表补录_HSBC_HSBC01.xlsx", occur);
-       writeExcel("ExcelTemplate_票据贴现及转贴现余额信息表补录_HSBC_HSBC01.xlsx", balance);
-       writeExcel("ExcelTemplate_票据贴现及转贴现基础信息表补录_HSBC_HSBC01.xlsx", base);
+        insertData(SQL_PJTXFS, "GTRF-Core Trade", occur);
+        insertData(SQL_PJTXYE, "GTRF-Core Trade", balance);
+        insertData(SQL_PJTXJC, "GTRF-Core Trade", base);
 ////        BufferedWriter out = new BufferedWriter(new FileWriter("occur20210531.csv"));
 ////        for (List<String> record : occur) {
 ////            String s = "";
@@ -1141,10 +1505,47 @@ public class MainApplication {
     public void test() throws Exception {
         List<List<String>> n1 = new ArrayList<List<String>>();
         List<String> nn1 = new ArrayList<String>();
-        nn1.add("01");
-        nn1.add("02");
+        nn1.add("20210531");
+        nn1.add("2");
+        nn1.add("1");
+        nn1.add("2");
+        nn1.add("2");
+        nn1.add("1");
+//        nn1.add("2");
+//        nn1.add("2");
+//        nn1.add("1");
+//        nn1.add("2");
+//        nn1.add("1");
+//        nn1.add("1");
+//        nn1.add("2");
+//        nn1.add("1");
+//        nn1.add("1");
+//        nn1.add("2");
+//        nn1.add("1");
+//        nn1.add("2");
         n1.add(nn1);
-        writeExcel("ExcelTemplate_票据贴现及转贴现发生额信息表补录_HSBC_HSBC01.xlsx", n1);
+        List<String> nn2 = new ArrayList<String>();
+        nn2.add("20210531");
+        nn2.add("3");
+        nn2.add("4");
+        nn2.add("5");
+        nn2.add("6");
+        nn2.add("7");
+//        nn2.add("12");
+//        nn2.add("12");
+//        nn2.add("11");
+//        nn2.add("3");
+//        nn2.add("4");
+//        nn2.add("3");
+//        nn2.add("4");
+//        nn2.add("3");
+//        nn2.add("4");
+//        nn2.add("3");
+//        nn2.add("4");
+//        nn2.add("3");
+        n1.add(nn2);
+//        writeExcel("ExcelTemplate_票据贴现及转贴现发生额信息表补录_HSBC_HSBC01.xlsx", n1);
+        insertData(SQL_DWDKYE, "T1 T2", n1);
     }
 
     public static void main(String[] args) throws Exception {
@@ -1197,6 +1598,7 @@ public class MainApplication {
             t.createMap();
         } else if (mode.equals("T")) {
             MainApplication t = new MainApplication();
+            t.loadProperties();
             t.test();
         }
 
