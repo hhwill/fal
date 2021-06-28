@@ -276,7 +276,7 @@ public class MainApplication {
             "`DATA_VERSION`,\n" +
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
-            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','?',?,?)";
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
 
     private boolean insertData(String sql, String groupId, String user, List<List<String>> params) {
         int times = params.size() / 1000;
@@ -1000,6 +1000,17 @@ public class MainApplication {
         result.add(now);
         result.add(formatKHH(src.get("客户号")));
         result.add(formatNBJGH(src.get("内部机构号")));
+
+        String mode = "";
+        String id = src.get("");
+        if (id != null && id.length() == 18) {
+            mode = id.substring(0,6);
+        } else {
+            //所属内部机构的地区代码
+            mode = getMap("XDQDM", formatKHH(src.get("客户号")));
+        }
+        result.add(mode);
+
         result.add(src.get("常住地行政区划代码"));
         String sxed = src.get("授信额度");
         if (sxed == null || sxed.trim().equals("")) {
@@ -1023,7 +1034,7 @@ public class MainApplication {
         String nbjgh = formatNBJGH(src.get("内部机构号"));
         result.add(formatNBJGH(src.get("内部机构号")));
         String mode = "";
-        String id = src.get("");
+        String id = src.get("常住地行政区划代码");
         if (id != null && id.length() == 18) {
             mode = id.substring(0,6);
         } else {
