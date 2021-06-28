@@ -254,9 +254,32 @@ public class MainApplication {
             "`DATA_VERSION`,\n" +
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
-            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
+    private static String SQL_GRKHXX = "INSERT INTO `IMAS_PM_GRKHXX`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`KHH`,\n" +
+            "`NBJGH`,\n" +
+            "`CZDHZQHDM`,\n" +
+            "`SXED`,\n" +
+            "`YYED`,\n" +
+            "`KHXL`,\n" +
+            "`NHBZ`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
 
-    private boolean insertData(String sql, String groupId, List<List<String>> params) {
+    private boolean insertData(String sql, String groupId, String user, List<List<String>> params) {
         int times = params.size() / 1000;
         if (params.size() % 1000 != 0) {
             times += 1;
@@ -272,12 +295,12 @@ public class MainApplication {
                     currentUpdates.add(params.get(m));
                 }
             }
-            batchInsert(sql, groupId, currentUpdates);
+            batchInsert(sql, groupId, user, currentUpdates);
         }
         return true;
     }
 
-    private boolean batchInsert(String sql, String groupId, List<List<String>> params) {
+    private boolean batchInsert(String sql, String groupId, String user, List<List<String>> params) {
         Date now = new Date();
         String date = new SimpleDateFormat("yyyyMMdd").format(now);
         String time = new SimpleDateFormat("yyyyMMddhhmmss").format(now);
@@ -309,6 +332,8 @@ public class MainApplication {
                     pstmt.setString(index, param.get(j));
                     index++;
                 }
+                pstmt.setString(index, user);
+                index++;
                 pstmt.setString(index, date);
                 index++;
                 pstmt.setString(index, time);
@@ -324,6 +349,7 @@ public class MainApplication {
                 for (int i = 0; i < params.size(); i++) {
                     int index = 1;
                     List<String> param = params.get(i);
+                    System.out.println(param);
                     pstmt.setString(index, UUID.randomUUID().toString().replace("-", ""));
                     index++;
                     pstmt.setString(index, param.get(0));
@@ -334,6 +360,8 @@ public class MainApplication {
                         pstmt.setString(index, param.get(j));
                         index++;
                     }
+                    pstmt.setString(index, user);
+                    index++;
                     pstmt.setString(index, date);
                     index++;
                     pstmt.setString(index, time);
@@ -684,9 +712,9 @@ public class MainApplication {
             c3inty = "LP1";
         }
         result.add(getMap("X33", c3inty));
-        result.add("");
+        result.add("0");
         result.add(src.get("C3INMG"));
-        result.add("");
+        result.add("0");
         String purposeCode = getMap("X35", src.get("C3CUNO"));
         if (purposeCode != null && purposeCode.length() >= 3) {
             result.add(getMap("X36", purposeCode.substring(0, 3)));
@@ -695,7 +723,7 @@ public class MainApplication {
             result.add("");
         }
         result.add("01");
-        result.add("");
+        result.add("100");
         return result;
     }
 
@@ -705,8 +733,8 @@ public class MainApplication {
         result.add(src.get("C3BLRF"));
         result.add(formatKHH(src.get("C3CUNO")));
         result.add(formatNBJGH(getMap("X31", src.get("C3CUNO"))));
-        result.add(src.get("BBPRCY"));
-        result.add(formatJPY(src.get("BBPRCY"),src.get("C3INVA")));
+        result.add(src.get("C3CYCD"));
+        result.add(formatJPY(src.get("C3CYCD"),src.get("C3INVA")));
         return result;
     }
 
@@ -722,7 +750,7 @@ public class MainApplication {
         result.add(src.get("C3RCDT"));
         result.add(src.get("C3CYCD"));
         result.add(formatJPY(src.get("BBPRCY"),src.get("C3BLAM")));
-        result.add("");
+        result.add("0");
         result.add(src.get("C3INMG"));
         return result;
     }
@@ -757,9 +785,9 @@ public class MainApplication {
         result.add(checkTyjdTenor(days, map.get("X0")));
         result.add("RF01");
         result.add(getMap("X22", src.get("BBDRTY")));
-        result.add("");
+        result.add("0");
         result.add(src.get("BBDRSP"));
-        result.add("");
+        result.add("0");
         String zzlf05 = src.get("ZZLF05");
         if (zzlf05 != null && zzlf05.length() >= 3) {
             result.add(getMap("X24",  zzlf05.substring(0,3)));
@@ -767,6 +795,7 @@ public class MainApplication {
             result.add("");
         }
         result.add("01");
+        result.add("100");
         return result;
     }
 
@@ -793,7 +822,7 @@ public class MainApplication {
         result.add(now);
         result.add(src.get("BBPRCY"));
         result.add(formatJPY(src.get("BBPRCY"),src.get("BILLAMT")));
-        result.add("");
+        result.add("0");
         String bbdrsp = src.get("BBDRSP");
         if (src.get("BBDRTY").equals("LP1")) {
            bbdrsp =  new BigDecimal(bbdrsp).add(new BigDecimal("3.85")).toString();
@@ -819,9 +848,9 @@ public class MainApplication {
         result.add("RF01");
         result.add(src.get("BBDRSP"));
         result.add(getMap("X12", src.get("BBDRTY")));
-        result.add("");
+        result.add("0");
         result.add("04");
-        result.add("");
+        result.add("0");
         return result;
     }
 
@@ -854,6 +883,9 @@ public class MainApplication {
 
     private String formatNBJGH(String src) {
         String result = src;
+        while (result.length() < 3) {
+            result = "0" + result;
+        }
         if (result.length() == 3) {
             result = "CNHSBC"+ result;
         }
@@ -944,6 +976,9 @@ public class MainApplication {
 
     public String formatJPY(String ccy, String src) {
         String result = src;
+        if (ccy == null) {
+            return src;
+        }
         if (!ccy.equals("JPY") && !ccy.equals("KRW") ) {
             return result;
         }
@@ -959,6 +994,59 @@ public class MainApplication {
             }
         }
         return result;
+    }
+
+    private List<String> addGRKHXX(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(formatKHH(src.get("客户号")));
+        result.add(formatNBJGH(src.get("内部机构号")));
+        result.add(src.get("常住地行政区划代码"));
+        result.add(src.get("授信额度"));
+        result.add(src.get("已用额度"));
+        result.add(src.get("客户细类"));
+        result.add(src.get("农户标志"));
+        return result;
+    }
+
+    private List<String> addGRKHXXBASE(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(formatKHH(src.get("客户号")+"-"+src.get("客户号1")));
+        String nbjgh = formatNBJGH(src.get("内部机构号"));
+        result.add(formatNBJGH(src.get("内部机构号")));
+        String mode = "";
+        String id = src.get("");
+        if (id != null && id.length() == 18) {
+            mode = id.substring(0,6);
+        } else {
+            //所属内部机构的地区代码
+            mode = getMap("XDQDM", nbjgh);
+        }
+        result.add(mode);
+        result.add(src.get("授信额度"));
+        result.add(src.get("已用额度"));
+        result.add(src.get("客户细类"));
+        result.add(src.get("农户标志"));
+        return result;
+    }
+
+    public void processGRKHXX(String now, List<Map<String, String>> lstNow,
+                                  List<Map<String, String>> lstPrevious) throws Exception {
+        List<List<String>> base = new ArrayList<List<String>>();
+        for (Map<String, String> record : lstNow) {
+            base.add(addGRKHXX(now, record));
+        }
+        insertData(SQL_DWDKJC, "OPS-BOS", "GTRF_GRKHXX", base);
+    }
+
+    public void processGRKHXXBASE(String now, List<Map<String, String>> lstNow,
+                                  List<Map<String, String>> lstPrevious) throws Exception {
+        List<List<String>> base = new ArrayList<List<String>>();
+        for (Map<String, String> record : lstNow) {
+            base.add(addGRKHXXBASE(now, record));
+        }
+        insertData(SQL_DWDKJC, "OPS-BOS", "GTRF_GRKHXX_BASE", base);
     }
 
     public void processFTYSCSAI(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
@@ -1013,9 +1101,9 @@ public class MainApplication {
                 occur.add(addFtyscsaiOccur(now, record));
             }
         }
-        insertData(SQL_DWDKFK, "GTRF-RFN", occur);
-        insertData(SQL_DWDKYE, "GTRF-RFN", balance);
-        insertData(SQL_DWDKJC, "GTRF-RFN", base);
+        insertData(SQL_DWDKFK, "GTRF-RFN", "GTRF_FTYSCSAI", occur);
+        insertData(SQL_DWDKYE, "GTRF-RFN", "GTRF_FTYSCSAI", balance);
+        insertData(SQL_DWDKJC, "GTRF-RFN", "GTRF_FTYSCSAI", base);
     }
 
     public void processFTYDWDK(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
@@ -1087,9 +1175,9 @@ public class MainApplication {
                 occur.add(addFtydwdkOccur(now, record));
             }
         }
-        insertData(SQL_DWDKFK, "GTRF-Core Trade", occur);
-        insertData(SQL_DWDKYE, "GTRF-Core Trade", balance);
-        insertData(SQL_DWDKJC, "GTRF-Core Trade", base);
+        insertData(SQL_DWDKFK, "GTRF-Core Trade", "GTRF_FTYDWDK", occur);
+        insertData(SQL_DWDKYE, "GTRF-Core Trade", "GTRF_FTYDWDK", balance);
+        insertData(SQL_DWDKJC, "GTRF-Core Trade", "GTRF_FTYDWDK", base);
     }
 
     public void processTYJD(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
@@ -1150,9 +1238,9 @@ public class MainApplication {
                 occur.add(addTyjdOccur(now, record));
             }
         }
-        insertData(SQL_TYJDFS, "GTRF-Core Trade", occur);
-        insertData(SQL_TYJDYE, "GTRF-Core Trade", balance);
-        insertData(SQL_TYJDJC, "GTRF-Core Trade", base);
+        insertData(SQL_TYJDFS, "GTRF-Core Trade", "GTRF_TYJD", occur);
+        insertData(SQL_TYJDYE, "GTRF-Core Trade", "GTRF_TYJD", balance);
+        insertData(SQL_TYJDJC, "GTRF-Core Trade", "GTRF_TYJD", base);
     }
 
     public void processPJTX(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
@@ -1205,9 +1293,9 @@ public class MainApplication {
                occur.add(addOccur(now, record));
            }
        }
-        insertData(SQL_PJTXFS, "GTRF-Core Trade", occur);
-        insertData(SQL_PJTXYE, "GTRF-Core Trade", balance);
-        insertData(SQL_PJTXJC, "GTRF-Core Trade", base);
+        insertData(SQL_PJTXFS, "GTRF-Core Trade", "GTRF_PJTX", occur);
+        insertData(SQL_PJTXYE, "GTRF-Core Trade", "GTRF_PJTX", balance);
+        insertData(SQL_PJTXJC, "GTRF-Core Trade", "GTRF_PJTX", base);
 ////        BufferedWriter out = new BufferedWriter(new FileWriter("occur20210531.csv"));
 ////        for (List<String> record : occur) {
 ////            String s = "";
@@ -1295,6 +1383,14 @@ public class MainApplication {
             srecord.put(record.get("SRC"), record.get("DEST"));
             map.put(record.get("TYPE_NO"), srecord);
         }
+        sql = "select NBJGH, DQDM from imas_pm_jgfzxx where sjrq = '20210531'";
+        resultSet = statement.executeQuery(sql);
+        lst = handle(resultSet);
+        Map<String, String> dqdm = new HashMap<String, String>();
+        for (Map<String, String> record : lst) {
+            dqdm.put(record.get("NBJGH"), record.get("DQDM"));
+        }
+        map.put("XDQDM", dqdm);
     }
 
     public boolean process(String type, String now, String previous) throws Exception {
@@ -1327,6 +1423,10 @@ public class MainApplication {
             processFTYDWDK(now, lst, lst1);
         } else if (type.equals("GTRF_FTYSCSAI")) {
             processFTYSCSAI(now, lst, lst1);
+        } else if (type.equals("GTRF_GRKHXX_BOSC")) {
+            processGRKHXXBASE(now, lst, lst1);
+        } else if (type.equals("GTRF_GRKHXX")) {
+            processGRKHXX(now, lst, lst1);
         }
         return true;
     }
@@ -1545,7 +1645,7 @@ public class MainApplication {
 //        nn2.add("3");
         n1.add(nn2);
 //        writeExcel("ExcelTemplate_票据贴现及转贴现发生额信息表补录_HSBC_HSBC01.xlsx", n1);
-        insertData(SQL_DWDKYE, "T1 T2", n1);
+        insertData(SQL_DWDKYE, "T1 T2","T3", n1);
     }
 
     public static void main(String[] args) throws Exception {
