@@ -17,7 +17,6 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.java2d.pipe.SpanShapeRenderer.Simple;
 
 public class MainApplication {
 
@@ -277,7 +276,7 @@ public class MainApplication {
             "`DATA_VERSION`,\n" +
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
-            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','?',?,?)";
 
     private boolean insertData(String sql, String groupId, String user, List<List<String>> params) {
         int times = params.size() / 1000;
@@ -1002,8 +1001,16 @@ public class MainApplication {
         result.add(formatKHH(src.get("客户号")));
         result.add(formatNBJGH(src.get("内部机构号")));
         result.add(src.get("常住地行政区划代码"));
-        result.add(src.get("授信额度"));
-        result.add(src.get("已用额度"));
+        String sxed = src.get("授信额度");
+        if (sxed == null || sxed.trim().equals("")) {
+            sxed = "0";
+        }
+        result.add(sxed);
+        String yyed = src.get("已用额度");
+        if (yyed == null || yyed.trim().equals("")) {
+            yyed = "0";
+        }
+        result.add(yyed);
         result.add(src.get("客户细类"));
         result.add(src.get("农户标志"));
         return result;
@@ -1024,8 +1031,16 @@ public class MainApplication {
             mode = getMap("XDQDM", nbjgh);
         }
         result.add(mode);
-        result.add(src.get("授信额度"));
-        result.add(src.get("已用额度"));
+        String sxed = src.get("授信额度");
+        if (sxed == null || sxed.trim().equals("")) {
+            sxed = "0";
+        }
+        result.add(sxed);
+        String yyed = src.get("已用额度");
+        if (yyed == null || yyed.trim().equals("")) {
+            yyed = "0";
+        }
+        result.add(yyed);
         result.add(src.get("客户细类"));
         result.add(src.get("农户标志"));
         return result;
@@ -1037,7 +1052,7 @@ public class MainApplication {
         for (Map<String, String> record : lstNow) {
             base.add(addGRKHXX(now, record));
         }
-        insertData(SQL_DWDKJC, "OPS-BOS", "GTRF_GRKHXX", base);
+        insertData(SQL_GRKHXX, "OPS-BOS", "GTRF_GRKHXX", base);
     }
 
     public void processGRKHXXBASE(String now, List<Map<String, String>> lstNow,
@@ -1046,7 +1061,7 @@ public class MainApplication {
         for (Map<String, String> record : lstNow) {
             base.add(addGRKHXXBASE(now, record));
         }
-        insertData(SQL_DWDKJC, "OPS-BOS", "GTRF_GRKHXX_BASE", base);
+        insertData(SQL_GRKHXX, "OPS-BOS", "GTRF_GRKHXX_BASE", base);
     }
 
     public void processFTYSCSAI(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
@@ -1611,8 +1626,8 @@ public class MainApplication {
         nn1.add("2");
         nn1.add("2");
         nn1.add("1");
-//        nn1.add("2");
-//        nn1.add("2");
+        nn1.add("2");
+        nn1.add("2");
 //        nn1.add("1");
 //        nn1.add("2");
 //        nn1.add("1");
@@ -1631,8 +1646,8 @@ public class MainApplication {
         nn2.add("5");
         nn2.add("6");
         nn2.add("7");
-//        nn2.add("12");
-//        nn2.add("12");
+        nn2.add("12");
+        nn2.add("12");
 //        nn2.add("11");
 //        nn2.add("3");
 //        nn2.add("4");
@@ -1645,7 +1660,7 @@ public class MainApplication {
 //        nn2.add("3");
         n1.add(nn2);
 //        writeExcel("ExcelTemplate_票据贴现及转贴现发生额信息表补录_HSBC_HSBC01.xlsx", n1);
-        insertData(SQL_DWDKYE, "T1 T2","T3", n1);
+        insertData(SQL_GRKHXX, "T1 T2","T3", n1);
     }
 
     public static void main(String[] args) throws Exception {
