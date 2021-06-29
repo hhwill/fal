@@ -1,1 +1,1 @@
-update GP_BM_ID_FIELDDATA set umw_expression = 'connectString("","CNHSBC", fillLeft(${value},"0",3))' where guid = 'GRKHXX-NBJGH';
+update GP_BM_ID_FIELDDATA set umw_expression = 'connectString("","CNHSBC", fillLeft(${value},"0",3))' where guid like '%NBJGH';
