@@ -1919,11 +1919,11 @@ public class MainApplication {
             processGRKHXXBASE(now, lst, lst1);
         } else if (type.equals("GTRF_GRKHXX")) {
             processGRKHXX(now, lst, lst1);
-        } else if (type.equals("WCAS_DGKHXX")) {
+        } else if (type.equals("GTRF_CORPCUSLVL")) {
             processWCAS_DGHKXX(now, lst, lst1);
-        } else if (type.equals("WCAS_CORPDDAC")) {
+        } else if (type.equals("GTRF_CORPDDAC")) {
             processCORPDDAC(now, lst, lst1);
-        } else if (type.equals("WCAS_CORPTDAC3")) {
+        } else if (type.equals("GTRF_CORPTDAC3")) {
             processCORPTDAC3(now, lst, lst1);
         }
         return true;
