@@ -1640,7 +1640,7 @@ public class MainApplication {
            if (matchOccur) {
                occur.add(addOccur(now, record));
            }
-       }
+       } 
         insertData(SQL_PJTXFS, "GTRF_Core_Trade", "GTRF_PJTX", occur);
         insertData(SQL_PJTXYE, "GTRF_Core_Trade", "GTRF_PJTX", balance);
         insertData(SQL_PJTXJC, "GTRF_Core_Trade", "GTRF_PJTX", base);
