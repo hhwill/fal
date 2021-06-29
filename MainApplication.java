@@ -1965,8 +1965,8 @@ public class MainApplication {
         nn1.add("1");
         nn1.add("2");
         nn1.add("2");
-//        nn1.add("1");
-//        nn1.add("2");
+        nn1.add("1");
+        nn1.add("2");
 //        nn1.add("1");
 //        nn1.add("1");
 //        nn1.add("2");
@@ -1985,8 +1985,8 @@ public class MainApplication {
         nn2.add("7");
         nn2.add("12");
         nn2.add("12");
-//        nn2.add("11");
-//        nn2.add("3");
+        nn2.add("11");
+        nn2.add("3");
 //        nn2.add("4");
 //        nn2.add("3");
 //        nn2.add("4");
@@ -1997,7 +1997,7 @@ public class MainApplication {
 //        nn2.add("3");
         n1.add(nn2);
 //        writeExcel("ExcelTemplate_票据贴现及转贴现发生额信息表补录_HSBC_HSBC01.xlsx", n1);
-        insertData(SQL_GRKHXX, "T1 T2","T3", n1);
+        insertData(SQL_PJTXFS, "T1 T2","T3", n1);
     }
 
     public static void main(String[] args) throws Exception {
