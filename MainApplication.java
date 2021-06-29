@@ -277,6 +277,95 @@ public class MainApplication {
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
             "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
+    private static String SQL_DGKHXX = "INSERT INTO `imas`.`IMAS_PM_DGKHXX`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`KHH`,\n" +
+            "`NBJGH`,\n" +
+            "`GMJJBMFL`,\n" +
+            "`JRJGLXDM`,\n" +
+            "`QYGM`,\n" +
+            "`KGLX`,\n" +
+            "`JNJWBZ`,\n" +
+            "`JYSZDHZQHDM`,\n" +
+            "`ZCDZ`,\n" +
+            "`SXED`,\n" +
+            "`YYED`,\n" +
+            "`SSHY`,\n" +
+            "`NCCSBZ`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
+
+    public static String SQL_DWCKJC = "INSERT INTO `IMAS_PM_DWCKJC`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`CKZHBM`,\n" +
+            "`CKXH`,\n" +
+            "`NBJGH`,\n" +
+            "`KHH`,\n" +
+            "`CKCPLB`,\n" +
+            "`XYCKLX`,\n" +
+            "`QSRQ`,\n" +
+            "`DQRQ`,\n" +
+            "`SJZZRQ`,\n" +
+            "`CKQXLX`,\n" +
+            "`DJJZLX`,\n" +
+            "`LLLX`,\n" +
+            "`SJLL`,\n" +
+            "`JZLL`,\n" +
+            "`LLFDPL`,\n" +
+            "`BDSYL`,\n" +
+            "`ZGSYL`,\n" +
+            "`KHQD`,\n" +
+            "`YDCKBZ`,\n" +
+            "`DXEBZ`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
+
+    public static String SQL_DWCKYE = "INSERT INTO `IMAS_PM_DWCKYE`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`CKZHBM`,\n" +
+            "`CKXH`,\n" +
+            "`NBJGH`,\n" +
+            "`KHH`,\n" +
+            "`BZ`,\n" +
+            "`CKYE`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
 
     private boolean insertData(String sql, String groupId, String user, List<List<String>> params) {
         int times = params.size() / 1000;
@@ -1011,7 +1100,6 @@ public class MainApplication {
         }
         result.add(mode);
 
-        result.add(src.get("常住地行政区划代码"));
         String sxed = src.get("授信额度");
         if (sxed == null || sxed.trim().equals("")) {
             sxed = "0";
@@ -1063,7 +1151,37 @@ public class MainApplication {
         for (Map<String, String> record : lstNow) {
             base.add(addGRKHXX(now, record));
         }
-        insertData(SQL_GRKHXX, "OPS-BOS", "GTRF_GRKHXX", base);
+        insertData(SQL_GRKHXX, "OPS_BOS", "GTRF_GRKHXX", base);
+    }
+
+
+    private List<String> addWCAS_DGKHXX(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(formatKHH(src.get("ZGDCB")+"-"+src.get("ZGDCS")));
+        String nbjgh = formatNBJGH(src.get("ZGDCB"));
+        result.add(nbjgh);
+        result.add("C02");
+        result.add("A01");
+        result.add("CS01");
+        result.add("A01");
+        result.add("Y");
+        result.add("310115");
+        result.add(src.get("ADDRESS").replace("（注册地址）","").trim());
+        result.add("0");
+        result.add("0");
+        result.add("A01");
+        result.add("");
+        return result;
+    }
+
+    public void processWCAS_DGHKXX(String now, List<Map<String, String>> lstNow,
+                              List<Map<String, String>> lstPrevious) throws Exception {
+        List<List<String>> base = new ArrayList<List<String>>();
+        for (Map<String, String> record : lstNow) {
+            base.add(addWCAS_DGKHXX(now, record));
+        }
+        insertData(SQL_DGKHXX, "OPS_WCAS", "WCAS_DGKHXX", base);
     }
 
     public void processGRKHXXBASE(String now, List<Map<String, String>> lstNow,
@@ -1072,7 +1190,7 @@ public class MainApplication {
         for (Map<String, String> record : lstNow) {
             base.add(addGRKHXXBASE(now, record));
         }
-        insertData(SQL_GRKHXX, "OPS-BOS", "GTRF_GRKHXX_BASE", base);
+        insertData(SQL_GRKHXX, "OPS_BOS", "GTRF_GRKHXX_BASE", base);
     }
 
     public void processFTYSCSAI(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
@@ -1127,9 +1245,211 @@ public class MainApplication {
                 occur.add(addFtyscsaiOccur(now, record));
             }
         }
-        insertData(SQL_DWDKFK, "GTRF-RFN", "GTRF_FTYSCSAI", occur);
-        insertData(SQL_DWDKYE, "GTRF-RFN", "GTRF_FTYSCSAI", balance);
-        insertData(SQL_DWDKJC, "GTRF-RFN", "GTRF_FTYSCSAI", base);
+        insertData(SQL_DWDKFK, "GTRF_RFN", "GTRF_FTYSCSAI", occur);
+        insertData(SQL_DWDKYE, "GTRF_RFN", "GTRF_FTYSCSAI", balance);
+        insertData(SQL_DWDKJC, "GTRF_RFN", "GTRF_FTYSCSAI", base);
+    }
+
+    public void processCORPDDAC(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
+        List<List<String>> dwckjc = new ArrayList<List<String>>();
+        List<List<String>> dwckye = new ArrayList<List<String>>();
+        List<List<String>> tyckjc = new ArrayList<List<String>>();
+        List<List<String>> tyckye = new ArrayList<List<String>>();
+        for (Map<String, String> record : lstNow) {
+            String DFSTUS = record.get("DFSTUS");
+            if (DFSTUS == null || DFSTUS.equals("4") || DFSTUS.equals("5") ) {
+                dwckjc.add(addWCASDWCKJC_CORPDDAC(now, record));
+                dwckye.add(addWCASDWCKYE_CORPDDAC(now, record));
+            } else {
+
+            }
+        }
+        insertData(SQL_DWDKFK, "GTRF_Core_Trade", "GTRF_FTYDWDK", occur);
+        insertData(SQL_DWDKYE, "GTRF_Core_Trade", "GTRF_FTYDWDK", balance);
+        insertData(SQL_DWDKJC, "GTRF_Core_Trade", "GTRF_FTYDWDK", base);
+    }
+
+    private List<String> addWCASDWCKJC_CORPDDAC(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("DFACB")+"-"+src.get("DFACS")+"-"+src.get("DFACX"));
+        result.add("01");
+        result.add(formatNBJGH(src.get("DFDCB")));
+        result.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
+        result.add(src.get("DFAPTY"));
+        result.add("");
+        result.add(src.get("DFDTAO"));
+        result.add("");
+        result.add("");
+        result.add("01");
+        result.add("TR01");
+        result.add("RF01");
+        result.add("5.2");
+        result.add("5.2");
+        result.add("01");
+        result.add("");
+        result.add("");
+        result.add("01");
+        result.add("N");
+        result.add("A");
+        return result;
+    }
+
+    private List<String> addWCASDWCKJC_CORPTDAC3(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("TDACB")+"-"+src.get("TDACS")+"-"+src.get("TDACX"));
+        result.add("01");
+        result.add(formatNBJGH(src.get("TDDCB")));
+        result.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
+        result.add(src.get("TDAPTY"));
+        result.add("");
+        result.add(src.get("TDSTDT"));
+        result.add("");
+        result.add("");
+        result.add("01");
+        result.add("TR01");
+        result.add("RF01");
+        result.add("5.2");
+        result.add("5.2");
+        result.add("01");
+        result.add("");
+        result.add("");
+        result.add("01");
+        result.add("N");
+        result.add("A");
+        return result;
+    }
+
+    private List<String> addWCASTYCKJC_CORPDDAC(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(formatNBJGH(src.get("TDDCB")));
+        result.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
+        result.add("A01");
+        result.add(src.get("DFACB")+"-"+src.get("DFACS")+"-"+src.get("DFACX"));
+        result.add("A01");
+        result.add(src.get("DFDTAO"));
+        result.add("");
+        result.add("01");
+        result.add("TR01");
+        result.add("RF01");
+        result.add("5.2");
+        result.add("5.2");
+        result.add("01");
+        return result;
+    }
+
+    private List<String> addWCASTYCKJC_CORPTDAC3(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(formatNBJGH(src.get("TDDCB")));
+        result.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
+        result.add("A01");
+        result.add(src.get("TDACB")+"-"+src.get("TDACS")+"-"+src.get("TDACX"));
+        result.add("A01");
+        result.add(src.get("TDSTDT"));
+        result.add("");
+        result.add("01");
+        result.add("TR01");
+        result.add("RF01");
+        result.add("5.2");
+        result.add("5.2");
+        result.add("01");
+        return result;
+    }
+
+    private List<String> addWCASDWCKYE_CORPDDAC(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("DFACB")+"-"+src.get("DFACS")+"-"+src.get("DFACX"));
+        result.add("01");
+        result.add(formatNBJGH(src.get("TDDCB")));
+        result.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
+        result.add(src.get("DFCYCD"));
+        result.add("0");
+        return result;
+    }
+
+    private List<String> addWCASDWCKYE_CORPTDAC3(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("TDACB")+"-"+src.get("TDACS")+"-"+src.get("TDACX"));
+        result.add("01");
+        result.add(formatNBJGH(src.get("TDDCB")));
+        result.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
+        result.add(src.get("TDCYCD"));
+        result.add("0");
+        return result;
+    }
+
+    private List<String> addWCASTYCKYE_CORPDDAC(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("DFACB")+"-"+src.get("DFACS")+"-"+src.get("DFACX"));
+        result.add(formatNBJGH(src.get("DFDCB")));
+        result.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
+        result.add(src.get("DFCYCD"));
+        result.add("0");
+        return result;
+    }
+
+    private List<String> addWCASTYCKYE_CORPTDAC3(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("TDACB")+"-"+src.get("TDACS")+"-"+src.get("TDACX"));
+        result.add(formatNBJGH(src.get("TDDCB")));
+        result.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
+        result.add(src.get("TDCYCD"));
+        result.add("0");
+        return result;
+    }
+
+    private List<String> addWCASDWCKFS(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("TDACB")+"-"+src.get("TDACS")+"-"+src.get("TDACX"));
+        result.add("01");
+        result.add(formatNBJGH(src.get("TDDCB")));
+        result.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
+        String THCPDT = src.get("THCPDT");
+        String THCPWS = src.get("THCPWS");
+        String THDLNO = src.get("THDLNO");
+        while (THDLNO.length() < 5) {
+            THDLNO = "0" + THDLNO;
+        }
+        result.add(THCPDT+THCPWS+THDLNO);
+        result.add(now);
+        result.add("5.2");
+        result.add("5.2");
+        result.add(src.get("TDCYCD"));
+        result.add(src.get("LEDGER"));
+        result.add("03");
+        result.add("1");
+        result.add("A");
+        return result;
+    }
+
+    private List<String> addWCASTYCKFS(String now, Map<String, String> src) {
+        List<String> result = new ArrayList<String>();
+        result.add(now);
+        result.add(src.get("TDACB")+"-"+src.get("TDACS")+"-"+src.get("TDACX"));
+        result.add(formatNBJGH(src.get("TDDCB")));
+        result.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
+        String THCPDT = src.get("THCPDT");
+        String THCPWS = src.get("THCPWS");
+        String THDLNO = src.get("THDLNO");
+        while (THDLNO.length() < 5) {
+            THDLNO = "0" + THDLNO;
+        }
+        result.add(THCPDT+THCPWS+THDLNO);
+        result.add(now);
+        result.add(src.get("TDCYCD"));
+        result.add("5.2");
+        result.add("5.2");
+        result.add(src.get("LEDGER"));
+        result.add("1");
+        return result;
     }
 
     public void processFTYDWDK(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
@@ -1201,9 +1521,9 @@ public class MainApplication {
                 occur.add(addFtydwdkOccur(now, record));
             }
         }
-        insertData(SQL_DWDKFK, "GTRF-Core Trade", "GTRF_FTYDWDK", occur);
-        insertData(SQL_DWDKYE, "GTRF-Core Trade", "GTRF_FTYDWDK", balance);
-        insertData(SQL_DWDKJC, "GTRF-Core Trade", "GTRF_FTYDWDK", base);
+        insertData(SQL_DWDKFK, "GTRF_Core_Trade", "GTRF_FTYDWDK", occur);
+        insertData(SQL_DWDKYE, "GTRF_Core_Trade", "GTRF_FTYDWDK", balance);
+        insertData(SQL_DWDKJC, "GTRF_Core_Trade", "GTRF_FTYDWDK", base);
     }
 
     public void processTYJD(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
@@ -1264,9 +1584,9 @@ public class MainApplication {
                 occur.add(addTyjdOccur(now, record));
             }
         }
-        insertData(SQL_TYJDFS, "GTRF-Core Trade", "GTRF_TYJD", occur);
-        insertData(SQL_TYJDYE, "GTRF-Core Trade", "GTRF_TYJD", balance);
-        insertData(SQL_TYJDJC, "GTRF-Core Trade", "GTRF_TYJD", base);
+        insertData(SQL_TYJDFS, "GTRF_Core_Trade", "GTRF_TYJD", occur);
+        insertData(SQL_TYJDYE, "GTRF_Core_Trade", "GTRF_TYJD", balance);
+        insertData(SQL_TYJDJC, "GTRF_Core_Trade", "GTRF_TYJD", base);
     }
 
     public void processPJTX(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
@@ -1319,9 +1639,9 @@ public class MainApplication {
                occur.add(addOccur(now, record));
            }
        }
-        insertData(SQL_PJTXFS, "GTRF-Core Trade", "GTRF_PJTX", occur);
-        insertData(SQL_PJTXYE, "GTRF-Core Trade", "GTRF_PJTX", balance);
-        insertData(SQL_PJTXJC, "GTRF-Core Trade", "GTRF_PJTX", base);
+        insertData(SQL_PJTXFS, "GTRF_Core_Trade", "GTRF_PJTX", occur);
+        insertData(SQL_PJTXYE, "GTRF_Core_Trade", "GTRF_PJTX", balance);
+        insertData(SQL_PJTXJC, "GTRF_Core_Trade", "GTRF_PJTX", base);
 ////        BufferedWriter out = new BufferedWriter(new FileWriter("occur20210531.csv"));
 ////        for (List<String> record : occur) {
 ////            String s = "";
@@ -1453,6 +1773,10 @@ public class MainApplication {
             processGRKHXXBASE(now, lst, lst1);
         } else if (type.equals("GTRF_GRKHXX")) {
             processGRKHXX(now, lst, lst1);
+        } else if (type.equals("WCAS_DGKHXX")) {
+            processWCAS_DGHKXX(now, lst, lst1);
+        } else if (type.equals("CORPDDAC")) {
+            processCORPDDAC(now, lst, lst1);
         }
         return true;
     }
