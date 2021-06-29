@@ -48,7 +48,7 @@ public class MainApplication {
             "`DATA_VERSION`,\n" +
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
-            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
     private static String SQL_PJTXJC = "INSERT INTO `IMAS_PM_PJTXJC`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
@@ -73,7 +73,7 @@ public class MainApplication {
             "`DATA_VERSION`,\n" +
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
-            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
     private static String SQL_PJTXYE = "INSERT INTO `imas`.`IMAS_PM_PJTXYE`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
@@ -94,7 +94,7 @@ public class MainApplication {
             "`DATA_VERSION`,\n" +
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
-            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
     private static String SQL_TYJDFS = "INSERT INTO `IMAS_PM_TYJDFS`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
@@ -120,7 +120,7 @@ public class MainApplication {
             "`DATA_VERSION`,\n" +
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
-            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport'," +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?," +
             "?," +
             "?)";
     private static String SQL_TYJDJC = "INSERT INTO `IMAS_PM_TYJDJC`\n" +
@@ -153,7 +153,8 @@ public class MainApplication {
             "`DATA_VERSION`,\n" +
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
-            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?," +
+            "?)";
     private static String SQL_TYJDYE = "INSERT INTO `IMAS_PM_TYJDYE`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
@@ -174,7 +175,7 @@ public class MainApplication {
             "`DATA_VERSION`,\n" +
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
-            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
     private static String SQL_DWDKFK = "INSERT INTO `IMAS_PM_DWDKFK`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
@@ -199,7 +200,7 @@ public class MainApplication {
             "`DATA_VERSION`,\n" +
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
-            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
     private static String SQL_DWDKJC = "INSERT INTO `IMAS_PM_DWDKJC`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
@@ -232,7 +233,8 @@ public class MainApplication {
             "`DATA_VERSION`,\n" +
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
-            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0','fileImport',?,?)";
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0'," +
+            "?,?,?)";
     private static String SQL_DWDKYE = "INSERT INTO `IMAS_PM_DWDKYE`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
@@ -1264,9 +1266,9 @@ public class MainApplication {
 
             }
         }
-        insertData(SQL_DWDKFK, "GTRF_Core_Trade", "GTRF_FTYDWDK", occur);
-        insertData(SQL_DWDKYE, "GTRF_Core_Trade", "GTRF_FTYDWDK", balance);
-        insertData(SQL_DWDKJC, "GTRF_Core_Trade", "GTRF_FTYDWDK", base);
+//        insertData(SQL_DWDKFK, "GTRF_Core_Trade", "GTRF_FTYDWDK", occur);
+//        insertData(SQL_DWDKYE, "GTRF_Core_Trade", "GTRF_FTYDWDK", balance);
+//        insertData(SQL_DWDKJC, "GTRF_Core_Trade", "GTRF_FTYDWDK", base);
     }
 
     private List<String> addWCASDWCKJC_CORPDDAC(String now, Map<String, String> src) {
