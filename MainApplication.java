@@ -369,6 +369,115 @@ public class MainApplication {
             "`DATA_CRT_DATE`,\n" +
             "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
 
+    public static String SQL_TYCKJC = "INSERT INTO `IMAS_PM_TYCKJC`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`NBJGH`,\n" +
+            "`KHH`,\n" +
+            "`JRJGLXDM`,\n" +
+            "`CKZHBM`,\n" +
+            "`CFYWLX`,\n" +
+            "`QSRQ`,\n" +
+            "`DQRQ`,\n" +
+            "`CKQXLX`,\n" +
+            "`DJJZLX`,\n" +
+            "`LLLX`,\n" +
+            "`SJLL`,\n" +
+            "`JZLL`,\n" +
+            "`LLFDPL`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
+
+    public static String SQL_TYCKYE = "INSERT INTO `IMAS_PM_TYCKYE`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`CKZHBM`,\n" +
+            "`NBJGH`,\n" +
+            "`KHH`,\n" +
+            "`BZ`,\n" +
+            "`YE`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
+
+    public static String SQL_TYCKFS = "INSERT INTO `IMAS_PM_TYCKFS`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`CKZHBM`,\n" +
+            "`NBJGH`,\n" +
+            "`KHH`,\n" +
+            "`JYLSH`,\n" +
+            "`JYRQ`,\n" +
+            "`BZ`,\n" +
+            "`SJLL`,\n" +
+            "`JZLL`,\n" +
+            "`FSJE`,\n" +
+            "`JYFX`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
+
+    public static String SQL_DWCKFS = "INSERT INTO `IMAS_PM_DWCKFS`\n" +
+            "(`DATA_ID`,\n" +
+            "`DATA_RPT_DATE`,\n" +
+            "`ORG_ID`,\n" +
+            "`GROUP_ID`,\n" +
+            "`SJRQ`,\n" +
+            "`CKZHBM`,\n" +
+            "`CKXH`,\n" +
+            "`NBJGH`,\n" +
+            "`KHH`,\n" +
+            "`JYLSH`,\n" +
+            "`JYRQ`,\n" +
+            "`SJLL`,\n" +
+            "`JZLL`,\n" +
+            "`BZ`,\n" +
+            "`FSJE`,\n" +
+            "`JYQD`,\n" +
+            "`JYFX`,\n" +
+            "`DXEBZ`,\n" +
+            "`CHECK_FLAG`,\n" +
+            "`NEXT_ACTION`,\n" +
+            "`DATA_RPT_FLAG`,\n" +
+            "`DATA_STATUS`,\n" +
+            "`DATA_FLAG`,\n" +
+            "`DATA_SOURCE`,\n" +
+            "`DATA_VERSION`,\n" +
+            "`DATA_CRT_USER`,\n" +
+            "`DATA_CRT_DATE`,\n" +
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
+
     private boolean insertData(String sql, String groupId, String user, List<List<String>> params) {
         int times = params.size() / 1000;
         if (params.size() % 1000 != 0) {
@@ -1263,9 +1372,44 @@ public class MainApplication {
                 dwckjc.add(addWCASDWCKJC_CORPDDAC(now, record));
                 dwckye.add(addWCASDWCKYE_CORPDDAC(now, record));
             } else {
-
+                tyckjc.add(addWCASTYCKJC_CORPDDAC(now, record));
+                tyckye.add(addWCASTYCKYE_CORPDDAC(now, record));
             }
         }
+        insertData(SQL_DWCKJC, "OPS_WCAS","OPS_WCAS", dwckjc);
+        insertData(SQL_DWCKYE, "OPS_WCAS", "OPS_WCAS", dwckye);
+        insertData(SQL_TYCKJC, "OPS_WCAS", "OPS_WCAS", tyckjc);
+        insertData(SQL_TYCKYE, "OPS_WCAS", "OPS_WCAS", tyckye);
+//        insertData(SQL_DWDKFK, "GTRF_Core_Trade", "GTRF_FTYDWDK", occur);
+//        insertData(SQL_DWDKYE, "GTRF_Core_Trade", "GTRF_FTYDWDK", balance);
+//        insertData(SQL_DWDKJC, "GTRF_Core_Trade", "GTRF_FTYDWDK", base);
+    }
+
+    public void processCORPTDAC3(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious) throws Exception {
+        List<List<String>> dwckjc = new ArrayList<List<String>>();
+        List<List<String>> dwckye = new ArrayList<List<String>>();
+        List<List<String>> tyckjc = new ArrayList<List<String>>();
+        List<List<String>> tyckye = new ArrayList<List<String>>();
+        List<List<String>> dwckfs = new ArrayList<List<String>>();
+        List<List<String>> tyckfs = new ArrayList<List<String>>();
+        for (Map<String, String> record : lstNow) {
+            String DFSTUS = record.get("DFSTUS");
+            if (DFSTUS == null || DFSTUS.equals("4") || DFSTUS.equals("5") ) {
+                dwckjc.add(addWCASDWCKJC_CORPTDAC3(now, record));
+                dwckye.add(addWCASDWCKYE_CORPTDAC3(now, record));
+            } else {
+                tyckjc.add(addWCASTYCKJC_CORPTDAC3(now, record));
+                tyckye.add(addWCASTYCKYE_CORPTDAC3(now, record));
+            }
+            dwckfs.add(addWCASDWCKFS(now, record));
+            tyckfs.add(addWCASTYCKFS(now, record));
+        }
+        insertData(SQL_DWCKJC, "OPS_WCAS","OPS_WCAS", dwckjc);
+        insertData(SQL_DWCKYE, "OPS_WCAS", "OPS_WCAS", dwckye);
+        insertData(SQL_TYCKJC, "OPS_WCAS", "OPS_WCAS", tyckjc);
+        insertData(SQL_TYCKYE, "OPS_WCAS", "OPS_WCAS", tyckye);
+        insertData(SQL_DWCKFS, "OPS_WCAS", "OPS_WCAS", dwckfs);
+        insertData(SQL_TYCKFS, "OPS_WCAS", "OPS_WCAS", tyckfs);
 //        insertData(SQL_DWDKFK, "GTRF_Core_Trade", "GTRF_FTYDWDK", occur);
 //        insertData(SQL_DWDKYE, "GTRF_Core_Trade", "GTRF_FTYDWDK", balance);
 //        insertData(SQL_DWDKJC, "GTRF_Core_Trade", "GTRF_FTYDWDK", base);
@@ -1640,7 +1784,7 @@ public class MainApplication {
            if (matchOccur) {
                occur.add(addOccur(now, record));
            }
-       } 
+       }
         insertData(SQL_PJTXFS, "GTRF_Core_Trade", "GTRF_PJTX", occur);
         insertData(SQL_PJTXYE, "GTRF_Core_Trade", "GTRF_PJTX", balance);
         insertData(SQL_PJTXJC, "GTRF_Core_Trade", "GTRF_PJTX", base);
@@ -1777,8 +1921,10 @@ public class MainApplication {
             processGRKHXX(now, lst, lst1);
         } else if (type.equals("WCAS_DGKHXX")) {
             processWCAS_DGHKXX(now, lst, lst1);
-        } else if (type.equals("CORPDDAC")) {
+        } else if (type.equals("WCAS_CORPDDAC")) {
             processCORPDDAC(now, lst, lst1);
+        } else if (type.equals("WCAS_CORPTDAC3")) {
+            processCORPTDAC3(now, lst, lst1);
         }
         return true;
     }
