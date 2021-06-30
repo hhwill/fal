@@ -1,2 +1,10 @@
 update GP_BM_ID_FIELDDATA set umw_expression = 'connectString("","CNHSBC", fillLeft(${value},"0",3))' where guid like '%NBJGH';
 update GP_BM_ID_FIELDDATA set umw_expression = 'connectString("","CNHSBC", fillLeft(${value},"0",9))' where field_name = 'KHH' and guid like '%KHH';
+
+delimiter $$
+CREATE PROCEDURE `SP_UPDATE_TZYWYE` (dataRptDate varchar(8))
+BEGIN
+	update imas_pm_TZYWYE set LLFDPL = '' where LLLX='RF01' and sjrq = dataRptDate;
+END$$
+DELIMITER ;
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tzywye,dataRptDate:${dataRptDate}' where guid = 'TZYWYE';
