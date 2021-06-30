@@ -1,10 +1,131 @@
-update GP_BM_ID_FIELDDATA set umw_expression = 'connectString("","CNHSBC", fillLeft(${value},"0",3))' where guid like '%NBJGH';
-update GP_BM_ID_FIELDDATA set umw_expression = 'connectString("","CNHSBC", fillLeft(${value},"0",9))' where field_name = 'KHH' and guid like '%KHH';
+delimiter $$
+CREATE PROCEDURE `SP_UPDATE_TYCKJC` (dataRptDate varchar(8))
+BEGIN
+	update imas_pm_TZCKYE set KHH = concat('CNHSBC',SUBSTRING(KHH,1,3), SUBSTRING(KHH,5,6)) where GROUP_ID='FIN' and KHH like '%-%' and sjrq = dataRptDate;
+    update imas_pm_TZCKYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
+END$$
+DELIMITER ;
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tyckjc,dataRptDate:${dataRptDate}' where guid = 'TZCKJC';
+
+delimiter $$
+CREATE PROCEDURE `SP_UPDATE_TYCKYE` (dataRptDate varchar(8))
+BEGIN
+	update imas_pm_TYCKYE set KHH = concat('CNHSBC',SUBSTRING(KHH,1,3), SUBSTRING(KHH,5,6)) where GROUP_ID='FIN' and KHH like '%-%' and sjrq = dataRptDate;
+    update imas_pm_TYCKYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
+END$$
+DELIMITER ;
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tyckye,dataRptDate:${dataRptDate}' where guid = 'TZCKYE';
+
+
+
+delimiter $$
+CREATE PROCEDURE `SP_UPDATE_DWDKJC` (dataRptDate varchar(8))
+BEGIN
+	update imas_pm_DWDKJC set KHH = concat('CNHSBC',SUBSTRING(KHH,1,3), SUBSTRING(KHH,5,6)) where GROUP_ID='GTRF_RFN' and KHH like '%-%' and sjrq = dataRptDate;
+    update imas_pm_DWDKJC set LLFDPL = '' where LLLX='RF01' and sjrq = dataRptDate;
+    update imas_pm_DWDKJC set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
+END$$
+DELIMITER ;
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.dwdkjc,dataRptDate:${dataRptDate}' where guid = 'DWDKJC';
+
+delimiter $$
+CREATE PROCEDURE `SP_UPDATE_DWDKYE` (dataRptDate varchar(8))
+BEGIN
+	update imas_pm_DWDKYE set KHH = concat('CNHSBC',SUBSTRING(KHH,1,3), SUBSTRING(KHH,5,6)) where GROUP_ID='GTRF_RFN' and KHH like '%-%' and sjrq = dataRptDate;
+    update imas_pm_DWDKYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
+END$$
+DELIMITER ;
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.dwdkye,dataRptDate:${dataRptDate}' where guid = 'DWDKYE';
+
+
+delimiter $$
+CREATE PROCEDURE `SP_UPDATE_TYJDJC` (dataRptDate varchar(8))
+BEGIN
+	update imas_pm_TYJDJC set KHH = concat('CNHSBC',SUBSTRING(KHH,1,3), SUBSTRING(KHH,5,6)) where GROUP_ID='GTRF_RFN' and KHH like '%-%' and sjrq = dataRptDate;
+    update imas_pm_TYJDJC set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
+END$$
+DELIMITER ;
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tyjdjc,dataRptDate:${dataRptDate}' where guid = 'TYJDJC';
+
+delimiter $$
+CREATE PROCEDURE `SP_UPDATE_TYJDYE` (dataRptDate varchar(8))
+BEGIN
+	update imas_pm_TYJDYE set KHH = concat('CNHSBC',SUBSTRING(KHH,1,3), SUBSTRING(KHH,5,6)) where GROUP_ID='GTRF_RFN' and KHH like '%-%' and sjrq = dataRptDate;
+    update imas_pm_TYJDYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
+END$$
+DELIMITER ;
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tyjdye,dataRptDate:${dataRptDate}' where guid = 'TYJDYE';
+
+
+delimiter $$
+CREATE PROCEDURE `SP_UPDATE_TZYWJY` (dataRptDate varchar(8))
+BEGIN
+    update imas_pm_TZYWJY set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
+END$$
+DELIMITER ;
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tzywjy,dataRptDate:${dataRptDate}' where guid = 'TZYWJY';
 
 delimiter $$
 CREATE PROCEDURE `SP_UPDATE_TZYWYE` (dataRptDate varchar(8))
 BEGIN
-	update imas_pm_TZYWYE set LLFDPL = '' where LLLX='RF01' and sjrq = dataRptDate;
+	update imas_pm_TZYWYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
+    update imas_pm_TZYWYE set LLFDPL = '' where LLLX='RF01' and sjrq = dataRptDate;
 END$$
 DELIMITER ;
 update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tzywye,dataRptDate:${dataRptDate}' where guid = 'TZYWYE';
+
+
+delimiter $$
+CREATE PROCEDURE `SP_UPDATE_GRDKJC` (dataRptDate varchar(8))
+BEGIN
+	update imas_pm_GRDKJC set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
+    update imas_pm_GRDKJC set LLFDPL = '' where LLLX='RF01' and sjrq = dataRptDate;
+END$$
+DELIMITER ;
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.grdkjc,dataRptDate:${dataRptDate}' where guid = 'GRDKJC';
+
+delimiter $$
+CREATE PROCEDURE `SP_UPDATE_GRDKYE` (dataRptDate varchar(8))
+BEGIN
+	update imas_pm_GRDKYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
+END$$
+DELIMITER ;
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.grdkye,dataRptDate:${dataRptDate}' where guid = 'GRDKYE';
+
+delimiter $$
+CREATE PROCEDURE `SP_UPDATE_GRDKFK` (dataRptDate varchar(8))
+BEGIN
+	update imas_pm_GRDKFK set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
+END$$
+DELIMITER ;
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.grdkfk,dataRptDate:${dataRptDate}' where guid = 'GRDKFK';
+
+delimiter $$
+CREATE PROCEDURE `SP_UPDATE_WTDKJC` (dataRptDate varchar(8))
+BEGIN
+	update imas_pm_WTDKJC set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
+    update imas_pm_WTDKJC set JKRKHH = concat('CNHSBC',SUBSTRING(JKRKHH,1,3), SUBSTRING(JKRKHH,5,6)) where JKRKHH like '%-%' and sjrq = dataRptDate;
+    update imas_pm_WTDKJC set WTRKHH = concat('CNHSBC',SUBSTRING(WTRKHH,1,3), SUBSTRING(WTRKHH,5,6)) where WTRKHH like '%-%' and sjrq = dataRptDate;
+END$$
+DELIMITER ;
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.wtdkjc,dataRptDate:${dataRptDate}' where guid = 'WTDKJC';
+
+delimiter $$
+CREATE PROCEDURE `SP_UPDATE_WTDKYE` (dataRptDate varchar(8))
+BEGIN
+	update imas_pm_WTDKYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
+    update imas_pm_WTDKYE set JKRKHH = concat('CNHSBC',SUBSTRING(JKRKHH,1,3), SUBSTRING(JKRKHH,5,6)) where JKRKHH like '%-%' and sjrq = dataRptDate;
+    update imas_pm_WTDKYE set WTRKHH = concat('CNHSBC',SUBSTRING(WTRKHH,1,3), SUBSTRING(WTRKHH,5,6)) where WTRKHH like '%-%' and sjrq = dataRptDate;
+END$$
+DELIMITER ;
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.wtdkye,dataRptDate:${dataRptDate}' where guid = 'WTDKYE';
+
+delimiter $$
+CREATE PROCEDURE `SP_UPDATE_WTDKFK` (dataRptDate varchar(8))
+BEGIN
+	update imas_pm_WTDKFK set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
+    update imas_pm_WTDKFK set JKRKHH = concat('CNHSBC',SUBSTRING(JKRKHH,1,3), SUBSTRING(JKRKHH,5,6)) where JKRKHH like '%-%' and sjrq = dataRptDate;
+    update imas_pm_WTDKFK set WTRKHH = concat('CNHSBC',SUBSTRING(WTRKHH,1,3), SUBSTRING(WTRKHH,5,6)) where WTRKHH like '%-%' and sjrq = dataRptDate;
+END$$
+DELIMITER ;
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.wtdkfk,dataRptDate:${dataRptDate}' where guid = 'WTDKFK';
