@@ -548,7 +548,6 @@ public class MainApplication {
                 for (int i = 0; i < params.size(); i++) {
                     int index = 1;
                     List<String> param = params.get(i);
-                    System.out.println(param);
                     pstmt.setString(index, UUID.randomUUID().toString().replace("-", ""));
                     index++;
                     pstmt.setString(index, param.get(0));
@@ -1265,6 +1264,47 @@ public class MainApplication {
         insertData(SQL_GRKHXX, "OPS_BOS", "GTRF_GRKHXX", base);
     }
 
+    public boolean checkDGKHXX(List<List<String>> base, Map<String, String> src) {
+        boolean find = false;
+        String khh = formatKHH(src.get("ZGDCB")+"-"+src.get("ZGDCS"));
+        for (int i = 0; i < base.size(); i++) {
+            if (base.get(i).get(1).equals(khh)) {
+                find = true;
+                String ZUCSSN = src.get("ZUCSSN");
+                if (ZUCSSN.contains("PARENT") || ZUCSSN.startsWith("P")) {
+                } else {
+                    String ZUIDTY = src.get("ZUIDTY");
+                    if (ZUIDTY.equals("Z")) {
+                        String ZUIDNO = src.get("ZUIDNO");
+                        if (ZUIDNO.trim().length() == 18) {
+                            String dqdm = ZUIDNO.substring(2,8);
+                            if (getMap("DQQHDM", dqdm).equals("")) {
+                                dqdm = dqdm.substring(0,4) + "00";
+                                if (getMap("DQQHDM", dqdm).equals("")) {
+                                    dqdm = dqdm.substring(0,2) + "0000";
+                                    if (getMap("DQQHDM", dqdm).equals("")) {
+
+                                    } else {
+                                        base.get(i).set(8, dqdm);
+                                    }
+                                } else {
+                                    base.get(i).set(8, dqdm);
+                                }
+                            } else {
+                                base.get(i).set(8, dqdm);
+                            }
+                        }
+                    }
+                }
+                String ZBADID = src.get("ZBADID");
+                if (ZBADID.equals("09")) {
+                    base.get(i).set(9, src.get("ADDRESS").replace("（注册地址）","").trim());
+                }
+                break;
+            }
+        }
+        return find;
+    }
 
     private List<String> addWCAS_DGKHXX(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
@@ -1272,16 +1312,113 @@ public class MainApplication {
         result.add(formatKHH(src.get("ZGDCB")+"-"+src.get("ZGDCS")));
         String nbjgh = formatNBJGH(src.get("ZGDCB"));
         result.add(nbjgh);
-        result.add("C02");
-        result.add("A01");
-        result.add("CS01");
-        result.add("A01");
+        String ZGCUCL = src.get("ZGCUCL");
+        String ZGC2CN = src.get("ZGC2CN");
+        String gmjjbmfl = "";
+        if ("/COE/POE/SOE/UCG/UCN/".contains("/"+ZGCUCL+"/")) {
+            if (ZGC2CN.contains("公司")) {
+                gmjjbmfl = "C01";
+            } else {
+                gmjjbmfl = "C02";
+            }
+        } else {
+            gmjjbmfl = getMap("X41", ZGCUCL).trim();
+        }
+        result.add(gmjjbmfl);
+
+        result.add(getMap("X42", ZGCUCL).trim());
+        String qygm = "";
+        if ("/CCG/GVP/GVT/GAO/SOF/AMY/HPF/CBK/SAF/".contains("/"+ZGCUCL+"/")) {
+            qygm = "CS05";
+        } else {
+            String size = getMap("X44", formatKHH(src.get("ZGDCB")+"-"+src.get("ZGDCS")).substring(6));
+            if (size.equals("L")) {
+                qygm = "CS01";
+            } else if (size.equals("M")) {
+                qygm = "CS02";
+            } else if (size.equals("S")) {
+                qygm = "CS03";
+            } else if (size.equals("W")) {
+                qygm = "CS04";
+            } else {
+                String XUSLTO = src.get("XUSLTO");
+                if (XUSLTO.equals("5")) {
+                    qygm = "CS01";
+                } else if (XUSLTO.equals("2") || XUSLTO.equals("4") || XUSLTO.equals("3")) {
+                    qygm = "CS02";
+                } else {
+                    String XUEMPE = src.get("XUEMPE");
+                    if (XUEMPE.equals("L") || (XUEMPE.equals("O"))) {
+                        qygm = "CS04";
+                    } else if (XUEMPE.trim().length()> 1 && !XUEMPE.equals("0")) {
+                        qygm = "CS03";
+                    } else {
+                        String LMSI = src.get("S@LMSI");
+                        if (LMSI.equals("L")) {
+                            qygm = "CS01";
+                        } else if (LMSI.equals("M")) {
+                            qygm = "CS02";
+                        }
+                    }
+                }
+            }
+        }
+        result.add(qygm);
+        String kglx = "";
+        if ("/CCG/GVP/GVT/GAO/SOF/AMY/HPF/CBK/SAF/".contains("/"+ZGCUCL+"/")) {
+
+        } else {
+            String finalShareHolder = getMap("X45", formatKHH(src.get("ZGDCB")+"-"+src.get("ZGDCS")).substring(6));
+            if (finalShareHolder.equals("STATE")) {
+                kglx = "A01";
+            } else if (finalShareHolder.equals("PRIVATE")) {
+                kglx = "B01";
+            } else if (finalShareHolder.equals("HKMATW")) {
+                kglx = "B02";
+            } else if (finalShareHolder.equals("FOREIGN")) {
+                kglx = "B03";
+            } else {
+                String cbkglx = getMap("X43", ZGCUCL);
+                if (cbkglx.length() == 3) {
+                    kglx = cbkglx;
+                } else {
+                    String ZGGHCL = src.get("ZGGHCL");
+                    String XUCTHQ = src.get("XUCTHQ");
+                    if (cbkglx.equals("A01/B01/B02/B03")) {
+                        if ("/RCA/RCB/RCC/".contains("/"+ZGGHCL+"/")) {
+                            if (XUCTHQ.equals("CN")) {
+                                kglx = "B01";
+                            } else if (XUCTHQ.equals("HK")||XUCTHQ.equals("AM")||XUCTHQ.equals("TW")) {
+                                kglx = "B02";
+                            } else {
+                                kglx = "B03";
+                            }
+                        } else {
+                            if (XUCTHQ.equals("CN")) {
+                                kglx = "A01";
+                            } else if (XUCTHQ.equals("HK")||XUCTHQ.equals("AM")||XUCTHQ.equals("TW")) {
+                                kglx = "B02";
+                            } else {
+                                kglx = "B03";
+                            }
+                        }
+                    } else if (cbkglx.equals("B02/B03")) {
+                        if (XUCTHQ.equals("HK")||XUCTHQ.equals("AM")||XUCTHQ.equals("TW")) {
+                            kglx = "B02";
+                        } else {
+                            kglx = "B03";
+                        }
+                    }
+                }
+            }
+        }
+        result.add(kglx);
         result.add("Y");
-        result.add("310115");
+        result.add(getMap("XDQDM", nbjgh));
         result.add(src.get("ADDRESS").replace("（注册地址）","").trim());
         result.add("0");
         result.add("0");
-        result.add("A01");
+        result.add(getMap("X46", src.get("ZGINDY")));
         result.add("");
         return result;
     }
@@ -1290,7 +1427,9 @@ public class MainApplication {
                               List<Map<String, String>> lstPrevious) throws Exception {
         List<List<String>> base = new ArrayList<List<String>>();
         for (Map<String, String> record : lstNow) {
-            base.add(addWCAS_DGKHXX(now, record));
+            if (!checkDGKHXX(base, record)) {
+                base.add(addWCAS_DGKHXX(now, record));
+            }
         }
         insertData(SQL_DGKHXX, "OPS_WCAS", "WCAS_DGKHXX", base);
     }
@@ -1883,6 +2022,14 @@ public class MainApplication {
             dqdm.put(record.get("NBJGH"), record.get("DQDM"));
         }
         map.put("XDQDM", dqdm);
+        sql = "select DATA_NO from gp_bm_data_dic where data_type_no = 'C_REGION_CODE'";
+        resultSet = statement.executeQuery(sql);
+        lst = handle(resultSet);
+        Map<String, String> dqqhdm = new HashMap<String, String>();
+        for (Map<String, String> record : lst) {
+            dqqhdm.put(record.get("DATA_NO"), record.get("DATA_NO"));
+        }
+        map.put("DQQHDM", dqqhdm);
     }
 
     public boolean process(String type, String now, String previous) throws Exception {
@@ -1953,149 +2100,189 @@ public class MainApplication {
         System.out.println("delete from MAP_INFO;");
         Workbook wb = new XSSFWorkbook(new FileInputStream("票据贴现.xlsx"));
         Sheet st = wb.getSheet("mapping");
-        for (int i = 1; i < 10; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(0));
-                String type_value = getCellValue(row.getCell(1));
-                printDict("X1", type_no, type_value);
-            }
-        }
-        for (int i = 1; i < 10; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(0));
-                String type_value = getCellValue(row.getCell(3));
-                printDict("X2", type_no, type_value);
-            }
-        }
-        for (int i = 12; i < 15; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(0));
-                String type_value = getCellValue(row.getCell(1));
-                printDict("X3", type_no, type_value);
-            }
-        }
+//        for (int i = 1; i < 10; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(0));
+//                String type_value = getCellValue(row.getCell(1));
+//                printDict("X1", type_no, type_value);
+//            }
+//        }
+//        for (int i = 1; i < 10; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(0));
+//                String type_value = getCellValue(row.getCell(3));
+//                printDict("X2", type_no, type_value);
+//            }
+//        }
+//        for (int i = 12; i < 15; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(0));
+//                String type_value = getCellValue(row.getCell(1));
+//                printDict("X3", type_no, type_value);
+//            }
+//        }
+//        wb.close();
+//        wb = new XSSFWorkbook(new FileInputStream("同业借贷.xlsx"));
+//        st = wb.getSheet("mapping");
+//        for (int i = 3; i < 136; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(0));
+//                String type_value = getCellValue(row.getCell(1));
+//                printDict("X11", type_no, type_value);
+//            }
+//        }
+//        for (int i = 2; i < 16; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(3));
+//                String type_value = getCellValue(row.getCell(4));
+//                printDict("X12", type_no, type_value);
+//            }
+//        }
+//        for (int i = 2; i < 6; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(6));
+//                String type_value = getCellValue(row.getCell(7));
+//                printDict("X13", type_no, type_value);
+//            }
+//        }
+//        for (int i = 1; i < 16; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(10));
+//                String type_value = getCellValue(row.getCell(11));
+//                printDict("X14", type_no, type_value);
+//            }
+//        }
+//        wb.close();
+//        wb = new XSSFWorkbook(new FileInputStream("非同业单位贷款.xlsx"));
+//        st = wb.getSheet("mapping");
+//        for (int i = 1; i < 36; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(0));
+//                String type_value = getCellValue(row.getCell(1));
+//                printDict("X21", type_no, type_value);
+//            }
+//        }
+//        for (int i = 1; i < 15; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(3));
+//                String type_value = getCellValue(row.getCell(4));
+//                printDict("X22", type_no, type_value);
+//            }
+//        }
+//        for (int i = 1; i < 17; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(7));
+//                String type_value = getCellValue(row.getCell(8));
+//                printDict("X23", type_no, type_value);
+//            }
+//        }
+//        for (int i = 1; i < 472; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(11));
+//                String type_value = getCellValue(row.getCell(12));
+//                printDict("X24", type_no, type_value);
+//            }
+//        }
+//        wb.close();
+//        wb = new XSSFWorkbook(new FileInputStream("非同业-scsai.xlsx"));
+//        st = wb.getSheet("mapping");
+//        for (int i = 1; i < 116; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(0));
+//                String type_value = getCellValue(row.getCell(1));
+//                printDict("X31", type_no, type_value);
+//            }
+//        }
+//        for (int i = 1; i < 17; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(4));
+//                String type_value = getCellValue(row.getCell(5));
+//                printDict("X32", type_no, type_value);
+//            }
+//        }
+//        for (int i = 1; i < 15; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(7));
+//                String type_value = getCellValue(row.getCell(8));
+//                printDict("X33", type_no, type_value);
+//            }
+//        }
+//        for (int i = 1; i < 164; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(10));
+//                String type_value = getCellValue(row.getCell(11));
+//                printDict("X34", type_no, type_value);
+//            }
+//        }
+//        for (int i = 1; i < 90; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(13));
+//                String type_value = getCellValue(row.getCell(14));
+//                printDict("X35", type_no, type_value);
+//            }
+//        }
+//        for (int i = 1; i < 472; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(17));
+//                String type_value = getCellValue(row.getCell(18));
+//                printDict("X36", type_no, type_value);
+//            }
+//        }
         wb.close();
-        wb = new XSSFWorkbook(new FileInputStream("同业借贷.xlsx"));
-        st = wb.getSheet("mapping");
-        for (int i = 3; i < 136; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(0));
-                String type_value = getCellValue(row.getCell(1));
-                printDict("X11", type_no, type_value);
-            }
-        }
-        for (int i = 2; i < 16; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(3));
-                String type_value = getCellValue(row.getCell(4));
-                printDict("X12", type_no, type_value);
-            }
-        }
-        for (int i = 2; i < 6; i++) {
+        wb = new XSSFWorkbook(new FileInputStream("CB_Code.xlsx"));
+        st = wb.getSheet("CB Code");
+        for (int i = 1; i < 139; i++) {
             Row row = st.getRow(i);
             if (row != null) {
                 String type_no = getCellValue(row.getCell(6));
                 String type_value = getCellValue(row.getCell(7));
-                printDict("X13", type_no, type_value);
-            }
-        }
-        for (int i = 1; i < 16; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(10));
-                String type_value = getCellValue(row.getCell(11));
-                printDict("X14", type_no, type_value);
+                String type_value1 = getCellValue(row.getCell(8));
+                String type_value2 = getCellValue(row.getCell(9));
+                printDict("X41", type_no, type_value);
+                printDict("X42", type_no, type_value1);
+                printDict("X43", type_no, type_value2);
             }
         }
         wb.close();
-        wb = new XSSFWorkbook(new FileInputStream("非同业单位贷款.xlsx"));
-        st = wb.getSheet("mapping");
-        for (int i = 1; i < 36; i++) {
+        wb = new XSSFWorkbook(new FileInputStream("FinData.xlsx"));
+        st = wb.getSheetAt(0);
+        for (int i = 1; i < 3901; i++) {
             Row row = st.getRow(i);
             if (row != null) {
                 String type_no = getCellValue(row.getCell(0));
                 String type_value = getCellValue(row.getCell(1));
-                printDict("X21", type_no, type_value);
-            }
-        }
-        for (int i = 1; i < 15; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(3));
-                String type_value = getCellValue(row.getCell(4));
-                printDict("X22", type_no, type_value);
-            }
-        }
-        for (int i = 1; i < 17; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(7));
-                String type_value = getCellValue(row.getCell(8));
-                printDict("X23", type_no, type_value);
-            }
-        }
-        for (int i = 1; i < 472; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(11));
-                String type_value = getCellValue(row.getCell(12));
-                printDict("X24", type_no, type_value);
+                String type_value1 = getCellValue(row.getCell(2));
+                printDict("X44", type_no, type_value);
+                printDict("X45", type_no, type_value1);
             }
         }
         wb.close();
-        wb = new XSSFWorkbook(new FileInputStream("非同业-scsai.xlsx"));
-        st = wb.getSheet("mapping");
-        for (int i = 1; i < 116; i++) {
+        wb = new XSSFWorkbook(new FileInputStream("IndustryCode.xlsx"));
+        st = wb.getSheetAt(0);
+        for (int i = 5; i < 1882; i++) {
             Row row = st.getRow(i);
             if (row != null) {
-                String type_no = getCellValue(row.getCell(0));
-                String type_value = getCellValue(row.getCell(1));
-                printDict("X31", type_no, type_value);
-            }
-        }
-        for (int i = 1; i < 17; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(4));
-                String type_value = getCellValue(row.getCell(5));
-                printDict("X32", type_no, type_value);
-            }
-        }
-        for (int i = 1; i < 15; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(7));
-                String type_value = getCellValue(row.getCell(8));
-                printDict("X33", type_no, type_value);
-            }
-        }
-        for (int i = 1; i < 164; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(10));
-                String type_value = getCellValue(row.getCell(11));
-                printDict("X34", type_no, type_value);
-            }
-        }
-        for (int i = 1; i < 90; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(13));
-                String type_value = getCellValue(row.getCell(14));
-                printDict("X35", type_no, type_value);
-            }
-        }
-        for (int i = 1; i < 472; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(17));
-                String type_value = getCellValue(row.getCell(18));
-                printDict("X36", type_no, type_value);
+                String type_no = getCellValue(row.getCell(6));
+                String type_value = getCellValue(row.getCell(7));
+                if (!type_no.trim().equals("") && type_no.length() > 1)
+                printDict("X46", type_no, type_value);
             }
         }
     }
@@ -2144,6 +2331,25 @@ public class MainApplication {
         n1.add(nn2);
 //        writeExcel("ExcelTemplate_票据贴现及转贴现发生额信息表补录_HSBC_HSBC01.xlsx", n1);
         insertData(SQL_PJTXFS, "T1 T2","T3", n1);
+    }
+
+    public boolean check(List<List<String>> base, List<String> record) {
+        base.get(0).set(0, "333");
+        return false;
+    }
+    public void test1() {
+        List<List<String>> base = new ArrayList<List<String>>();
+        List<String> nn1 = new ArrayList<String>();
+        nn1.add("20210531");
+        nn1.add("2");
+        nn1.add("1");
+        base.add(nn1);
+        List<String> nn2 = new ArrayList<String>();
+        nn2.add("20210531");
+        nn2.add("3");
+        nn2.add("4");
+        check(base, nn2);
+        System.out.println(base);
     }
 
     public static void main(String[] args) throws Exception {
@@ -2197,7 +2403,7 @@ public class MainApplication {
         } else if (mode.equals("T")) {
             MainApplication t = new MainApplication();
             t.loadProperties();
-            t.test();
+            t.test1();
         }
 
     }
