@@ -344,7 +344,8 @@ public class MainApplication {
             "`DATA_VERSION`,\n" +
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
-            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00'," +
+            "'A','2','0',?,?,?)";
 
     public static String SQL_DWCKYE = "INSERT INTO `IMAS_PM_DWCKYE`\n" +
             "(`DATA_ID`,\n" +
@@ -397,7 +398,7 @@ public class MainApplication {
             "`DATA_VERSION`,\n" +
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
-            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
+            "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
 
     public static String SQL_TYCKYE = "INSERT INTO `IMAS_PM_TYCKYE`\n" +
             "(`DATA_ID`,\n" +
@@ -528,7 +529,11 @@ public class MainApplication {
                 pstmt.setString(index, groupId);
                 index++;
                 for (int j = 0; j < param.size(); j++) {
-                    pstmt.setString(index, param.get(j));
+                    if (param.get(i) == null || param.get(i).equals("")) {
+                        pstmt.setNull(index, Types.INTEGER);
+                    } else {
+                        pstmt.setString(index, param.get(j));
+                    }
                     index++;
                 }
                 pstmt.setString(index, user);
@@ -555,7 +560,11 @@ public class MainApplication {
                     pstmt.setString(index, groupId);
                     index++;
                     for (int j = 0; j < param.size(); j++) {
-                        pstmt.setString(index, param.get(j));
+                        if (param.get(i) == null || param.get(i).equals("")) {
+                            pstmt.setNull(index, Types.INTEGER);
+                        } else {
+                            pstmt.setString(index, param.get(j));
+                        }
                         index++;
                     }
                     pstmt.setString(index, user);
@@ -983,9 +992,9 @@ public class MainApplication {
         result.add(checkTyjdTenor(days, map.get("X0")));
         result.add("RF01");
         result.add(getMap("X22", src.get("BBDRTY")));
-        result.add("0");
+        result.add("");
         result.add(src.get("BBDRSP"));
-        result.add("0");
+        result.add("");
         String zzlf05 = src.get("ZZLF05");
         if (zzlf05 != null && zzlf05.length() >= 3) {
             result.add(getMap("X24",  zzlf05.substring(0,3)));
@@ -993,7 +1002,7 @@ public class MainApplication {
             result.add("");
         }
         result.add("01");
-        result.add("100");
+        result.add("");
         return result;
     }
 
@@ -1020,7 +1029,7 @@ public class MainApplication {
         result.add(now);
         result.add(src.get("BBPRCY"));
         result.add(formatJPY(src.get("BBPRCY"),src.get("BILLAMT")));
-        result.add("0");
+        result.add("");
         String bbdrsp = src.get("BBDRSP");
         if (src.get("BBDRTY").equals("LP1")) {
            bbdrsp =  new BigDecimal(bbdrsp).add(new BigDecimal("3.85")).toString();
@@ -1046,9 +1055,9 @@ public class MainApplication {
         result.add("RF01");
         result.add(src.get("BBDRSP"));
         result.add(getMap("X12", src.get("BBDRTY")));
-        result.add("0");
+        result.add("");
         result.add("04");
-        result.add("0");
+        result.add("");
         return result;
     }
 
@@ -1579,8 +1588,8 @@ public class MainApplication {
         result.add("5.2");
         result.add("5.2");
         result.add("01");
-        result.add("");
-        result.add("");
+        result.add("0");
+        result.add("0");
         result.add("01");
         result.add("N");
         result.add("A");
@@ -1616,7 +1625,7 @@ public class MainApplication {
     private List<String> addWCASTYCKJC_CORPDDAC(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
-        result.add(formatNBJGH(src.get("TDDCB")));
+        result.add(formatNBJGH(src.get("DFDCB")));
         result.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
         result.add("A01");
         result.add(src.get("DFACB")+"-"+src.get("DFACS")+"-"+src.get("DFACX"));
@@ -1656,7 +1665,7 @@ public class MainApplication {
         result.add(now);
         result.add(src.get("DFACB")+"-"+src.get("DFACS")+"-"+src.get("DFACX"));
         result.add("01");
-        result.add(formatNBJGH(src.get("TDDCB")));
+        result.add(formatNBJGH(src.get("DFDCB")));
         result.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
         result.add(src.get("DFCYCD"));
         result.add("0");
@@ -2196,7 +2205,7 @@ public class MainApplication {
         for (int i = 1; i < 472; i++) {
             Row row = st.getRow(i);
             if (row != null) {
-                String type_no = getCellValue(row.getCell(11));
+                String type_no = getCellValue(row.getCell(10));
                 String type_value = getCellValue(row.getCell(12));
                 printDict("X24", type_no, type_value);
             }
