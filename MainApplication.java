@@ -2252,58 +2252,58 @@ public class MainApplication {
                 printDict("X36", type_no, type_value);
             }
         }
-//        wb.close();
-//        wb = new XSSFWorkbook(new FileInputStream("CB_Code.xlsx"));
-//        st = wb.getSheet("CB Code");
-//        for (int i = 1; i < 139; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(6));
-//                String type_value = getCellValue(row.getCell(7));
-//                String type_value1 = getCellValue(row.getCell(8));
-//                String type_value2 = getCellValue(row.getCell(9));
-//                printDict("X41", type_no, type_value);
-//                printDict("X42", type_no, type_value1);
-//                printDict("X43", type_no, type_value2);
-//            }
-//        }
-//        wb.close();
-//        wb = new XSSFWorkbook(new FileInputStream("FinData.xlsx"));
-//        st = wb.getSheetAt(0);
-//        for (int i = 1; i < 3901; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(0));
-//                String type_value = getCellValue(row.getCell(1));
-//                String type_value1 = getCellValue(row.getCell(2));
-//                printDict("X44", type_no, type_value);
-//                printDict("X45", type_no, type_value1);
-//            }
-//        }
-//        wb.close();
-//        wb = new XSSFWorkbook(new FileInputStream("IndustryCode.xlsx"));
-//        st = wb.getSheetAt(0);
-//        for (int i = 5; i < 1882; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(6));
-//                String type_value = getCellValue(row.getCell(7));
-//                if (!type_no.trim().equals("") && type_no.length() > 1)
-//                printDict("X46", type_no, type_value);
-//            }
-//        }
         wb.close();
-        wb = new XSSFWorkbook(new FileInputStream("NBJGH.xlsx"));
+        wb = new XSSFWorkbook(new FileInputStream("CB_Code.xlsx"));
+        st = wb.getSheet("CB Code");
+        for (int i = 1; i < 139; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(6));
+                String type_value = getCellValue(row.getCell(7));
+                String type_value1 = getCellValue(row.getCell(8));
+                String type_value2 = getCellValue(row.getCell(9));
+                printDict("X41", type_no, type_value);
+                printDict("X42", type_no, type_value1);
+                printDict("X43", type_no, type_value2);
+            }
+        }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("FinData.xlsx"));
         st = wb.getSheetAt(0);
-        for (int i = 1; i < 202; i++) {
+        for (int i = 1; i < 3901; i++) {
             Row row = st.getRow(i);
             if (row != null) {
                 String type_no = getCellValue(row.getCell(0));
                 String type_value = getCellValue(row.getCell(1));
-                System.out.println(String.format("insert into map_nbjgh(`id`,`src`,`dest`)values('%s'," +
-                        "'%s','%s');", String.valueOf(i), type_no, type_value));
+                String type_value1 = getCellValue(row.getCell(2));
+                printDict("X44", type_no, type_value);
+                printDict("X45", type_no, type_value1);
             }
         }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("IndustryCode.xlsx"));
+        st = wb.getSheetAt(0);
+        for (int i = 5; i < 1882; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(6));
+                String type_value = getCellValue(row.getCell(7));
+                if (!type_no.trim().equals("") && type_no.length() > 1)
+                printDict("X46", type_no, type_value);
+            }
+        }
+//        wb.close();
+//        wb = new XSSFWorkbook(new FileInputStream("NBJGH.xlsx"));
+//        st = wb.getSheetAt(0);
+//        for (int i = 1; i < 202; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(0));
+//                String type_value = getCellValue(row.getCell(1));
+//                System.out.println(String.format("insert into map_nbjgh(`id`,`src`,`dest`)values('%s'," +
+//                        "'%s','%s');", String.valueOf(i), type_no, type_value));
+//            }
+//        }
     }
 
     public void test() throws Exception {
