@@ -1326,7 +1326,11 @@ public class MainApplication {
         }
         result.add(gmjjbmfl);
 
-        result.add(getMap("X42", ZGCUCL).trim());
+        String JRJGLXDM = getMap("X42", ZGCUCL).trim();
+        if (JRJGLXDM.length() > 3) {
+            JRJGLXDM = JRJGLXDM.substring(0,3);
+        }
+        result.add(JRJGLXDM);
         String qygm = "";
         if ("/CCG/GVP/GVT/GAO/SOF/AMY/HPF/CBK/SAF/".contains("/"+ZGCUCL+"/")) {
             qygm = "CS05";
