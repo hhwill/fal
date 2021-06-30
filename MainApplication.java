@@ -529,7 +529,7 @@ public class MainApplication {
                 pstmt.setString(index, groupId);
                 index++;
                 for (int j = 0; j < param.size(); j++) {
-                    if (param.get(i) == null || param.get(i).equals("")) {
+                    if (param.get(j) == null || param.get(j).equals("")) {
                         pstmt.setNull(index, Types.INTEGER);
                     } else {
                         pstmt.setString(index, param.get(j));
@@ -560,7 +560,7 @@ public class MainApplication {
                     pstmt.setString(index, groupId);
                     index++;
                     for (int j = 0; j < param.size(); j++) {
-                        if (param.get(i) == null || param.get(i).equals("")) {
+                        if (param.get(j) == null || param.get(j).equals("")) {
                             pstmt.setNull(index, Types.INTEGER);
                         } else {
                             pstmt.setString(index, param.get(j));
