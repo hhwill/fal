@@ -1,333 +1,36 @@
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_TYCKJC` (dataRptDate varchar(8))
-BEGIN
-	update imas_pm_TYCKJC set KHH = concat('CNHSBC',SUBSTRING(KHH,1,3), SUBSTRING(KHH,5,6)) where KHH like '%-%' and sjrq = dataRptDate;
-    update imas_pm_TYCKJC set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_TYCKJC a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tyckjc,dataRptDate:${dataRptDate}' where guid = 'TYCKJC';
-
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_TYCKYE` (dataRptDate varchar(8))
-BEGIN
-	update imas_pm_TYCKYE set KHH = concat('CNHSBC',SUBSTRING(KHH,1,3), SUBSTRING(KHH,5,6)) where KHH like '%-%' and sjrq = dataRptDate;
-    update imas_pm_TYCKYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_TYCKYE a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tyckye,dataRptDate:${dataRptDate}' where guid = 'TYCKYE';
-
-
-
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_DWDKJC` (dataRptDate varchar(8))
-BEGIN
-	update imas_pm_DWDKJC set KHH = concat('CNHSBC',SUBSTRING(KHH,1,3), SUBSTRING(KHH,5,6)) where KHH like '%-%' and sjrq = dataRptDate;
-    update imas_pm_DWDKJC set LLFDPL = '' where LLLX='RF01' and sjrq = dataRptDate;
-    update imas_pm_DWDKJC set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_DWDKJC a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.dwdkjc,dataRptDate:${dataRptDate}' where guid = 'DWDKJC';
-
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_DWDKYE` (dataRptDate varchar(8))
-BEGIN
-	update imas_pm_DWDKYE set KHH = concat('CNHSBC',SUBSTRING(KHH,1,3), SUBSTRING(KHH,5,6)) where KHH like '%-%' and sjrq = dataRptDate;
-    update imas_pm_DWDKYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_DWDKYE a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.dwdkye,dataRptDate:${dataRptDate}' where guid = 'DWDKYE';
-
-
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_TYJDJC` (dataRptDate varchar(8))
-BEGIN
-	update imas_pm_TYJDJC set KHH = concat('CNHSBC',SUBSTRING(KHH,1,3), SUBSTRING(KHH,5,6)) where KHH like '%-%' and sjrq = dataRptDate;
-    update imas_pm_TYJDJC set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_TYJDJC a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tyjdjc,dataRptDate:${dataRptDate}' where guid = 'TYJDJC';
-
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_TYJDYE` (dataRptDate varchar(8))
-BEGIN
-	update imas_pm_TYJDYE set KHH = concat('CNHSBC',SUBSTRING(KHH,1,3), SUBSTRING(KHH,5,6)) where KHH like '%-%' and sjrq = dataRptDate;
-    update imas_pm_TYJDYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_TYJDYE a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tyjdye,dataRptDate:${dataRptDate}' where guid = 'TYJDYE';
-
-
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_TZYWJY` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_TZYWJY set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_TZYWJY a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tzywjy,dataRptDate:${dataRptDate}' where guid = 'TZYWJY';
-
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_TZYWYE` (dataRptDate varchar(8))
-BEGIN
-	update imas_pm_TZYWYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_TZYWYE set LLFDPL = '' where LLLX='RF01' and sjrq = dataRptDate;
-    update imas_pm_TZYWYE a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tzywye,dataRptDate:${dataRptDate}' where guid = 'TZYWYE';
-
-
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_GRDKJC` (dataRptDate varchar(8))
-BEGIN
-	update imas_pm_GRDKJC set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_GRDKJC set LLFDPL = '' where LLLX='RF01' and sjrq = dataRptDate;
-    update imas_pm_GRDKJC a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.grdkjc,dataRptDate:${dataRptDate}' where guid = 'GRDKJC';
-
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_GRDKYE` (dataRptDate varchar(8))
-BEGIN
-	update imas_pm_GRDKYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-	update imas_pm_GRDKYE a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.grdkye,dataRptDate:${dataRptDate}' where guid = 'GRDKYE';
-
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_GRDKFK` (dataRptDate varchar(8))
-BEGIN
-	update imas_pm_GRDKFK set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-	update imas_pm_GRDKFK a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.grdkfk,dataRptDate:${dataRptDate}' where guid = 'GRDKFK';
-
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_WTDKJC` (dataRptDate varchar(8))
-BEGIN
-	update imas_pm_WTDKJC set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_WTDKJC set JKRKHH = concat('CNHSBC',SUBSTRING(JKRKHH,1,3), SUBSTRING(JKRKHH,5,6)) where JKRKHH like '%-%' and sjrq = dataRptDate;
-    update imas_pm_WTDKJC set WTRKHH = concat('CNHSBC',SUBSTRING(WTRKHH,1,3), SUBSTRING(WTRKHH,5,6)) where WTRKHH like '%-%' and sjrq = dataRptDate;
-    update imas_pm_WTDKJC a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.wtdkjc,dataRptDate:${dataRptDate}' where guid = 'WTDKJC';
-
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_WTDKYE` (dataRptDate varchar(8))
-BEGIN
-	update imas_pm_WTDKYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_WTDKYE set JKRKHH = concat('CNHSBC',SUBSTRING(JKRKHH,1,3), SUBSTRING(JKRKHH,5,6)) where JKRKHH like '%-%' and sjrq = dataRptDate;
-    update imas_pm_WTDKYE set WTRKHH = concat('CNHSBC',SUBSTRING(WTRKHH,1,3), SUBSTRING(WTRKHH,5,6)) where WTRKHH like '%-%' and sjrq = dataRptDate;
-    update imas_pm_WTDKYE a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.wtdkye,dataRptDate:${dataRptDate}' where guid = 'WTDKYE';
-
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_WTDKFK` (dataRptDate varchar(8))
-BEGIN
-	update imas_pm_WTDKFK set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_WTDKFK set JKRKHH = concat('CNHSBC',SUBSTRING(JKRKHH,1,3), SUBSTRING(JKRKHH,5,6)) where JKRKHH like '%-%' and sjrq = dataRptDate;
-    update imas_pm_WTDKFK set WTRKHH = concat('CNHSBC',SUBSTRING(WTRKHH,1,3), SUBSTRING(WTRKHH,5,6)) where WTRKHH like '%-%' and sjrq = dataRptDate;
-    update imas_pm_WTDKFK a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.wtdkfk,dataRptDate:${dataRptDate}' where guid = 'WTDKFK';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_DGKHXX` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_DGKHXX set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_DGKHXX a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.dgkhxx,dataRptDate:${dataRptDate}' where guid = 'DGKHXX';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_DWCKFS` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_DWCKFS set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_DWCKFS a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.dwckfs,dataRptDate:${dataRptDate}' where guid = 'DWCKFS';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_DWCKJC` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_DWCKJC set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_DWCKJC a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.dwckjc,dataRptDate:${dataRptDate}' where guid = 'DWCKJC';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_DWCKYE` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_DWCKYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_DWCKYE a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.dwckye,dataRptDate:${dataRptDate}' where guid = 'DWCKYE';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_DWDKFK` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_DWDKFK set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_DWDKFK a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.dwdkfk,dataRptDate:${dataRptDate}' where guid = 'DWDKFK';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_FTPDJB` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_FTPDJB set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_FTPDJB a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.ftpdjb,dataRptDate:${dataRptDate}' where guid = 'FTPDJB';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_GRCKFS` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_GRCKFS set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_GRCKFS a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.grckfs,dataRptDate:${dataRptDate}' where guid = 'GRCKFS';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_GRCKJC` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_GRCKJC set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_GRCKJC a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.grckjc,dataRptDate:${dataRptDate}' where guid = 'GRCKJC';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_GRCKYE` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_GRCKYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_GRCKYE a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.grckye,dataRptDate:${dataRptDate}' where guid = 'GRCKYE';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_JGFRXX` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_JGFRXX set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_JGFRXX a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.jgfrxx,dataRptDate:${dataRptDate}' where guid = 'JGFRXX';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_JGFZXX` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_JGFZXX set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_JGFZXX a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.jgfzxx,dataRptDate:${dataRptDate}' where guid = 'JGFZXX';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_LCXCTJ` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_LCXCTJ set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_LCXCTJ a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.lcxctj,dataRptDate:${dataRptDate}' where guid = 'LCXCTJ';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_MRFSFS` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_MRFSFS set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_MRFSFS a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.mrfsfs,dataRptDate:${dataRptDate}' where guid = 'MRFSFS';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_MRFSJC` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_MRFSJC set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_MRFSJC a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.mrfsjc,dataRptDate:${dataRptDate}' where guid = 'MRFSJC';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_MRFSYE` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_MRFSYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_MRFSYE a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.mrfsye,dataRptDate:${dataRptDate}' where guid = 'MRFSYE';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_PJTXFS` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_PJTXFS set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_PJTXFS a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.pjtxfs,dataRptDate:${dataRptDate}' where guid = 'PJTXFS';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_PJTXJC` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_PJTXJC set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_PJTXJC a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.pjtxjc,dataRptDate:${dataRptDate}' where guid = 'PJTXJC';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_PJTXYE` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_PJTXYE set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_PJTXYE a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.pjtxye,dataRptDate:${dataRptDate}' where guid = 'PJTXYE';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_TYCKFS` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_TYCKFS set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_TYCKFS a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tyckfs,dataRptDate:${dataRptDate}' where guid = 'TYCKFS';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_TYJDFS` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_TYJDFS set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_TYJDFS a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tyjdfs,dataRptDate:${dataRptDate}' where guid = 'TYJDFS';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_TZYWFQ` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_TZYWFQ set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_TZYWFQ a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tzywfq,dataRptDate:${dataRptDate}' where guid = 'TZYWFQ';
-delimiter $$
-CREATE PROCEDURE `SP_UPDATE_TZYWZD` (dataRptDate varchar(8))
-BEGIN
-    update imas_pm_TZYWZD set NBJGH = concat('CNHSBC',lpad(NBJGH,3,'0')) where length(NBJGH)<=3 and sjrq = dataRptDate;
-    update imas_pm_TZYWZD a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest where a.sjrq = dataRptDate;
-END$$
-DELIMITER ;
-update gp_bm_id_filedata set AFTER_JOB_ARGS = 'update.tzywzd,dataRptDate:${dataRptDate}' where guid = 'TZYWZD';
-
-create table map_nbjgh
-(id varchar(48),
- src varchar(20),
- dest varchar(20)
-);
-
-ALTER TABLE `IMAS_PM_JGFZXX` 
-ADD COLUMN `ADDRESS` VARCHAR(400) NULL DEFAULT NULL AFTER `C_RSV5`;
-
-INSERT INTO `GP_BM_ID_FIELDDATA` (`GUID`, `FIELD_NAME`, `UMW_EXPRESSION`, `U_DATATYPE`, `UPDATE_WAY`, `UNIQUEKEY_FLAG`, `UPDATE_FLAG`, `FILTER_FLAG`, `FILLER1`, `PGUID`, `LIMIT_FLAG`, `BUSINESSKEY_FLAG`, `FIELD_COMMENTS`) VALUES ('JGFZXX-ADDRESS', 'ADDRESS', '${value}', '2', '1', '0', '1', '0', '地址', 'JGFZXX', '0', '0', '地址');
-
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'TYCKJC';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'TYCKYE';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'DWDKJC';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'DWDKYE';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'TYJDJC';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'TYJDYE';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'TZYWJY';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'TZYWYE';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'GRDKJC';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'GRDKYE';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'GRDKFK';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'WTDKJC';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'WTDKYE';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'WTDKFK';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'DGKHXX';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'DWCKFS';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'DWCKJC';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'DWCKYE';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'DWDKFK';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'FTPDJB';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'GRCKFS';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'GRCKJC';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'GRCKYE';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'JGFRXX';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'JGFZXX';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'LCXCTJ';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'MRFSFS';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'MRFSJC';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'MRFSYE';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'PJTXFS';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'PJTXJC';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'PJTXYE';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'TYCKFS';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'TYJDFS';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'TZYWFQ';
+update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'TZYWZD';
