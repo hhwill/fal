@@ -56,6 +56,7 @@ public class CustLoadFileProcessService {
     }
 
     private void initMap() throws Exception {
+        EtlUtils.map.clear();
         if (EtlUtils.map.size() == 0) {
             String sql = "select * from map_info";
             List<Map<String, String>> lst = handle(jdbcTemplate.queryForList(sql));
@@ -67,6 +68,13 @@ public class CustLoadFileProcessService {
                 srecord.put(record.get("SRC"), record.get("DEST"));
                 EtlUtils.map.put(record.get("TYPE_NO"), srecord);
             }
+            sql = "select DATA_NO from gp_bm_data_dic where data_type_no = 'C_REGION_CODE'";
+            lst = handle(jdbcTemplate.queryForList(sql));
+            Map<String, String> dqqhdm = new HashMap<String, String>();
+            for (Map<String, String> record : lst) {
+                dqqhdm.put(record.get("DATA_NO"), record.get("DATA_NO"));
+            }
+            EtlUtils.map.put("DQQHDM", dqqhdm);
         }
     }
 
@@ -89,15 +97,15 @@ public class CustLoadFileProcessService {
             etlDWDKGtrfCore.processFTYDWDK(now, lst, lst1, group_id);
         } else if (type.equals("ODS_GTRF_FTYSCSAI")) {
             etlDWDKSCSAIGtrfCore.processFTYSCSAI(now, lst, lst1, group_id);
-        } else if (type.equals("ODS_GRKHXX_BOSC")) {
+        } else if (type.equals("ODS_BOSC_GRKHXX")) {
             etlGRKHXX.processGRKHXXBASE(now, lst, lst1, group_id);
         } else if (type.equals("ODS_GRHXXX")) {
             etlGRKHXX.processGRKHXX(now, lst, lst1, group_id);
-        }else if (type.equals("GTRF_CORPCUSLVL")) {
+        }else if (type.equals("ODS_WCAS_CORPCUSLVL")) {
             etlWCAS.processWCAS_DGHKXX(now, lst, lst1, group_id);
-        } else if (type.equals("GTRF_CORPDDAC")) {
+        } else if (type.equals("ODS_WCAS_CORPDDAC")) {
             etlWCAS.processCORPDDAC(now, lst, lst1, group_id);
-        } else if (type.equals("GTRF_CORPTDAC3")) {
+        } else if (type.equals("ODS_WCAS_CORPTDAC3")) {
             etlWCAS.processCORPTDAC3(now, lst, lst1, group_id);
         }
         return true;
