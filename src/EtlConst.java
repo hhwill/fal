@@ -52,7 +52,7 @@ public class EtlConst {
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
             "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
-    public static String SQL_PJTXYE = "INSERT INTO `imas`.`IMAS_PM_PJTXYE`\n" +
+    public static String SQL_PJTXYE = "INSERT INTO `IMAS_PM_PJTXYE`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
             "`ORG_ID`,\n" +
@@ -257,7 +257,7 @@ public class EtlConst {
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
             "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
-    public static String SQL_DGKHXX = "INSERT INTO `imas`.`IMAS_PM_DGKHXX`\n" +
+    public static String SQL_DGKHXX = "INSERT INTO `IMAS_PM_DGKHXX`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
             "`ORG_ID`,\n" +

@@ -48,6 +48,16 @@ public class EtlInsertService {
             }
             batchInsert(sql, groupId, user, currentUpdates);
         }
+        if (params.size() > 0) {
+            try{
+                String tableName = sql.substring(13, 27);
+                String nbjgh = "update " + tableName + " a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest " +
+                    "where a.sjrq = '" + params.get(0).get(0) + "'";
+                jdbcTemplate.execute(nbjgh);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
         return true;
     }
 
