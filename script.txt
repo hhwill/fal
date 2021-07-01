@@ -34,3 +34,18 @@ update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobI
 update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'TYJDFS';
 update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'TZYWFQ';
 update gp_bm_id_filedata set AFTER_JOB_ARGS = 'imas.imp.DataCompare,jobId:${jobId},dataRptDate:${dataRptDate},reportCode:${reportCode}' where guid = 'TZYWZD';
+
+create table ODS_CTL
+(
+data_id varchar(40),
+file_name varchar(100),
+table_name varchar(100),
+group_id varchar(100),
+need_ods varchar(1),
+pm_table_name varchar(20),
+order_no int,
+primary key (data_id)
+);
+INSERT INTO `imas`.`gp_bm_sys_param` (`DATA_ID`, `GROUP_ID`, `PARAM_GROUP_ID`, `PARAM_ID`, `PARAM_NAME`, `PARAM_VALUE`, `LOAD_TYPE`, `PARAM_START_DT`) VALUES ('MANUAL_IMPORT_DIR', 'HSBC', 'IMAS', 'MANUAL_IMPORT_DIR', 'MANUAL_IMPORT_DIR', '/Users/huangh/Downloads/1', 'E', 'Y');
+INSERT INTO `imas`.`gp_bm_sys_param` (`DATA_ID`, `GROUP_ID`, `PARAM_GROUP_ID`, `PARAM_ID`, `PARAM_NAME`, `PARAM_VALUE`, `LOAD_TYPE`, `PARAM_START_DT`) VALUES ('MANUAL_BACKUP_DIR', 'HSBC', 'IMAS', 'MANUAL_BACKUP_DIR', 'MANUAL_BACKUP_DIR', '/Users/huangh/Downloads/1', 'E', 'Y');
+

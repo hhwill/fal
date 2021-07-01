@@ -24,7 +24,7 @@ public class MainApplication {
 
     public static int batchCount = 3;
 
-    private static String SQL_PJTXFS = "INSERT INTO `IMAS_PM_PJTXFS`\n" +
+    public static String SQL_PJTXFS = "INSERT INTO `IMAS_PM_PJTXFS`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
             "`ORG_ID`,\n" +
@@ -49,7 +49,7 @@ public class MainApplication {
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
             "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
-    private static String SQL_PJTXJC = "INSERT INTO `IMAS_PM_PJTXJC`\n" +
+    public static String SQL_PJTXJC = "INSERT INTO `IMAS_PM_PJTXJC`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
             "`ORG_ID`,\n" +
@@ -74,7 +74,7 @@ public class MainApplication {
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
             "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
-    private static String SQL_PJTXYE = "INSERT INTO `imas`.`IMAS_PM_PJTXYE`\n" +
+    public static String SQL_PJTXYE = "INSERT INTO `imas`.`IMAS_PM_PJTXYE`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
             "`ORG_ID`,\n" +
@@ -95,7 +95,7 @@ public class MainApplication {
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
             "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
-    private static String SQL_TYJDFS = "INSERT INTO `IMAS_PM_TYJDFS`\n" +
+    public static String SQL_TYJDFS = "INSERT INTO `IMAS_PM_TYJDFS`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
             "`ORG_ID`,\n" +
@@ -123,7 +123,7 @@ public class MainApplication {
             "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?," +
             "?," +
             "?)";
-    private static String SQL_TYJDJC = "INSERT INTO `IMAS_PM_TYJDJC`\n" +
+    public static String SQL_TYJDJC = "INSERT INTO `IMAS_PM_TYJDJC`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
             "`ORG_ID`,\n" +
@@ -155,7 +155,7 @@ public class MainApplication {
             "`DATA_CRT_DATE`,\n" +
             "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?," +
             "?)";
-    private static String SQL_TYJDYE = "INSERT INTO `IMAS_PM_TYJDYE`\n" +
+    public static String SQL_TYJDYE = "INSERT INTO `IMAS_PM_TYJDYE`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
             "`ORG_ID`,\n" +
@@ -176,7 +176,7 @@ public class MainApplication {
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
             "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
-    private static String SQL_DWDKFK = "INSERT INTO `IMAS_PM_DWDKFK`\n" +
+    public static String SQL_DWDKFK = "INSERT INTO `IMAS_PM_DWDKFK`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
             "`ORG_ID`,\n" +
@@ -201,7 +201,7 @@ public class MainApplication {
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
             "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
-    private static String SQL_DWDKJC = "INSERT INTO `IMAS_PM_DWDKJC`\n" +
+    public static String SQL_DWDKJC = "INSERT INTO `IMAS_PM_DWDKJC`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
             "`ORG_ID`,\n" +
@@ -235,7 +235,7 @@ public class MainApplication {
             "`DATA_CRT_DATE`,\n" +
             "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0'," +
             "?,?,?)";
-    private static String SQL_DWDKYE = "INSERT INTO `IMAS_PM_DWDKYE`\n" +
+    public static String SQL_DWDKYE = "INSERT INTO `IMAS_PM_DWDKYE`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
             "`ORG_ID`,\n" +
@@ -256,7 +256,7 @@ public class MainApplication {
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
             "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
-    private static String SQL_GRKHXX = "INSERT INTO `IMAS_PM_GRKHXX`\n" +
+    public static String SQL_GRKHXX = "INSERT INTO `IMAS_PM_GRKHXX`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
             "`ORG_ID`,\n" +
@@ -279,7 +279,7 @@ public class MainApplication {
             "`DATA_CRT_USER`,\n" +
             "`DATA_CRT_DATE`,\n" +
             "`DATA_CRT_TIME`) VALUES (?,?,'HSBC',?,?,?,?,?,?,?,?,?,'N','00','A','00','A','2','0',?,?,?)";
-    private static String SQL_DGKHXX = "INSERT INTO `imas`.`IMAS_PM_DGKHXX`\n" +
+    public static String SQL_DGKHXX = "INSERT INTO `imas`.`IMAS_PM_DGKHXX`\n" +
             "(`DATA_ID`,\n" +
             "`DATA_RPT_DATE`,\n" +
             "`ORG_ID`,\n" +
@@ -829,7 +829,8 @@ public class MainApplication {
                     for (Cell cell : row) {
                         s += "`" + getCellValue(cell) + "` varchar(100) DEFAULT NULL,\n";
                     }
-                    s+= "`DATA_DATE` VARCHAR(8),\nPRIMARY KEY (`"+key+"`) )";
+                    s+= "`DATA_DATE` VARCHAR(8),GROUP_ID VARCHAR(100),\nPRIMARY KEY (`DATA_DATE`,`GROUP_ID`,`"+key+
+                            "`) )";
                     System.out.println(s);
                     break;
                 }
@@ -2365,19 +2366,19 @@ public class MainApplication {
         base.get(0).set(0, "333");
         return false;
     }
-    public void test1() {
-        List<List<String>> base = new ArrayList<List<String>>();
-        List<String> nn1 = new ArrayList<String>();
-        nn1.add("20210531");
-        nn1.add("2");
-        nn1.add("1");
-        base.add(nn1);
-        List<String> nn2 = new ArrayList<String>();
-        nn2.add("20210531");
-        nn2.add("3");
-        nn2.add("4");
-        check(base, nn2);
-        System.out.println(base);
+    public void test1(String dir) {
+        File file = new File(dir);
+        File[] files = file.listFiles();
+        String s = "javac -cp .:";
+        for (int i = 0; i < files.length; i++) {
+            if (files[i].getName().toUpperCase().endsWith(".JAR")) {
+                s += files[i].getAbsolutePath().replace("\\","/") + ":";
+            }
+        }
+        String s1 = s.substring(0, s.length()-1) + " com/gingkoo/imas/hsbc/service/CustLoadFileService.java";
+        System.out.println(s1);
+        s1 = s.substring(0, s.length()-1) + " com/gingkoo/imas/hsbc/service/CustValidateService.java";
+        System.out.println(s1);
     }
 
     public static void main(String[] args) throws Exception {
@@ -2431,7 +2432,8 @@ public class MainApplication {
         } else if (mode.equals("T")) {
             MainApplication t = new MainApplication();
             t.loadProperties();
-            t.test1();
+            String dir = args[1];
+            t.test1(dir);
         }
 
     }
