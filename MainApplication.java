@@ -2272,9 +2272,11 @@ public class MainApplication {
                 String type_value = getCellValue(row.getCell(7));
                 String type_value1 = getCellValue(row.getCell(8));
                 String type_value2 = getCellValue(row.getCell(9));
+                String type_value3 = getCellValue(row.getCell(9));
                 printDict("X41", type_no, type_value);
                 printDict("X42", type_no, type_value1);
                 printDict("X43", type_no, type_value2);
+                printDict("WCAS_TYBZ", type_no, type_value3);
             }
         }
         wb.close();
@@ -2291,6 +2293,17 @@ public class MainApplication {
             }
         }
         wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("ProductType.xlsx"));
+        st = wb.getSheetAt(0);
+        for (int i = 1; i < 36; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(5));
+                printDict("WCAS_ProductType", type_no, type_value);
+            }
+        }
+        wb.close();
         wb = new XSSFWorkbook(new FileInputStream("IndustryCode.xlsx"));
         st = wb.getSheetAt(0);
         for (int i = 5; i < 1882; i++) {
@@ -2300,6 +2313,26 @@ public class MainApplication {
                 String type_value = getCellValue(row.getCell(7));
                 if (!type_no.trim().equals("") && type_no.length() > 1)
                 printDict("X46", type_no, type_value);
+            }
+        }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("RateType.xlsx"));
+        st = wb.getSheetAt(0);
+        for (int i = 1; i < 614; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String id1 = getCellValue(row.getCell(1));
+                String id2 = getCellValue(row.getCell(1));
+                String id3 = getCellValue(row.getCell(1));
+                String id4 = getCellValue(row.getCell(12));
+                String DJJZLX = getCellValue(row.getCell(13));
+                String LVLX = getCellValue(row.getCell(14));
+                String JZLV = getCellValue(row.getCell(18));
+                String LVFDPV = getCellValue(row.getCell(19));
+                if (id4.equals("DD") || id4.equals("TD")) {
+                    System.out.println(String.format("insert into MAP_WCAS_RATE_TYPE(id1,id2,id3,DJJZLX,LVLX,JZLV," +
+                            "LVFDPL)values('%s','%s','%s','%s','%s','%s','%s'",id1,id2,id3,DJJZLX,LVLX,JZLV,LVFDPV));
+                }
             }
         }
 //        wb.close();

@@ -10,6 +10,7 @@ import com.gingkoo.rdms.base.data.g.entity.RdmsDsTableFieldCfg
 import com.gingkoo.rdms.base.data.g.repository.RdmsDsTableFieldCfgRepository
 import com.gingkoo.root.annotation.Nullable
 import com.gingkoo.root.facility.database.DatabaseDialect
+import org.apache.commons.lang3.StringUtils
 import org.springframework.util.StopWatch
 
 import java.time.LocalDate
@@ -38,11 +39,17 @@ class DataCompare implements ComputeScript {
         this.databaseDialect = databaseDialect
     }
 
-    Result call(@Nullable String jobId, String dataRptDate, String reportCode) {
+    /**
+     *
+     * @param reportCode 报表编码
+     * @param dataRptDate 报表日期
+     * @param cond 可选参数，额外的条件，格式为sql片段
+     */
+    Result call(@Nullable String jobId, String dataRptDate, String cond, String reportCode) {
         log.info("jobId: ${jobId} dataRptDate:${dataRptDate} reportCode:${reportCode}")
         ImasBmRptCfg rptCfg = rptCfgRepository.getFirstByReportCode(reportCode)
         String collectMode = rptCfg.collectMode
-        log.info(">>collectMode is ${collectMode}")
+        log.info("collectMode is ${collectMode}")
 
         List<RdmsDsTableFieldCfg> tableFieldCfgList = tableFieldCfgRepository.queryByDatasetId("IMAS_PM_" + reportCode)
 
@@ -56,20 +63,24 @@ class DataCompare implements ComputeScript {
                 .collect(Collectors.toList())
         pks.remove("SJRQ")
 
+        if (StringUtils.isBlank(cond)) {
+            cond = " 1=1 "
+        }
+
         String tableName = dbShardingService.shardingPmByReportCode(reportCode, dataRptDate)
         String preTableName = dbShardingService.shardingPmByReportCode(reportCode, dataRptDate, true)
         String preDataRptDate = SIMPLE_DATE.format(LocalDate.parse(dataRptDate, SIMPLE_DATE).minusDays(1));
 
         if (databaseDialect == DatabaseDialect.MYSQL) {
-            return mysql(dataRptDate, preDataRptDate, tableName, preTableName, collectMode, pks, buses)
+            return mysql(dataRptDate, preDataRptDate, tableName, preTableName, collectMode, pks, buses, cond)
         } else if (databaseDialect == DatabaseDialect.SQLSERVER) {
-            return sqlserver(dataRptDate, preDataRptDate, tableName, preTableName, collectMode, pks, buses)
+            return sqlserver(dataRptDate, preDataRptDate, tableName, preTableName, collectMode, pks, buses, cond)
         } else {
-            return oracle(dataRptDate, preDataRptDate, tableName, preTableName, collectMode, pks, buses)
+            return oracle(dataRptDate, preDataRptDate, tableName, preTableName, collectMode, pks, buses, cond)
         }
     }
 
-    Result oracle(String dataRptDate, String preDataRptDate, String tableName, String preTableName, String collectMode, List<String> pks, List<String> buses) {
+    Result oracle(String dataRptDate, String preDataRptDate, String tableName, String preTableName, String collectMode, List<String> pks, List<String> buses, String cond) {
         StopWatch sw = new StopWatch("oracle data compare for $tableName $dataRptDate")
         String abPkEqCond = pks.stream().map(pk -> " a.${pk} = b.${pk} ").collect(Collectors.joining(" and "))
         String busDiffCond = buses.stream().map(pk -> " a.${pk} != b.${pk} or (a.${pk} is null and b.${pk} is not null) or (a.${pk} is not null and b.${pk} is null)").collect(Collectors.joining(" or "))
@@ -85,13 +96,14 @@ class DataCompare implements ComputeScript {
                 set a.DATA_RPT_FLAG = 'A'
                 where a.SJRQ = '${dataRptDate}'
                   and a.NEXT_ACTION != '99'  
+                  and ${cond.replace("alias.", "a.")} 
                   and not exists(select 1 from ${preTableName} b where b.SJRQ = '$preDataRptDate' and ${abPkEqCond})
             """.toString())
             log.debug("mod collect update to A sql[$updateASql]")
             sql.executeUpdate(updateASql)
             sw.stop()
             def whereSqlSegment = """
-                where SJRQ = '${dataRptDate}' and NEXT_ACTION!='99' and exists(
+                where SJRQ = '${dataRptDate}' and NEXT_ACTION!='99' and ${cond.replace("alias.", "")} and exists(
                               select 1
                               from ${preTableName} b
                               where b.SJRQ = '$preDataRptDate'
@@ -111,9 +123,8 @@ class DataCompare implements ComputeScript {
                 using (select * from ${preTableName} where SJRQ = '$preDataRptDate') b
                 on (${abPkEqCond} and (_busCond_))
                 when matched then 
-                update set a.DATA_RPT_FLAG = 'O', a.CHECK_FLAG = b.CHECK_FLAG where SJRQ = '${dataRptDate}' and NEXT_ACTION!='99'
+                update set a.DATA_RPT_FLAG = 'O', a.CHECK_FLAG = b.CHECK_FLAG where SJRQ = '${dataRptDate}' and NEXT_ACTION!='99' and ${cond.replace("alias.", "a.")} 
                 """.replace("_busCond_", busEqCond).toString())
-//            def updateOSql = "update ${tableName} a set a.DATA_RPT_FLAG = 'O' ${whereSqlSegment}".replace("_busCond_", busEqCond).toString()
             log.debug("mod collect update to O sql[$updateOSql]")
             sql.executeUpdate(updateOSql)
             sw.stop()
@@ -123,7 +134,8 @@ class DataCompare implements ComputeScript {
                 update ${tableName}
                 set DATA_RPT_FLAG = 'A'
                 where SJRQ = '${dataRptDate}'
-                  and NEXT_ACTION != '99'  
+                  and NEXT_ACTION != '99' 
+                  and ${cond.replace("alias.", "")} 
             """.toString()
             sql.executeUpdate(cleanSpaces(updateASql))
             sw.stop()
@@ -132,8 +144,12 @@ class DataCompare implements ComputeScript {
         return Result.OK
     }
 
-    Result mysql(String dataRptDate, String preDataRptDate, String tableName, String preTableName, String collectMode, List<String> pks, List<String> buses) {
-        log.info(">>>tableName is ${tableName}")
+    Result mysql(String dataRptDate, String preDataRptDate, String tableName, String preTableName, String collectMode, List<String> pks, List<String> buses, String cond) {
+        StopWatch sw = new StopWatch("mysql data compare for $tableName $dataRptDate")
+        String abPkEqCond = pks.stream().map(pk -> " a.${pk} = b.${pk} ").collect(Collectors.joining(" and "))
+        String busDiffCond = buses.stream().map(pk -> " a.${pk} != b.${pk} or (a.${pk} is null and b.${pk} is not null) or (a.${pk} is not null and b.${pk} is null)").collect(Collectors.joining(" or "))
+        String busEqCond = buses.stream().map(pk -> " (a.${pk} = b.${pk} or (a.${pk} is null and b.${pk} is null)) ").collect(Collectors.joining(" and "))
+
         if (tableName.equals("IMAS_PM_TYCKJC")) {
             sql.execute("call SP_UPDATE_TYCKJC('${dataRptDate}')");
         }
@@ -242,11 +258,7 @@ class DataCompare implements ComputeScript {
         else if (tableName.equals("IMAS_PM_TZYWZD")) {
             sql.execute("call SP_UPDATE_TZYWZD('${dataRptDate}')");
         }
-        StopWatch sw = new StopWatch("mysql data compare for $tableName $dataRptDate")
-        String abPkEqCond = pks.stream().map(pk -> " a.${pk} = b.${pk} ").collect(Collectors.joining(" and "))
-        String busDiffCond = buses.stream().map(pk -> " a.${pk} != b.${pk} or (a.${pk} is null and b.${pk} is not null) or (a.${pk} is not null and b.${pk} is null)").collect(Collectors.joining(" or "))
-        String busEqCond = buses.stream().map(pk -> " (a.${pk} = b.${pk} or (a.${pk} is null and b.${pk} is null)) ").collect(Collectors.joining(" and "))
-
+        
         if (collectMode == "1") {
             // 变化量
             // 更新新增数据上报类型为 新增
@@ -254,7 +266,7 @@ class DataCompare implements ComputeScript {
             def updateASql = cleanSpaces("""
                 update ${tableName} a left join (select * from ${preTableName} where SJRQ = '$preDataRptDate') b on ${abPkEqCond}
                 set a.DATA_RPT_FLAG = 'A'
-                where a.SJRQ = '${dataRptDate}' and a.NEXT_ACTION!='99' and b.DATA_ID is null 
+                where a.SJRQ = '${dataRptDate}' and a.NEXT_ACTION!='99' and ${cond.replace("alias.", "a.")} and b.DATA_ID is null 
             """.toString())
             log.debug("mod collect update to A sql[$updateASql]")
             sql.executeUpdate(updateASql)
@@ -265,13 +277,13 @@ class DataCompare implements ComputeScript {
             """.toString()
             // 更新新增数据上报类型为 修改
             sw.start("mod collect update to M")
-            def updateMSql = cleanSpaces("update ${tableName} a ${leftJoinSqlSegment} set a.DATA_RPT_FLAG = 'M' where a.SJRQ = '${dataRptDate}' and a.NEXT_ACTION!='99' and b.DATA_ID is not null".replace("_busCond_", busDiffCond).toString())
+            def updateMSql = cleanSpaces("update ${tableName} a ${leftJoinSqlSegment} set a.DATA_RPT_FLAG = 'M' where a.SJRQ = '${dataRptDate}' and a.NEXT_ACTION!='99' and ${cond.replace("alias.", "a.")}  and b.DATA_ID is not null".replace("_busCond_", busDiffCond).toString())
             log.debug("mod collect update to M sql[$updateMSql]")
             sql.executeUpdate(updateMSql)
             sw.stop()
             // 更新新增数据上报类型为 无变化
             sw.start("mod collect update to O")
-            def updateOSql = cleanSpaces("update ${tableName} a ${leftJoinSqlSegment} set a.DATA_RPT_FLAG = 'O', a.CHECK_FLAG = b.CHECK_FLAG where a.SJRQ = '${dataRptDate}' and a.NEXT_ACTION!='99' and b.DATA_ID is not null".replace("_busCond_", busEqCond).toString())
+            def updateOSql = cleanSpaces("update ${tableName} a ${leftJoinSqlSegment} set a.DATA_RPT_FLAG = 'O', a.CHECK_FLAG = b.CHECK_FLAG where a.SJRQ = '${dataRptDate}' and a.NEXT_ACTION!='99' and ${cond.replace("alias.", "a.")} and b.DATA_ID is not null".replace("_busCond_", busEqCond).toString())
             log.debug("mod collect update to O sql[$updateOSql]")
             sql.executeUpdate(updateOSql)
             sw.stop()
@@ -281,7 +293,8 @@ class DataCompare implements ComputeScript {
                 update ${tableName}
                 set DATA_RPT_FLAG = 'A'
                 where SJRQ = '${dataRptDate}'
-                  and NEXT_ACTION != '99'  
+                  and NEXT_ACTION != '99' 
+                  and ${cond.replace("alias.", "")} 
             """.toString()
             sql.executeUpdate(cleanSpaces(updateASql))
             sw.stop()
@@ -290,7 +303,7 @@ class DataCompare implements ComputeScript {
         return Result.OK
     }
 
-    Result sqlserver(String dataRptDate, String preDataRptDate, String tableName, String preTableName, String collectMode, List<String> pks, List<String> buses) {
+    Result sqlserver(String dataRptDate, String preDataRptDate, String tableName, String preTableName, String collectMode, List<String> pks, List<String> buses, String cond) {
         StopWatch sw = new StopWatch("sqlserver data compare for $tableName $dataRptDate")
         String abPkEqCond = pks.stream().map(pk -> " a.${pk} = b.${pk} ").collect(Collectors.joining(" and "))
         String busDiffCond = buses.stream().map(pk -> " a.${pk} != b.${pk} or (a.${pk} is null and b.${pk} is not null) or (a.${pk} is not null and b.${pk} is null)").collect(Collectors.joining(" or "))
@@ -304,7 +317,7 @@ class DataCompare implements ComputeScript {
                 update a
                 set a.DATA_RPT_FLAG = 'A'
                 from ${tableName} a left join (select * from ${preTableName} where SJRQ = '$preDataRptDate') b on ${abPkEqCond}
-                where a.SJRQ = '${dataRptDate}' and a.NEXT_ACTION!='99' and b.DATA_ID is null 
+                where a.SJRQ = '${dataRptDate}' and a.NEXT_ACTION!='99' and ${cond.replace("alias.", "a.")} and b.DATA_ID is null 
             """.toString())
             log.debug("mod collect update to A sql[$updateASql]")
             sql.executeUpdate(updateASql)
@@ -315,13 +328,13 @@ class DataCompare implements ComputeScript {
             """.toString()
             // 更新新增数据上报类型为 修改
             sw.start("mod collect update to M")
-            def updateMSql = cleanSpaces("update a set a.DATA_RPT_FLAG = 'M' from ${tableName} a ${leftJoinSqlSegment} where a.SJRQ = '${dataRptDate}' and a.NEXT_ACTION!='99' and b.DATA_ID is not null".replace("_busCond_", busDiffCond).toString())
+            def updateMSql = cleanSpaces("update a set a.DATA_RPT_FLAG = 'M' from ${tableName} a ${leftJoinSqlSegment} where a.SJRQ = '${dataRptDate}' and a.NEXT_ACTION!='99' and ${cond.replace("alias.", "a.")} and b.DATA_ID is not null".replace("_busCond_", busDiffCond).toString())
             log.debug("mod collect update to M sql[$updateMSql]")
             sql.executeUpdate(updateMSql)
             sw.stop()
             // 更新新增数据上报类型为 无变化
             sw.start("mod collect update to O")
-            def updateOSql = cleanSpaces("update a set a.DATA_RPT_FLAG = 'O', a.CHECK_FLAG = b.CHECK_FLAG from ${tableName} a ${leftJoinSqlSegment} where a.SJRQ = '${dataRptDate}' and a.NEXT_ACTION!='99' and b.DATA_ID is not null".replace("_busCond_", busEqCond).toString())
+            def updateOSql = cleanSpaces("update a set a.DATA_RPT_FLAG = 'O', a.CHECK_FLAG = b.CHECK_FLAG from ${tableName} a ${leftJoinSqlSegment} where a.SJRQ = '${dataRptDate}' and a.NEXT_ACTION!='99' and ${cond.replace("alias.", "a.")} and b.DATA_ID is not null".replace("_busCond_", busEqCond).toString())
             log.debug("mod collect update to O sql[$updateOSql]")
             sql.executeUpdate(updateOSql)
             sw.stop()
@@ -332,6 +345,7 @@ class DataCompare implements ComputeScript {
                 set DATA_RPT_FLAG = 'A'
                 where SJRQ = '${dataRptDate}'
                   and NEXT_ACTION != '99'  
+                  and ${cond.replace("alias.", "")}
             """.toString()
             sql.executeUpdate(cleanSpaces(updateASql))
             sw.stop()
@@ -340,4 +354,3 @@ class DataCompare implements ComputeScript {
         return Result.OK
     }
 }
-
