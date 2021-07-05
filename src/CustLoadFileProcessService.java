@@ -55,7 +55,7 @@ public class CustLoadFileProcessService {
         return result;
     }
 
-    private void initMap() throws Exception {
+    private void initMap(String now) throws Exception {
         EtlUtils.map.clear();
         if (EtlUtils.map.size() == 0) {
             String sql = "select * from map_info";
@@ -68,6 +68,13 @@ public class CustLoadFileProcessService {
                 srecord.put(record.get("SRC"), record.get("DEST"));
                 EtlUtils.map.put(record.get("TYPE_NO"), srecord);
             }
+            sql = "select NBJGH, DQDM from imas_pm_jgfzxx where sjrq = '"+now+"'";
+            lst = handle(jdbcTemplate.queryForList(sql));
+            Map<String, String> dqdm = new HashMap<String, String>();
+            for (Map<String, String> record : lst) {
+                dqdm.put(record.get("NBJGH"), record.get("DQDM"));
+            }
+            EtlUtils.map.put("XDQDM", dqdm);
             sql = "select DATA_NO from gp_bm_data_dic where data_type_no = 'C_REGION_CODE'";
             lst = handle(jdbcTemplate.queryForList(sql));
             Map<String, String> dqqhdm = new HashMap<String, String>();
@@ -75,11 +82,44 @@ public class CustLoadFileProcessService {
                 dqqhdm.put(record.get("DATA_NO"), record.get("DATA_NO"));
             }
             EtlUtils.map.put("DQQHDM", dqqhdm);
+            sql = "select src,dest from map_nbjgh where data_date = '"+now+"'";
+            lst = handle(jdbcTemplate.queryForList(sql));
+            Map<String, String> nbjgh = new HashMap<String, String>();
+            for (Map<String, String> record : lst) {
+                nbjgh.put(record.get("SRC"), record.get("DEST"));
+            }
+            EtlUtils.map.put("NBJGH", dqqhdm);
+            sql = "select * from MAP_WCAS_RATE_TYPE";
+            lst = handle(jdbcTemplate.queryForList(sql));
+            Map<String, String> rateType = new HashMap<String, String>();
+            for (Map<String, String> record : lst) {
+                rateType.put(record.get("ID1")+"_"+record.get("ID2")+"_"+record.get("ID3"),
+                        record.get("DJJZLX")+"|"+record.get("LVLX")+"|"+record.get("JZLV")+"|"+record.get("LVFDPL"));
+            }
+            EtlUtils.map.put("RATETYPE", rateType);
+            sql = "select * from MAP_WCAS_RATE where data_date ='"+now+"'";
+            lst = handle(jdbcTemplate.queryForList(sql));
+            Map<String, String> rate = new HashMap<String, String>();
+            for (Map<String, String> record : lst) {
+                rate.put(record.get("PAIR"), record.get("XESTOR"));
+            }
+            EtlUtils.map.put("RATE", rate);
+            sql = "select ZIACB,ZIACS,ZIACX, ZIDTAS from ODS_WCAS_CLOSEDAC";
+            lst = handle(jdbcTemplate.queryForList(sql));
+            Map<String, String> closedac = new HashMap<String, String>();
+            for (Map<String, String> record : lst) {
+                closedac.put(record.get("ZIACB")+record.get("ZIACS")+record.get("ZIACX"), record.get("ZIDTAS"));
+            }
+            EtlUtils.map.put("CLOSEDAC", closedac);
         }
     }
 
     public boolean process(String type, String now, String group_id) throws Exception {
-        initMap();
+        if(type.equals("TEST")) {
+            etlWCAS.test();
+            return true;
+        }
+        initMap(now);
         String sql = "select * from " + type + " where data_date = '" + now + "' and group_id = '" + group_id + "'";
         List<Map<String, String>> lst = handle(jdbcTemplate.queryForList(sql));
         sql = "select max(data_date) from " + type + " where data_date < '" + now + "'";
