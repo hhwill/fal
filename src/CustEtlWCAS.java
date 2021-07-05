@@ -21,14 +21,14 @@ public class CustEtlWCAS {
         this.insertService = insertService;
     }
 
-    private List<String> addWCAS_DGKHXX(String now, Map<String, String> src) {
+    private List<String> addWCAS_DGKHXX(String now, Map<String, Object> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
         result.add(formatKHH(src.get("ZGDCB")+"-"+src.get("ZGDCS")));
         String nbjgh = formatNBJGH(src.get("ZGDCB"));
         result.add(nbjgh);
-        String ZGCUCL = src.get("ZGCUCL");
-        String ZGC2CN = src.get("ZGC2CN");
+        String ZGCUCL = getString(src.get("ZGCUCL"));
+        String ZGC2CN = getString(src.get("ZGC2CN"));
         String gmjjbmfl = "";
         if ("/COE/POE/SOE/UCG/UCN/".contains("/"+ZGCUCL+"/")) {
             if (ZGC2CN.contains("公司")) {
@@ -63,19 +63,19 @@ public class CustEtlWCAS {
             } else if (size.equals("W")) {
                 qygm = "CS04";
             } else {
-                String XUSLTO = src.get("XUSLTO");
+                String XUSLTO = getString(src.get("XUSLTO"));
                 if (XUSLTO.equals("5")) {
                     qygm = "CS01";
                 } else if (XUSLTO.equals("2") || XUSLTO.equals("4") || XUSLTO.equals("3")) {
                     qygm = "CS02";
                 } else {
-                    String XUEMPE = src.get("XUEMPE");
+                    String XUEMPE = getString(src.get("XUEMPE"));
                     if (XUEMPE.equals("L") || (XUEMPE.equals("O"))) {
                         qygm = "CS04";
                     } else if (XUEMPE.trim().length()> 1 && !XUEMPE.equals("0")) {
                         qygm = "CS03";
                     } else {
-                        String LMSI = src.get("S@LMSI");
+                        String LMSI = getString(src.get("S_LMSI"));
                         if (LMSI.equals("L")) {
                             qygm = "CS01";
                         } else if (LMSI.equals("M")) {
@@ -104,8 +104,8 @@ public class CustEtlWCAS {
                 if (cbkglx.length() == 3) {
                     kglx = cbkglx;
                 } else {
-                    String ZGGHCL = src.get("ZGGHCL");
-                    String XUCTHQ = src.get("XUCTHQ");
+                    String ZGGHCL = getString(src.get("ZGGHCL"));
+                    String XUCTHQ = getString(src.get("XUCTHQ"));
                     if (cbkglx.equals("A01/B01/B02/B03")) {
                         if ("/RCA/RCB/RCC/".contains("/"+ZGGHCL+"/")) {
                             if (XUCTHQ.equals("CN")) {
@@ -137,7 +137,7 @@ public class CustEtlWCAS {
         result.add(kglx);
         result.add("Y");
         result.add(getMap("XDQDM", nbjgh));
-        result.add(src.get("ADDRESS").replace("（注册地址）","").trim());
+        result.add(getString(src.get("ADDRESS")).replace("（注册地址）","").trim());
         result.add("0");
         result.add("0");
         result.add(getMap("X46", src.get("ZGINDY")));
@@ -145,18 +145,18 @@ public class CustEtlWCAS {
         return result;
     }
 
-    public boolean checkDGKHXX(List<List<String>> base, Map<String, String> src) {
+    public boolean checkDGKHXX(List<List<String>> base, Map<String, Object> src) {
         boolean find = false;
         String khh = formatKHH(src.get("ZGDCB")+"-"+src.get("ZGDCS"));
         for (int i = 0; i < base.size(); i++) {
             if (base.get(i).get(1).equals(khh)) {
                 find = true;
-                String ZUCSSN = src.get("ZUCSSN");
+                String ZUCSSN = getString(src.get("ZUCSSN"));
                 if (ZUCSSN.contains("PARENT") || ZUCSSN.startsWith("P")) {
                 } else {
-                    String ZUIDTY = src.get("ZUIDTY");
+                    String ZUIDTY = getString(src.get("ZUIDTY"));
                     if (ZUIDTY.equals("Z")) {
-                        String ZUIDNO = src.get("ZUIDNO");
+                        String ZUIDNO = getString(src.get("ZUIDNO"));
                         if (ZUIDNO.trim().length() == 18) {
                             String dqdm = ZUIDNO.substring(2,8);
                             if (getMap("DQQHDM", dqdm).equals("")) {
@@ -177,9 +177,9 @@ public class CustEtlWCAS {
                         }
                     }
                 }
-                String ZBADID = src.get("ZBADID");
+                String ZBADID = getString(src.get("ZBADID"));
                 if (ZBADID.equals("09")) {
-                    base.get(i).set(9, src.get("ADDRESS").replace("（注册地址）","").trim());
+                    base.get(i).set(9, getString(src.get("ADDRESS")).replace("（注册地址）","").trim());
                 }
                 break;
             }
@@ -187,203 +187,14 @@ public class CustEtlWCAS {
         return find;
     }
 
-    //非同业单位存款
-    private List<String> addWCASDWCKJC_CORPDDAC(String now, Map<String, String> src) {
-        List<String> result = new ArrayList<String>();
-        result.add(now);
-        result.add(formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")));
-        //TODO
-        result.add("01");
-        result.add(formatNBJGH(src.get("DFDCB")));
-        result.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
-        String DFAPTY = src.get("DFAPTY");
-        String productType = getMap("WCAS_ProductType", DFAPTY);
-        result.add(productType);
-        result.add("");
-        result.add(src.get("DFDTAO"));
-        result.add("");
-        result.add("");
-        result.add("01");
-        String key = src.get("DGCIRT") + "__" + src.get("DFCYCD");
-        String value = getMap("RATETYPE", key);
-        String[] rateType = new String[4];
-        rateType[0] = "TR01";
-        rateType[1] = "RF01";
-        rateType[2] ="5.2";
-        rateType[3] = "01";
-        if (!value.equals("")) {
-            try {
-                String[] ss = value.split("\\|");
-                if (ss.length > 0) {
-                    rateType[0] = ss[0];
-                }
-                if (ss.length > 1) {
-                    rateType[1] = ss[1];
-                }
-                if (ss.length > 2) {
-                    rateType[2] = ss[2];
-                }
-                if (ss.length > 3) {
-                    rateType[3] = ss[3];
-                }
-            } catch (Exception ex) {
-
-            }
-        }
-        result.add(rateType[0]);
-        result.add(rateType[1]);
-        //TODO
-        result.add("5.2");
-        result.add(rateType[2]);
-        result.add(rateType[3]);
-        if (productType.equals("D08")) {
-
-        } else {
-            result.add("");
-        }
-        result.add("");
-        result.add("01");
-        result.add("N");
-        String ccy = src.get("DFCYCD");
-        if (ccy.equals("CNY")) {
-            result.add("");
-        } else {
-            //usd >=300W then A else B
-            if (ccy.equals("EUR") || ccy.equals("HKD") || ccy.equals("JPY")) {
-                String currate = getMap("RATE", ccy +"/USD");
-                if (!currate.equals("")) {
-                    BigDecimal x = new BigDecimal(src.get("LEDGER")).multiply(new BigDecimal(currate));
-                    if (x.compareTo(new BigDecimal("3000000")) > -1) {
-                        result.add("A");
-                    } else {
-                        result.add("B");
-                    }
-                } else {
-                    result.add("");
-                }
-            } else {
-                result.add("");
-            }
-        }
-        return result;
-    }
-
-    private List<String> addWCASDWCKJC_CORPTDAC3(String now, Map<String, String> src) {
-        List<String> result = new ArrayList<String>();
-        result.add(now);
-        result.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
-        result.add("01");
-        result.add(formatNBJGH(src.get("TDDCB")));
-        result.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
-        result.add(src.get("TDAPTY"));
-        result.add("");
-        result.add(src.get("TDSTDT"));
-        result.add("");
-        result.add("");
-        result.add("01");
-        result.add("TR01");
-        result.add("RF01");
-        result.add("5.2");
-        result.add("5.2");
-        result.add("01");
-        result.add("");
-        result.add("");
-        result.add("01");
-        result.add("N");
-        result.add("A");
-        return result;
-    }
-
-    private List<String> addWCASTYCKJC_CORPDDAC(String now, Map<String, String> src) {
-        List<String> result = new ArrayList<String>();
-        result.add(now);
-        result.add(formatNBJGH(src.get("DFDCB")));
-        result.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
-        result.add("A01");
-        result.add(formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")));
-        result.add("A01");
-        result.add(src.get("DFDTAO"));
-        result.add("");
-        result.add("01");
-        result.add("TR01");
-        result.add("RF01");
-        result.add("5.2");
-        result.add("5.2");
-        result.add("01");
-        return result;
-    }
-
-    private List<String> addWCASTYCKJC_CORPTDAC3(String now, Map<String, String> src) {
-        List<String> result = new ArrayList<String>();
-        result.add(now);
-        result.add(formatNBJGH(src.get("TDDCB")));
-        result.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
-        result.add("A01");
-        result.add(src.get("TDACB")+"-"+src.get("TDACS")+"-"+src.get("TDACX"));
-        result.add("A01");
-        result.add(src.get("TDSTDT"));
-        result.add("");
-        result.add("01");
-        result.add("TR01");
-        result.add("RF01");
-        result.add("5.2");
-        result.add("5.2");
-        result.add("01");
-        return result;
-    }
-
-    private List<String> addWCASDWCKYE_CORPDDAC(String now, Map<String, String> src) {
-        List<String> result = new ArrayList<String>();
-        result.add(now);
-        result.add(formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")));
-        result.add("01");
-        result.add(formatNBJGH(src.get("DFDCB")));
-        result.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
-        result.add(src.get("DFCYCD"));
-        result.add("0");
-        return result;
-    }
-
-    private List<String> addWCASDWCKYE_CORPTDAC3(String now, Map<String, String> src) {
-        List<String> result = new ArrayList<String>();
-        result.add(now);
-        result.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
-        result.add("01");
-        result.add(formatNBJGH(src.get("TDDCB")));
-        result.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
-        result.add(src.get("TDCYCD"));
-        result.add("0");
-        return result;
-    }
-
-    private List<String> addWCASTYCKYE_CORPDDAC(String now, Map<String, String> src) {
-        List<String> result = new ArrayList<String>();
-        result.add(now);
-        result.add(formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")));
-        result.add(formatNBJGH(src.get("DFDCB")));
-        result.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
-        result.add(src.get("DFCYCD"));
-        result.add("0");
-        return result;
-    }
-
-    private List<String> addWCASTYCKYE_CORPTDAC3(String now, Map<String, String> src) {
-        List<String> result = new ArrayList<String>();
-        result.add(now);
-        result.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
-        result.add(formatNBJGH(src.get("TDDCB")));
-        result.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
-        result.add(src.get("TDCYCD"));
-        result.add("0");
-        return result;
-    }
 
 
 
-    public void processWCAS_DGHKXX(String now, List<Map<String, String>> lstNow,
-                                   List<Map<String, String>> lstPrevious, String group_id) throws Exception {
+
+    public void processWCAS_DGHKXX(String now, List<Map<String, Object>> lstNow,
+                                   List<Map<String, Object>> lstPrevious, String group_id) throws Exception {
         List<List<String>> base = new ArrayList<List<String>>();
-        for (Map<String, String> record : lstNow) {
+        for (Map<String, Object> record : lstNow) {
             if (!checkDGKHXX(base, record)) {
                 base.add(addWCAS_DGKHXX(now, record));
             }
@@ -391,9 +202,7 @@ public class CustEtlWCAS {
         insertService.insertData(SQL_DGKHXX, group_id, group_id, base);
     }
 
-
-
-    public void addDWCK_CORPDDAC(String now, Map<String, String> src, List<List<String>> dwckjc,
+    public void addDWCK_CORPDDAC(String now, Map<String, Object> src, List<List<String>> dwckjc,
                                  List<List<String>> dwckye) {
         List<List<String>> ckxx = getCKXH(src);
         for (List<String> subckxx : ckxx) {
@@ -406,9 +215,9 @@ public class CustEtlWCAS {
             subdwckjc.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
             subdwckjc.add(subckxx.get(3));
             subdwckjc.add("");
-            subdwckjc.add(src.get("DFDTAO"));
+            subdwckjc.add(getString(src.get("DFDTAO")));
             subdwckjc.add("");
-            String ZIDTAS = getMap("CLOSEDAC", src.get("DFACB")+"_"+src.get("DFACS")+"_"+src.get("DFACX"));
+            String ZIDTAS = getMap("WCAS_CLOSEDAC", src.get("DFACB")+"_"+src.get("DFACS")+"_"+src.get("DFACX"));
             subdwckjc.add(ZIDTAS);
             subdwckjc.add("01");
             String key = src.get("DGCIRT") + "__" + src.get("DFCYCD");
@@ -450,7 +259,7 @@ public class CustEtlWCAS {
             subdwckjc.add("");
             subdwckjc.add("01");
             subdwckjc.add("N");
-            String ccy = src.get("DFCYCD");
+            String ccy = getString(src.get("DFCYCD"));
             if (ccy.equals("CNY")) {
                 subdwckjc.add("");
             } else {
@@ -477,7 +286,7 @@ public class CustEtlWCAS {
             subdwckye.add(subckxx.get(2));
             subdwckye.add(formatNBJGH(src.get("DFDCB")));
             subdwckye.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
-            subdwckye.add(src.get("DFCYCD"));
+            subdwckye.add(getString(src.get("DFCYCD")));
             if (ZIDTAS.equals("")) {
                 if (subckxx.get(1).startsWith("-")) {
                     subdwckye.add("0");
@@ -491,7 +300,7 @@ public class CustEtlWCAS {
         }
     }
 
-    public void addTYCK_CORPDDAC(String now, Map<String, String> src, List<List<String>> tyckjc,
+    public void addTYCK_CORPDDAC(String now, Map<String, Object> src, List<List<String>> tyckjc,
                                  List<List<String>> tyckye) {
         List<List<String>> ckxx = getCKXH(src);
         List<String> subtyckjc = new ArrayList<String>();
@@ -499,7 +308,7 @@ public class CustEtlWCAS {
         subtyckjc.add(now);
         subtyckjc.add(formatNBJGH(src.get("DFDCB")));
         subtyckjc.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
-        String ZGCUCL = src.get("ZGCUCL");
+        String ZGCUCL = getString(src.get("ZGCUCL"));
         String JRJGLXDM = getMap("X42", ZGCUCL).trim();
         if (JRJGLXDM.length() > 3) {
             JRJGLXDM = JRJGLXDM.substring(0,3);
@@ -510,7 +319,7 @@ public class CustEtlWCAS {
         subtyckjc.add(JRJGLXDM);
         subtyckjc.add(formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")));
         subtyckjc.add("A011");
-        subtyckjc.add(src.get("DFDTAO"));
+        subtyckjc.add(getString(src.get("DFDTAO")));
         subtyckjc.add("");
         subtyckjc.add("01");
         String key = src.get("DGCIRT") + "__" + src.get("DFCYCD");
@@ -549,13 +358,13 @@ public class CustEtlWCAS {
         subtyckye.add(formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")));
         subtyckye.add(formatNBJGH(src.get("DFDCB")));
         subtyckye.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
-        subtyckye.add(src.get("DFCYCD"));
-        subtyckye.add(src.get("LEDGER"));
+        subtyckye.add(getString(src.get("DFCYCD")));
+        subtyckye.add(getString(src.get("LEDGER")));
         tyckjc.add(subtyckjc);
         tyckye.add(subtyckye);
     }
 
-    public void addDWCK_CORPTDAC3(String now, Map<String, String> src, List<List<String>> dwckjc,
+    public void addDWCK_CORPTDAC3(String now, Map<String, Object> src, List<List<String>> dwckjc,
                                  List<List<String>> dwckye) {
         List<List<String>> ckxx = getCKXH(src);
         List<String> subdwckjc = new ArrayList<String>();
@@ -567,22 +376,22 @@ public class CustEtlWCAS {
         subdwckjc.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
         subdwckjc.add(getMap("WCAS_ProductType", src.get("TDAPTY")));
         subdwckjc.add("");
-        subdwckjc.add(src.get("TDSTDT"));
-        String TDAPTY = src.get("TDAPTY");
+        subdwckjc.add(getString(src.get("TDSTDT")));
+        String TDAPTY = getString(src.get("TDAPTY"));
         if (TDAPTY.equals("CDT")) {
             subdwckjc.add("19990107");
         } else {
-            subdwckjc.add(src.get("TDDUDT"));
+            subdwckjc.add(getString(src.get("TDDUDT")));
         }
 
-        String ZIDTAS = getMap("CLOSEDAC", src.get("TDACB")+"_"+src.get("TDACS")+"_"+src.get("TDACX"));
+        String ZIDTAS = getMap("WCAS_CLOSEDAC", src.get("TDACB")+"_"+src.get("TDACS")+"_"+src.get("TDACX"));
         subdwckjc.add(ZIDTAS);
-        String TDTERM = src.get("TDTERM");
+        String TDTERM = getString(src.get("TDTERM"));
         if (!TDTERM.equals("0000")) {
             subdwckjc.add(getMap("WCAS_TERMCODE_FIX",TDTERM));
         } else {
-            subdwckjc.add(checkWcasTendor(String.valueOf(differentDaysByMillisecond(src.get("TDDUDT"),
-                    src.get("TDSTDT"))),
+            subdwckjc.add(checkWcasTendor(String.valueOf(differentDaysByMillisecond(getString(src.get("TDDUDT")),
+                    getString(src.get("TDSTDT")))),
                     map.get("WCAS_TERMCODE")));
         }
         String key = src.get("TDCRTY") + "_"+src.get("TDTERM")+"_" + src.get("TDCYCD");
@@ -624,7 +433,7 @@ public class CustEtlWCAS {
         subdwckjc.add("");
         subdwckjc.add("01");
         subdwckjc.add("N");
-        String ccy = src.get("TDCYCD");
+        String ccy = getString(src.get("TDCYCD"));
         if (ccy.equals("CNY")) {
             subdwckjc.add("");
         } else {
@@ -651,12 +460,12 @@ public class CustEtlWCAS {
         subdwckye.add(ckxx.get(0).get(2));
         subdwckye.add(formatNBJGH(src.get("TDDCB")));
         subdwckye.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
-        subdwckye.add(src.get("TDCYCD"));
-        subdwckye.add(src.get("LEDGER"));
+        subdwckye.add(getString(src.get("TDCYCD")));
+        subdwckye.add(getString(src.get("LEDGER")));
         dwckye.add(subdwckye);
     }
 
-    public void addTYCK_CORPTDAC3(String now, Map<String, String> src, List<List<String>> tyckjc,
+    public void addTYCK_CORPTDAC3(String now, Map<String, Object> src, List<List<String>> tyckjc,
                                  List<List<String>> tyckye) {
         List<List<String>> ckxx = getCKXH(src);
         List<String> subtyckjc = new ArrayList<String>();
@@ -664,7 +473,7 @@ public class CustEtlWCAS {
         subtyckjc.add(now);
         subtyckjc.add(formatNBJGH(src.get("TDDCB")));
         subtyckjc.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
-        String ZGCUCL = src.get("ZGCUCL");
+        String ZGCUCL = getString(src.get("ZGCUCL"));
         String JRJGLXDM = getMap("X42", ZGCUCL).trim();
         if (JRJGLXDM.length() > 3) {
             JRJGLXDM = JRJGLXDM.substring(0,3);
@@ -675,19 +484,19 @@ public class CustEtlWCAS {
         subtyckjc.add(JRJGLXDM);
         subtyckjc.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
         subtyckjc.add("A012");
-        subtyckjc.add(src.get("TDSTDT"));
-        String TDAPTY = src.get("TDAPTY");
+        subtyckjc.add(getString(src.get("TDSTDT")));
+        String TDAPTY = getString(src.get("TDAPTY"));
         if (TDAPTY.equals("CDT")) {
             subtyckjc.add("19990107");
         } else {
-            subtyckjc.add(src.get("TDDUDT"));
+            subtyckjc.add(getString(src.get("TDDUDT")));
         }
-        String TDTERM = src.get("TDTERM");
+        String TDTERM = getString(src.get("TDTERM"));
         if (!TDTERM.equals("0000")) {
             subtyckjc.add(getMap("WCAS_TERMCODE_FIX",TDTERM));
         } else {
-            subtyckjc.add(checkWcasTendor(String.valueOf(differentDaysByMillisecond(src.get("TDDUDT"),
-                    src.get("TDSTDT"))),
+            subtyckjc.add(checkWcasTendor(String.valueOf(differentDaysByMillisecond(getString(src.get("TDDUDT")),
+                    getString(src.get("TDSTDT")))),
                     map.get("WCAS_TERMCODE")));
         }
         String key = src.get("TDCRTY") + "_"+src.get("TDTERM")+"_" + src.get("TDCYCD");
@@ -726,13 +535,13 @@ public class CustEtlWCAS {
         subtyckye.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
         subtyckye.add(formatNBJGH(src.get("TDDCB")));
         subtyckye.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
-        subtyckye.add(src.get("TDCYCD"));
-        subtyckye.add(src.get("LEDGER"));
+        subtyckye.add(getString(src.get("TDCYCD")));
+        subtyckye.add(getString(src.get("LEDGER")));
         tyckjc.add(subtyckjc);
         tyckye.add(subtyckye);
     }
 
-    private void addWCASDWCKFS(String now, Map<String, String> src, List<List<String>> dwckfs) {
+    private void addWCASDWCKFS(String now, Map<String, Object> src, List<List<String>> dwckfs) {
         List<List<String>> ckxx = getCKXH(src);
         List<List<String>> jyls = getWCASJYLS(now, src);
         for (List<String> subjyls : jyls){
@@ -772,11 +581,11 @@ public class CustEtlWCAS {
                 }
             }
             result.add(rateType[2]);
-            result.add(src.get("TDCYCD"));
+            result.add(getString(src.get("TDCYCD")));
             result.add(subjyls.get(2));
             result.add("03");
             result.add(subjyls.get(3));
-            String ccy = src.get("TDCYCD");
+            String ccy = getString(src.get("TDCYCD"));
             if (ccy.equals("CNY")) {
                 result.add("");
             } else {
@@ -801,7 +610,7 @@ public class CustEtlWCAS {
         }
     }
 
-    private void addWCASTYCKFS(String now, Map<String, String> src, List<List<String>> tyckfs) {
+    private void addWCASTYCKFS(String now, Map<String, Object> src, List<List<String>> tyckfs) {
         List<List<String>> ckxx = getCKXH(src);
         List<List<String>> jyls = getWCASJYLS(now, src);
         for (List<String> subjyls : jyls) {
@@ -812,7 +621,7 @@ public class CustEtlWCAS {
             result.add(formatKHH(src.get("TDDCB") + "-" + src.get("TDDCS")));
             result.add(subjyls.get(0));
             result.add(subjyls.get(1));
-            result.add(src.get("TDCYCD"));
+            result.add(getString(src.get("TDCYCD")));
             String key = src.get("TDCRTY") + "_"+src.get("TDTERM")+"_" + src.get("TDCYCD");
             String value = getMap("RATETYPE", key);
             String[] rateType = new String[4];
@@ -848,15 +657,16 @@ public class CustEtlWCAS {
         }
     }
 
-    public void processCORPDDAC(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious, String group_id) throws Exception {
+    public void processCORPDDAC(String now, List<Map<String, Object>> lstNow, List<Map<String, Object>> lstPrevious,
+                                String group_id) throws Exception {
         List<List<String>> dwckjc = new ArrayList<List<String>>();
         List<List<String>> dwckye = new ArrayList<List<String>>();
         List<List<String>> tyckjc = new ArrayList<List<String>>();
         List<List<String>> tyckye = new ArrayList<List<String>>();
-        for (Map<String, String> record : lstNow) {
-            String DFSTUS = record.get("DFSTUS");
+        for (Map<String, Object> record : lstNow) {
+            String DFSTUS = getString(record.get("DFSTUS"));
             if (DFSTUS != null && !DFSTUS.equals("4") && !DFSTUS.equals("5") ) {
-                String ZGCUCL = record.get("ZGCUCL");
+                String ZGCUCL = getString(record.get("ZGCUCL"));
                 String tybz = getMap("WCAS_TYBZ", ZGCUCL);
                 if (tybz.equals("非同业")) {
                     addDWCK_CORPDDAC(now, record, dwckjc, dwckye);
@@ -875,18 +685,19 @@ public class CustEtlWCAS {
         insertService.insertData(SQL_TYCKYE, group_id, group_id, tyckye);
     }
 
-    public void processCORPTDAC3(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious, String group_id) throws Exception {
+    public void processCORPTDAC3(String now, List<Map<String, Object>> lstNow, List<Map<String, Object>> lstPrevious,
+                                 String group_id) throws Exception {
         List<List<String>> dwckjc = new ArrayList<List<String>>();
         List<List<String>> dwckye = new ArrayList<List<String>>();
         List<List<String>> tyckjc = new ArrayList<List<String>>();
         List<List<String>> tyckye = new ArrayList<List<String>>();
         List<List<String>> dwckfs = new ArrayList<List<String>>();
         List<List<String>> tyckfs = new ArrayList<List<String>>();
-        for (Map<String, String> record : lstNow) {
-            String DFSTUS = record.get("TDSTUS");
+        for (Map<String, Object> record : lstNow) {
+            String DFSTUS = getString(record.get("TDSTUS"));
+            String ZGCUCL = getString(record.get("ZGCUCL"));
+            String tybz = getMap("WCAS_TYBZ", ZGCUCL);
             if (DFSTUS != null && !DFSTUS.equals("4") && !DFSTUS.equals("5") ) {
-                String ZGCUCL = record.get("ZGCUCL");
-                String tybz = getMap("WCAS_TYBZ", ZGCUCL);
                 if (tybz.equals("非同业")) {
                     addDWCK_CORPTDAC3(now, record, dwckjc, dwckye);
                     if (record.get("THCPDT").equals(now) || (record.get("TDSTDT").equals(now) && record.get("THCPDT").equals("0") && record.get("TDMTIN").equals("2") && record.get("TDSTUS").equals("1"))) {
@@ -897,6 +708,15 @@ public class CustEtlWCAS {
                     if (record.get("THCPDT").equals(now) || (record.get("TDSTDT").equals(now) && record.get("THCPDT").equals("0") && record.get("TDMTIN").equals("2") && record.get("TDSTUS").equals("1"))) {
                         addWCASTYCKFS(now, record, tyckfs);
                     }
+                }
+            }
+            if (tybz.equals("非同业")) {
+                if (record.get("THCPDT").equals(now) || (record.get("TDSTDT").equals(now) && record.get("THCPDT").equals("0") && record.get("TDMTIN").equals("2") && record.get("TDSTUS").equals("1"))) {
+                    addWCASDWCKFS(now, record, dwckfs);
+                }
+            } else {
+                if (record.get("THCPDT").equals(now) || (record.get("TDSTDT").equals(now) && record.get("THCPDT").equals("0") && record.get("TDMTIN").equals("2") && record.get("TDSTUS").equals("1"))) {
+                    addWCASTYCKFS(now, record, tyckfs);
                 }
             }
         }
