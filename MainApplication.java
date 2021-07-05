@@ -2272,7 +2272,7 @@ public class MainApplication {
                 String type_value = getCellValue(row.getCell(7));
                 String type_value1 = getCellValue(row.getCell(8));
                 String type_value2 = getCellValue(row.getCell(9));
-                String type_value3 = getCellValue(row.getCell(9));
+                String type_value3 = getCellValue(row.getCell(10));
                 printDict("X41", type_no, type_value);
                 printDict("X42", type_no, type_value1);
                 printDict("X43", type_no, type_value2);
@@ -2331,8 +2331,30 @@ public class MainApplication {
                 String LVFDPV = getCellValue(row.getCell(19));
                 if (id4.equals("DD") || id4.equals("TD")) {
                     System.out.println(String.format("insert into MAP_WCAS_RATE_TYPE(id1,id2,id3,DJJZLX,LVLX,JZLV," +
-                            "LVFDPL)values('%s','%s','%s','%s','%s','%s','%s'",id1,id2,id3,DJJZLX,LVLX,JZLV,LVFDPV));
+                            "LVFDPL)values('%s','%s','%s','%s','%s','%s','%s');",id1,id2,id3,DJJZLX,LVLX,JZLV,LVFDPV));
                 }
+            }
+        }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("TermCode.xlsx"));
+        st = wb.getSheetAt(0);
+        for (int i = 1; i < 10; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(1));
+                if (!type_no.trim().equals("") && type_no.length() > 1)
+                    printDict("WCAS_TERMCODE_FIX", type_no, type_value);
+            }
+        }
+
+        for (int i = 1; i < 16; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(3));
+                String type_value = getCellValue(row.getCell(4));
+                if (!type_no.trim().equals("") && type_no.length() > 1)
+                    printDict("WCAS_TERMCODE", type_no, type_value);
             }
         }
 //        wb.close();
