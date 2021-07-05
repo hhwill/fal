@@ -568,7 +568,13 @@ public class CustEtlWCAS {
         subdwckjc.add(getMap("WCAS_ProductType", src.get("TDAPTY")));
         subdwckjc.add("");
         subdwckjc.add(src.get("TDSTDT"));
-        subdwckjc.add(src.get("TDAPTY"));
+        String TDAPTY = src.get("TDAPTY");
+        if (TDAPTY.equals("CDT")) {
+            subdwckjc.add("19990107");
+        } else {
+            subdwckjc.add(src.get("TDDUDT"));
+        }
+
         String ZIDTAS = getMap("CLOSEDAC", src.get("TDACB")+"_"+src.get("TDACS")+"_"+src.get("TDACX"));
         subdwckjc.add(ZIDTAS);
         String TDTERM = src.get("TDTERM");
@@ -670,7 +676,12 @@ public class CustEtlWCAS {
         subtyckjc.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
         subtyckjc.add("A012");
         subtyckjc.add(src.get("TDSTDT"));
-        subtyckjc.add(src.get("TDAPTY"));
+        String TDAPTY = src.get("TDAPTY");
+        if (TDAPTY.equals("CDT")) {
+            subtyckjc.add("19990107");
+        } else {
+            subtyckjc.add(src.get("TDDUDT"));
+        }
         String TDTERM = src.get("TDTERM");
         if (!TDTERM.equals("0000")) {
             subtyckjc.add(getMap("WCAS_TERMCODE_FIX",TDTERM));
@@ -897,4 +908,31 @@ public class CustEtlWCAS {
         insertService.insertData(SQL_TYCKFS, group_id, group_id, tyckfs);
     }
 
+    public void test() {
+        List<List<String>> dwckjc = new ArrayList<List<String>>();
+        List<String> r = new ArrayList<String>();
+        r.add("20210531");
+        r.add("20210531");
+        r.add("01");
+        r.add("20210531");
+        r.add("20210531");
+        r.add("D011");
+        r.add("");
+        r.add("20210531");
+        r.add("");
+        r.add("");
+        r.add("1");
+        r.add("1");
+        r.add("1");
+        r.add("1");
+        r.add("1");
+        r.add("1");
+        r.add("1");
+        r.add("1");
+        r.add("1");
+        r.add("1");
+        r.add("1");
+        dwckjc.add(r);
+        insertService.insertData(SQL_DWCKJC, "a", "a", dwckjc);
+    }
 }
