@@ -675,10 +675,6 @@ public class CustEtlWCAS {
                 }
             }
         }
-        log.info(">>>>>>>>dwckjc");
-        log.info(dwckjc.toString());
-        log.info(">>>>>>>>dwckye");
-        log.info(dwckye.toString());
         insertService.insertData(SQL_DWCKJC, group_id, group_id, dwckjc);
         insertService.insertData(SQL_DWCKYE, group_id, group_id, dwckye);
         insertService.insertData(SQL_TYCKJC, group_id, group_id, tyckjc);
@@ -700,14 +696,8 @@ public class CustEtlWCAS {
             if (DFSTUS != null && !DFSTUS.equals("4") && !DFSTUS.equals("5") ) {
                 if (tybz.equals("非同业")) {
                     addDWCK_CORPTDAC3(now, record, dwckjc, dwckye);
-                    if (record.get("THCPDT").equals(now) || (record.get("TDSTDT").equals(now) && record.get("THCPDT").equals("0") && record.get("TDMTIN").equals("2") && record.get("TDSTUS").equals("1"))) {
-                        addWCASDWCKFS(now, record, dwckfs);
-                    }
                 } else {
                     addTYCK_CORPTDAC3(now, record, tyckjc, tyckye);
-                    if (record.get("THCPDT").equals(now) || (record.get("TDSTDT").equals(now) && record.get("THCPDT").equals("0") && record.get("TDMTIN").equals("2") && record.get("TDSTUS").equals("1"))) {
-                        addWCASTYCKFS(now, record, tyckfs);
-                    }
                 }
             }
             if (tybz.equals("非同业")) {
