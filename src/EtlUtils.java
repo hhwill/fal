@@ -339,8 +339,8 @@ public class EtlUtils {
                         record.add(lastCKXH);
                         lastCKXH = "02";
                         record.add(lastCKCPLB);
-                        if (defCKCPLB.equals("D0501")) {
-                            defCKCPLB = "D0502";
+                        if (lastCKCPLB.equals("D0501")) {
+                            lastCKCPLB = "D0502";
                         }
                         result.add(record);
                     } else {
@@ -348,8 +348,8 @@ public class EtlUtils {
                         record.add(lastCKXH);
                         lastCKXH = "02";
                         record.add(defCKCPLB);
-                        if (defCKCPLB.equals("D0501")) {
-                            defCKCPLB = "D0502";
+                        if (lastCKCPLB.equals("D0501")) {
+                            lastCKCPLB = "D0502";
                         }
                         result.add(record);
                     }
@@ -381,9 +381,9 @@ public class EtlUtils {
                             } else if (lastCKXH.equals("01")) {
                                 lastCKXH = "02";
                             }
-                            record2.add(defCKCPLB);
-                            if (defCKCPLB.equals("D0501")) {
-                                defCKCPLB = "D0502";
+                            record2.add(lastCKCPLB);
+                            if (lastCKCPLB.equals("D0501")) {
+                                lastCKCPLB = "D0502";
                             }
                             result.add(record2);
                         }
@@ -420,9 +420,9 @@ public class EtlUtils {
                             } else if (lastCKXH.equals("01")) {
                                 lastCKXH = "02";
                             }
-                            record3.add(defCKCPLB);
-                            if (defCKCPLB.equals("D0501")) {
-                                defCKCPLB = "D0502";
+                            record3.add(lastCKCPLB);
+                            if (lastCKCPLB.equals("D0501")) {
+                                lastCKCPLB = "D0502";
                             }
                             result.add(record3);
                         }
@@ -445,7 +445,7 @@ public class EtlUtils {
                         if (new BigDecimal(LEDGER).compareTo(new BigDecimal(X5BAL3)) > 0) {
                             record4.add(new BigDecimal(LEDGER).subtract(new BigDecimal(lastBAL)).toString());
                             record4.add(lastCKXH);
-                            record4.add(defCKCPLB);
+                            record4.add(lastCKCPLB);
                             result.add(record4);
                         }
                     }
