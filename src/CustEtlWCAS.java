@@ -1,5 +1,6 @@
 package com.gingkoo.imas.hsbc.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 import static com.gingkoo.imas.hsbc.service.EtlConst.*;
 import static com.gingkoo.imas.hsbc.service.EtlUtils.*;
 
+@Slf4j
 @Component
 public class CustEtlWCAS {
 
@@ -185,36 +187,91 @@ public class CustEtlWCAS {
         return find;
     }
 
+    //非同业单位存款
     private List<String> addWCASDWCKJC_CORPDDAC(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
-        result.add(src.get("DFACB")+"-"+src.get("DFACS")+"-"+src.get("DFACX"));
+        result.add(formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")));
+        //TODO
         result.add("01");
         result.add(formatNBJGH(src.get("DFDCB")));
         result.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
-        result.add(src.get("DFAPTY"));
+        String DFAPTY = src.get("DFAPTY");
+        String productType = getMap("WCAS_ProductType", DFAPTY);
+        result.add(productType);
         result.add("");
         result.add(src.get("DFDTAO"));
         result.add("");
         result.add("");
         result.add("01");
-        result.add("TR01");
-        result.add("RF01");
+        String key = src.get("DGCIRT") + "__" + src.get("DFCYCD");
+        String value = getMap("RATETYPE", key);
+        String[] rateType = new String[4];
+        rateType[0] = "TR01";
+        rateType[1] = "RF01";
+        rateType[2] ="5.2";
+        rateType[3] = "01";
+        if (!value.equals("")) {
+            try {
+                String[] ss = value.split("\\|");
+                if (ss.length > 0) {
+                    rateType[0] = ss[0];
+                }
+                if (ss.length > 1) {
+                    rateType[1] = ss[1];
+                }
+                if (ss.length > 2) {
+                    rateType[2] = ss[2];
+                }
+                if (ss.length > 3) {
+                    rateType[3] = ss[3];
+                }
+            } catch (Exception ex) {
+
+            }
+        }
+        result.add(rateType[0]);
+        result.add(rateType[1]);
+        //TODO
         result.add("5.2");
-        result.add("5.2");
-        result.add("01");
-        result.add("0");
-        result.add("0");
+        result.add(rateType[2]);
+        result.add(rateType[3]);
+        if (productType.equals("D08")) {
+
+        } else {
+            result.add("");
+        }
+        result.add("");
         result.add("01");
         result.add("N");
-        result.add("A");
+        String ccy = src.get("DFCYCD");
+        if (ccy.equals("CNY")) {
+            result.add("");
+        } else {
+            //usd >=300W then A else B
+            if (ccy.equals("EUR") || ccy.equals("HKD") || ccy.equals("JPY")) {
+                String currate = getMap("RATE", ccy +"/USD");
+                if (!currate.equals("")) {
+                    BigDecimal x = new BigDecimal(src.get("LEDGER")).multiply(new BigDecimal(currate));
+                    if (x.compareTo(new BigDecimal("3000000")) > -1) {
+                        result.add("A");
+                    } else {
+                        result.add("B");
+                    }
+                } else {
+                    result.add("");
+                }
+            } else {
+                result.add("");
+            }
+        }
         return result;
     }
 
     private List<String> addWCASDWCKJC_CORPTDAC3(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
-        result.add(src.get("TDACB")+"-"+src.get("TDACS")+"-"+src.get("TDACX"));
+        result.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
         result.add("01");
         result.add(formatNBJGH(src.get("TDDCB")));
         result.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
@@ -243,7 +300,7 @@ public class CustEtlWCAS {
         result.add(formatNBJGH(src.get("DFDCB")));
         result.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
         result.add("A01");
-        result.add(src.get("DFACB")+"-"+src.get("DFACS")+"-"+src.get("DFACX"));
+        result.add(formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")));
         result.add("A01");
         result.add(src.get("DFDTAO"));
         result.add("");
@@ -260,7 +317,7 @@ public class CustEtlWCAS {
         List<String> result = new ArrayList<String>();
         result.add(now);
         result.add(formatNBJGH(src.get("TDDCB")));
-        result.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
+        result.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
         result.add("A01");
         result.add(src.get("TDACB")+"-"+src.get("TDACS")+"-"+src.get("TDACX"));
         result.add("A01");
@@ -278,7 +335,7 @@ public class CustEtlWCAS {
     private List<String> addWCASDWCKYE_CORPDDAC(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
-        result.add(src.get("DFACB")+"-"+src.get("DFACS")+"-"+src.get("DFACX"));
+        result.add(formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")));
         result.add("01");
         result.add(formatNBJGH(src.get("DFDCB")));
         result.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
@@ -290,7 +347,7 @@ public class CustEtlWCAS {
     private List<String> addWCASDWCKYE_CORPTDAC3(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
-        result.add(src.get("TDACB")+"-"+src.get("TDACS")+"-"+src.get("TDACX"));
+        result.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
         result.add("01");
         result.add(formatNBJGH(src.get("TDDCB")));
         result.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
@@ -302,7 +359,7 @@ public class CustEtlWCAS {
     private List<String> addWCASTYCKYE_CORPDDAC(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
-        result.add(src.get("DFACB")+"-"+src.get("DFACS")+"-"+src.get("DFACX"));
+        result.add(formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")));
         result.add(formatNBJGH(src.get("DFDCB")));
         result.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
         result.add(src.get("DFCYCD"));
@@ -313,7 +370,7 @@ public class CustEtlWCAS {
     private List<String> addWCASTYCKYE_CORPTDAC3(String now, Map<String, String> src) {
         List<String> result = new ArrayList<String>();
         result.add(now);
-        result.add(src.get("TDACB")+"-"+src.get("TDACS")+"-"+src.get("TDACX"));
+        result.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
         result.add(formatNBJGH(src.get("TDDCB")));
         result.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
         result.add(src.get("TDCYCD"));
@@ -321,52 +378,7 @@ public class CustEtlWCAS {
         return result;
     }
 
-    private List<String> addWCASDWCKFS(String now, Map<String, String> src) {
-        List<String> result = new ArrayList<String>();
-        result.add(now);
-        result.add(src.get("TDACB")+"-"+src.get("TDACS")+"-"+src.get("TDACX"));
-        result.add("01");
-        result.add(formatNBJGH(src.get("TDDCB")));
-        result.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
-        String THCPDT = src.get("THCPDT");
-        String THCPWS = src.get("THCPWS");
-        String THDLNO = src.get("THDLNO");
-        while (THDLNO.length() < 5) {
-            THDLNO = "0" + THDLNO;
-        }
-        result.add(THCPDT+THCPWS+THDLNO);
-        result.add(now);
-        result.add("5.2");
-        result.add("5.2");
-        result.add(src.get("TDCYCD"));
-        result.add(src.get("LEDGER"));
-        result.add("03");
-        result.add("1");
-        result.add("A");
-        return result;
-    }
 
-    private List<String> addWCASTYCKFS(String now, Map<String, String> src) {
-        List<String> result = new ArrayList<String>();
-        result.add(now);
-        result.add(src.get("TDACB")+"-"+src.get("TDACS")+"-"+src.get("TDACX"));
-        result.add(formatNBJGH(src.get("TDDCB")));
-        result.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
-        String THCPDT = src.get("THCPDT");
-        String THCPWS = src.get("THCPWS");
-        String THDLNO = src.get("THDLNO");
-        while (THDLNO.length() < 5) {
-            THDLNO = "0" + THDLNO;
-        }
-        result.add(THCPDT+THCPWS+THDLNO);
-        result.add(now);
-        result.add(src.get("TDCYCD"));
-        result.add("5.2");
-        result.add("5.2");
-        result.add(src.get("LEDGER"));
-        result.add("1");
-        return result;
-    }
 
     public void processWCAS_DGHKXX(String now, List<Map<String, String>> lstNow,
                                    List<Map<String, String>> lstPrevious, String group_id) throws Exception {
@@ -379,6 +391,452 @@ public class CustEtlWCAS {
         insertService.insertData(SQL_DGKHXX, group_id, group_id, base);
     }
 
+
+
+    public void addDWCK_CORPDDAC(String now, Map<String, String> src, List<List<String>> dwckjc,
+                                 List<List<String>> dwckye) {
+        List<List<String>> ckxx = getCKXH(src);
+        for (List<String> subckxx : ckxx) {
+            List<String> subdwckjc = new ArrayList<String>();
+            List<String> subdwckye = new ArrayList<String>();
+            subdwckjc.add(now);
+            subdwckjc.add(formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")));
+            subdwckjc.add(subckxx.get(2));
+            subdwckjc.add(formatNBJGH(src.get("DFDCB")));
+            subdwckjc.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
+            subdwckjc.add(subckxx.get(3));
+            subdwckjc.add("");
+            subdwckjc.add(src.get("DFDTAO"));
+            subdwckjc.add("");
+            String ZIDTAS = getMap("CLOSEDAC", src.get("DFACB")+"_"+src.get("DFACS")+"_"+src.get("DFACX"));
+            subdwckjc.add(ZIDTAS);
+            subdwckjc.add("01");
+            String key = src.get("DGCIRT") + "__" + src.get("DFCYCD");
+            String value = getMap("RATETYPE", key);
+            String[] rateType = new String[4];
+            rateType[0] = "TR01";
+            rateType[1] = "RF01";
+            rateType[2] ="5.2";
+            rateType[3] = "01";
+            if (!value.equals("")) {
+                try {
+                    String[] ss = value.split("\\|");
+                    if (ss.length > 0) {
+                        rateType[0] = ss[0];
+                    }
+                    if (ss.length > 1) {
+                        rateType[1] = ss[1];
+                    }
+                    if (ss.length > 2) {
+                        rateType[2] = ss[2];
+                    }
+                    if (ss.length > 3) {
+                        rateType[3] = ss[3];
+                    }
+                } catch (Exception ex) {
+
+                }
+            }
+            subdwckjc.add(rateType[0]);
+            subdwckjc.add(rateType[1]);
+            subdwckjc.add(subckxx.get(0));
+            subdwckjc.add(rateType[2]);
+            subdwckjc.add(rateType[3]);
+            if (subckxx.get(3).equals("D08")) {
+                subdwckjc.add(subckxx.get(0));
+            } else {
+                subdwckjc.add("");
+            }
+            subdwckjc.add("");
+            subdwckjc.add("01");
+            subdwckjc.add("N");
+            String ccy = src.get("DFCYCD");
+            if (ccy.equals("CNY")) {
+                subdwckjc.add("");
+            } else {
+                //usd >=300W then A else B
+                if (ccy.equals("EUR") || ccy.equals("HKD") || ccy.equals("JPY")) {
+                    String currate = getMap("RATE", ccy +"/USD");
+                    if (!currate.equals("")) {
+                        BigDecimal x = new BigDecimal(subckxx.get(1)).multiply(new BigDecimal(currate));
+                        if (x.compareTo(new BigDecimal("3000000")) > -1) {
+                            subdwckjc.add("A");
+                        } else {
+                            subdwckjc.add("B");
+                        }
+                    } else {
+                        subdwckjc.add("");
+                    }
+                } else {
+                    subdwckjc.add("");
+                }
+            }
+            dwckjc.add(subdwckjc);
+            subdwckye.add(now);
+            subdwckye.add(formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")));
+            subdwckye.add(subckxx.get(2));
+            subdwckye.add(formatNBJGH(src.get("DFDCB")));
+            subdwckye.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
+            subdwckye.add(src.get("DFCYCD"));
+            if (ZIDTAS.equals("")) {
+                if (subckxx.get(1).startsWith("-")) {
+                    subdwckye.add("0");
+                } else {
+                    subdwckye.add(subckxx.get(1));
+                }
+            } else {
+                subdwckye.add("0");
+            }
+            dwckye.add(subdwckye);
+        }
+    }
+
+    public void addTYCK_CORPDDAC(String now, Map<String, String> src, List<List<String>> tyckjc,
+                                 List<List<String>> tyckye) {
+        List<List<String>> ckxx = getCKXH(src);
+        List<String> subtyckjc = new ArrayList<String>();
+        List<String> subtyckye = new ArrayList<String>();
+        subtyckjc.add(now);
+        subtyckjc.add(formatNBJGH(src.get("DFDCB")));
+        subtyckjc.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
+        String ZGCUCL = src.get("ZGCUCL");
+        String JRJGLXDM = getMap("X42", ZGCUCL).trim();
+        if (JRJGLXDM.length() > 3) {
+            JRJGLXDM = JRJGLXDM.substring(0,3);
+        }
+        if (JRJGLXDM.equals("0")) {
+            JRJGLXDM = "";
+        }
+        subtyckjc.add(JRJGLXDM);
+        subtyckjc.add(formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")));
+        subtyckjc.add("A011");
+        subtyckjc.add(src.get("DFDTAO"));
+        subtyckjc.add("");
+        subtyckjc.add("01");
+        String key = src.get("DGCIRT") + "__" + src.get("DFCYCD");
+        String value = getMap("RATETYPE", key);
+        String[] rateType = new String[4];
+        rateType[0] = "TR01";
+        rateType[1] = "RF01";
+        rateType[2] ="5.2";
+        rateType[3] = "01";
+        if (!value.equals("")) {
+            try {
+                String[] ss = value.split("\\|");
+                if (ss.length > 0) {
+                    rateType[0] = ss[0];
+                }
+                if (ss.length > 1) {
+                    rateType[1] = ss[1];
+                }
+                if (ss.length > 2) {
+                    rateType[2] = ss[2];
+                }
+                if (ss.length > 3) {
+                    rateType[3] = ss[3];
+                }
+            } catch (Exception ex) {
+
+            }
+        }
+        subtyckjc.add(rateType[0]);
+        subtyckjc.add(rateType[1]);
+        subtyckjc.add(ckxx.get(0).get(0));
+        subtyckjc.add(rateType[2]);
+        subtyckjc.add(rateType[3]);
+
+        subtyckye.add(now);
+        subtyckye.add(formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")));
+        subtyckye.add(formatNBJGH(src.get("DFDCB")));
+        subtyckye.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
+        subtyckye.add(src.get("DFCYCD"));
+        subtyckye.add(src.get("LEDGER"));
+        tyckjc.add(subtyckjc);
+        tyckye.add(subtyckye);
+    }
+
+    public void addDWCK_CORPTDAC3(String now, Map<String, String> src, List<List<String>> dwckjc,
+                                 List<List<String>> dwckye) {
+        List<List<String>> ckxx = getCKXH(src);
+        List<String> subdwckjc = new ArrayList<String>();
+        List<String> subdwckye = new ArrayList<String>();
+        subdwckjc.add(now);
+        subdwckjc.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
+        subdwckjc.add("01");
+        subdwckjc.add(formatNBJGH(src.get("TDDCB")));
+        subdwckjc.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
+        subdwckjc.add(getMap("WCAS_ProductType", src.get("TDAPTY")));
+        subdwckjc.add("");
+        subdwckjc.add(src.get("TDSTDT"));
+        subdwckjc.add(src.get("TDAPTY"));
+        String ZIDTAS = getMap("CLOSEDAC", src.get("TDACB")+"_"+src.get("TDACS")+"_"+src.get("TDACX"));
+        subdwckjc.add(ZIDTAS);
+        String TDTERM = src.get("TDTERM");
+        if (!TDTERM.equals("0000")) {
+            subdwckjc.add(getMap("WCAS_TERMCODE_FIX",TDTERM));
+        } else {
+            subdwckjc.add(checkWcasTendor(String.valueOf(differentDaysByMillisecond(src.get("TDDUDT"),
+                    src.get("TDSTDT"))),
+                    map.get("WCAS_TERMCODE")));
+        }
+        String key = src.get("TDCRTY") + "_"+src.get("TDTERM")+"_" + src.get("TDCYCD");
+        String value = getMap("RATETYPE", key);
+        String[] rateType = new String[4];
+        rateType[0] = "TR01";
+        rateType[1] = "RF01";
+        rateType[2] ="5.2";
+        rateType[3] = "01";
+        if (!value.equals("")) {
+            try {
+                String[] ss = value.split("\\|");
+                if (ss.length > 0) {
+                    rateType[0] = ss[0];
+                }
+                if (ss.length > 1) {
+                    rateType[1] = ss[1];
+                }
+                if (ss.length > 2) {
+                    rateType[2] = ss[2];
+                }
+                if (ss.length > 3) {
+                    rateType[3] = ss[3];
+                }
+            } catch (Exception ex) {
+
+            }
+        }
+        subdwckjc.add(rateType[0]);
+        subdwckjc.add(rateType[1]);
+        subdwckjc.add(ckxx.get(0).get(0));
+        subdwckjc.add(rateType[2]);
+        subdwckjc.add(rateType[3]);
+        if (ckxx.get(0).get(3).equals("D08")) {
+            subdwckjc.add(ckxx.get(0).get(0));
+        } else {
+            subdwckjc.add("");
+        }
+        subdwckjc.add("");
+        subdwckjc.add("01");
+        subdwckjc.add("N");
+        String ccy = src.get("TDCYCD");
+        if (ccy.equals("CNY")) {
+            subdwckjc.add("");
+        } else {
+            //usd >=300W then A else B
+            if (ccy.equals("EUR") || ccy.equals("HKD") || ccy.equals("JPY")) {
+                String currate = getMap("RATE", ccy +"/USD");
+                if (!currate.equals("")) {
+                    BigDecimal x = new BigDecimal(ckxx.get(0).get(1)).multiply(new BigDecimal(currate));
+                    if (x.compareTo(new BigDecimal("3000000")) > -1) {
+                        subdwckjc.add("A");
+                    } else {
+                        subdwckjc.add("B");
+                    }
+                } else {
+                    subdwckjc.add("");
+                }
+            } else {
+                subdwckjc.add("");
+            }
+        }
+        dwckjc.add(subdwckjc);
+        subdwckye.add(now);
+        subdwckye.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
+        subdwckye.add(ckxx.get(0).get(2));
+        subdwckye.add(formatNBJGH(src.get("TDDCB")));
+        subdwckye.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
+        subdwckye.add(src.get("TDCYCD"));
+        subdwckye.add(src.get("LEDGER"));
+        dwckye.add(subdwckye);
+    }
+
+    public void addTYCK_CORPTDAC3(String now, Map<String, String> src, List<List<String>> tyckjc,
+                                 List<List<String>> tyckye) {
+        List<List<String>> ckxx = getCKXH(src);
+        List<String> subtyckjc = new ArrayList<String>();
+        List<String> subtyckye = new ArrayList<String>();
+        subtyckjc.add(now);
+        subtyckjc.add(formatNBJGH(src.get("TDDCB")));
+        subtyckjc.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
+        String ZGCUCL = src.get("ZGCUCL");
+        String JRJGLXDM = getMap("X42", ZGCUCL).trim();
+        if (JRJGLXDM.length() > 3) {
+            JRJGLXDM = JRJGLXDM.substring(0,3);
+        }
+        if (JRJGLXDM.equals("0")) {
+            JRJGLXDM = "";
+        }
+        subtyckjc.add(JRJGLXDM);
+        subtyckjc.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
+        subtyckjc.add("A012");
+        subtyckjc.add(src.get("TDSTDT"));
+        subtyckjc.add(src.get("TDAPTY"));
+        String TDTERM = src.get("TDTERM");
+        if (!TDTERM.equals("0000")) {
+            subtyckjc.add(getMap("WCAS_TERMCODE_FIX",TDTERM));
+        } else {
+            subtyckjc.add(checkWcasTendor(String.valueOf(differentDaysByMillisecond(src.get("TDDUDT"),
+                    src.get("TDSTDT"))),
+                    map.get("WCAS_TERMCODE")));
+        }
+        String key = src.get("TDCRTY") + "_"+src.get("TDTERM")+"_" + src.get("TDCYCD");
+        String value = getMap("RATETYPE", key);
+        String[] rateType = new String[4];
+        rateType[0] = "TR01";
+        rateType[1] = "RF01";
+        rateType[2] ="5.2";
+        rateType[3] = "01";
+        if (!value.equals("")) {
+            try {
+                String[] ss = value.split("\\|");
+                if (ss.length > 0) {
+                    rateType[0] = ss[0];
+                }
+                if (ss.length > 1) {
+                    rateType[1] = ss[1];
+                }
+                if (ss.length > 2) {
+                    rateType[2] = ss[2];
+                }
+                if (ss.length > 3) {
+                    rateType[3] = ss[3];
+                }
+            } catch (Exception ex) {
+
+            }
+        }
+        subtyckjc.add(rateType[0]);
+        subtyckjc.add(rateType[1]);
+        subtyckjc.add(ckxx.get(0).get(0));
+        subtyckjc.add(rateType[2]);
+        subtyckjc.add(rateType[3]);
+
+        subtyckye.add(now);
+        subtyckye.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
+        subtyckye.add(formatNBJGH(src.get("TDDCB")));
+        subtyckye.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
+        subtyckye.add(src.get("TDCYCD"));
+        subtyckye.add(src.get("LEDGER"));
+        tyckjc.add(subtyckjc);
+        tyckye.add(subtyckye);
+    }
+
+    private void addWCASDWCKFS(String now, Map<String, String> src, List<List<String>> dwckfs) {
+        List<List<String>> ckxx = getCKXH(src);
+        List<List<String>> jyls = getWCASJYLS(now, src);
+        for (List<String> subjyls : jyls){
+            List<String> result = new ArrayList<String>();
+            result.add(now);
+            result.add(formatCKZHBH(src.get("TDACB"), src.get("TDACS"), src.get("TDACX")));
+            result.add(ckxx.get(0).get(2));
+            result.add(formatNBJGH(src.get("TDDCB")));
+            result.add(formatKHH(src.get("TDDCB") + "-" + src.get("TDDCS")));
+            result.add(subjyls.get(0));
+            result.add(subjyls.get(1));
+            result.add(ckxx.get(0).get(0));
+            String key = src.get("TDCRTY") + "_" + src.get("TDTERM") + "_" + src.get("TDCYCD");
+            String value = getMap("RATETYPE", key);
+            String[] rateType = new String[4];
+            rateType[0] = "TR01";
+            rateType[1] = "RF01";
+            rateType[2] = "5.2";
+            rateType[3] = "01";
+            if (!value.equals("")) {
+                try {
+                    String[] ss = value.split("\\|");
+                    if (ss.length > 0) {
+                        rateType[0] = ss[0];
+                    }
+                    if (ss.length > 1) {
+                        rateType[1] = ss[1];
+                    }
+                    if (ss.length > 2) {
+                        rateType[2] = ss[2];
+                    }
+                    if (ss.length > 3) {
+                        rateType[3] = ss[3];
+                    }
+                } catch (Exception ex) {
+
+                }
+            }
+            result.add(rateType[2]);
+            result.add(src.get("TDCYCD"));
+            result.add(subjyls.get(2));
+            result.add("03");
+            result.add(subjyls.get(3));
+            String ccy = src.get("TDCYCD");
+            if (ccy.equals("CNY")) {
+                result.add("");
+            } else {
+                //usd >=300W then A else B
+                if (ccy.equals("EUR") || ccy.equals("HKD") || ccy.equals("JPY")) {
+                    String currate = getMap("RATE", ccy + "/USD");
+                    if (!currate.equals("")) {
+                        BigDecimal x = new BigDecimal(subjyls.get(2)).multiply(new BigDecimal(currate));
+                        if (x.compareTo(new BigDecimal("3000000")) > -1) {
+                            result.add("A");
+                        } else {
+                            result.add("B");
+                        }
+                    } else {
+                        result.add("");
+                    }
+                } else {
+                    result.add("");
+                }
+            }
+            dwckfs.add(result);
+        }
+    }
+
+    private void addWCASTYCKFS(String now, Map<String, String> src, List<List<String>> tyckfs) {
+        List<List<String>> ckxx = getCKXH(src);
+        List<List<String>> jyls = getWCASJYLS(now, src);
+        for (List<String> subjyls : jyls) {
+            List<String> result = new ArrayList<String>();
+            result.add(now);
+            result.add(formatCKZHBH(src.get("TDACB"), src.get("TDACS"), src.get("TDACX")));
+            result.add(formatNBJGH(src.get("TDDCB")));
+            result.add(formatKHH(src.get("TDDCB") + "-" + src.get("TDDCS")));
+            result.add(subjyls.get(0));
+            result.add(subjyls.get(1));
+            result.add(src.get("TDCYCD"));
+            String key = src.get("TDCRTY") + "_"+src.get("TDTERM")+"_" + src.get("TDCYCD");
+            String value = getMap("RATETYPE", key);
+            String[] rateType = new String[4];
+            rateType[0] = "TR01";
+            rateType[1] = "RF01";
+            rateType[2] ="5.2";
+            rateType[3] = "01";
+            if (!value.equals("")) {
+                try {
+                    String[] ss = value.split("\\|");
+                    if (ss.length > 0) {
+                        rateType[0] = ss[0];
+                    }
+                    if (ss.length > 1) {
+                        rateType[1] = ss[1];
+                    }
+                    if (ss.length > 2) {
+                        rateType[2] = ss[2];
+                    }
+                    if (ss.length > 3) {
+                        rateType[3] = ss[3];
+                    }
+                } catch (Exception ex) {
+
+                }
+            }
+            result.add(ckxx.get(0).get(0));
+            result.add(rateType[2]);
+
+            result.add(subjyls.get(2));
+            result.add(subjyls.get(3));
+            tyckfs.add(result);
+        }
+    }
+
     public void processCORPDDAC(String now, List<Map<String, String>> lstNow, List<Map<String, String>> lstPrevious, String group_id) throws Exception {
         List<List<String>> dwckjc = new ArrayList<List<String>>();
         List<List<String>> dwckye = new ArrayList<List<String>>();
@@ -386,14 +844,20 @@ public class CustEtlWCAS {
         List<List<String>> tyckye = new ArrayList<List<String>>();
         for (Map<String, String> record : lstNow) {
             String DFSTUS = record.get("DFSTUS");
-            if (DFSTUS == null || DFSTUS.equals("4") || DFSTUS.equals("5") ) {
-                dwckjc.add(addWCASDWCKJC_CORPDDAC(now, record));
-                dwckye.add(addWCASDWCKYE_CORPDDAC(now, record));
-            } else {
-                tyckjc.add(addWCASTYCKJC_CORPDDAC(now, record));
-                tyckye.add(addWCASTYCKYE_CORPDDAC(now, record));
+            if (DFSTUS != null && !DFSTUS.equals("4") && !DFSTUS.equals("5") ) {
+                String ZGCUCL = record.get("ZGCUCL");
+                String tybz = getMap("WCAS_TYBZ", ZGCUCL);
+                if (tybz.equals("非同业")) {
+                    addDWCK_CORPDDAC(now, record, dwckjc, dwckye);
+                } else {
+                    addTYCK_CORPDDAC(now, record, tyckjc, tyckye);
+                }
             }
         }
+        log.info(">>>>>>>>dwckjc");
+        log.info(dwckjc.toString());
+        log.info(">>>>>>>>dwckye");
+        log.info(dwckye.toString());
         insertService.insertData(SQL_DWCKJC, group_id, group_id, dwckjc);
         insertService.insertData(SQL_DWCKYE, group_id, group_id, dwckye);
         insertService.insertData(SQL_TYCKJC, group_id, group_id, tyckjc);
@@ -408,16 +872,22 @@ public class CustEtlWCAS {
         List<List<String>> dwckfs = new ArrayList<List<String>>();
         List<List<String>> tyckfs = new ArrayList<List<String>>();
         for (Map<String, String> record : lstNow) {
-            String DFSTUS = record.get("DFSTUS");
-            if (DFSTUS == null || DFSTUS.equals("4") || DFSTUS.equals("5") ) {
-                dwckjc.add(addWCASDWCKJC_CORPTDAC3(now, record));
-                dwckye.add(addWCASDWCKYE_CORPTDAC3(now, record));
-            } else {
-                tyckjc.add(addWCASTYCKJC_CORPTDAC3(now, record));
-                tyckye.add(addWCASTYCKYE_CORPTDAC3(now, record));
+            String DFSTUS = record.get("TDSTUS");
+            if (DFSTUS != null && !DFSTUS.equals("4") && !DFSTUS.equals("5") ) {
+                String ZGCUCL = record.get("ZGCUCL");
+                String tybz = getMap("WCAS_TYBZ", ZGCUCL);
+                if (tybz.equals("非同业")) {
+                    addDWCK_CORPTDAC3(now, record, dwckjc, dwckye);
+                    if (record.get("THCPDT").equals(now) || (record.get("TDSTDT").equals(now) && record.get("THCPDT").equals("0") && record.get("TDMTIN").equals("2") && record.get("TDSTUS").equals("1"))) {
+                        addWCASDWCKFS(now, record, dwckfs);
+                    }
+                } else {
+                    addTYCK_CORPTDAC3(now, record, tyckjc, tyckye);
+                    if (record.get("THCPDT").equals(now) || (record.get("TDSTDT").equals(now) && record.get("THCPDT").equals("0") && record.get("TDMTIN").equals("2") && record.get("TDSTUS").equals("1"))) {
+                        addWCASTYCKFS(now, record, tyckfs);
+                    }
+                }
             }
-            dwckfs.add(addWCASDWCKFS(now, record));
-            tyckfs.add(addWCASTYCKFS(now, record));
         }
         insertService.insertData(SQL_DWCKJC, group_id, group_id, dwckjc);
         insertService.insertData(SQL_DWCKYE, group_id, group_id, dwckye);
