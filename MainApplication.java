@@ -2357,6 +2357,27 @@ public class MainApplication {
                     printDict("WCAS_TERMCODE", type_no, type_value);
             }
         }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("WPB.xlsx"));
+        st = wb.getSheetAt(6);
+        for (int i = 8; i < 109; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(10));
+                if (!type_no.trim().equals("") && type_no.length() > 1) {
+                    if (type_value.indexOf("：") > 0) {
+                        type_value = type_value.substring(0, type_value.indexOf("："));
+                    }
+                    type_value = type_value.trim();
+                    if (type_value.length() > 5) {
+                        type_value = type_value.substring(0,5);
+                    }
+                    printDict("WPB_CKCPLB", type_no, type_value);
+                }
+            }
+        }
+
 //        wb.close();
 //        wb = new XSSFWorkbook(new FileInputStream("NBJGH.xlsx"));
 //        st = wb.getSheetAt(0);
@@ -2436,6 +2457,34 @@ public class MainApplication {
         System.out.println(s1);
     }
 
+    public void createNBJGH(String dir) throws Exception {
+        String date = dir.substring(dir.indexOf(".")-10, dir.indexOf(".")-3).replace("-","");
+        Workbook wb = new XSSFWorkbook(new FileInputStream(dir));
+        Sheet st = wb.getSheetAt(0);
+        Map<String,String> dict = new HashMap<String,String>();
+        for (int i = 1; i <= st.getLastRowNum(); i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(1));
+                String type_value = getCellValue(row.getCell(2));
+                dict.put(type_no, type_value);
+            }
+        }
+        for (int i = 1; i< 32; i++) {
+            String x = String.valueOf(i);
+            if (x.length() == 1) {
+                x = "0" + x;
+            }
+            System.out.println("delete from map_nbjgh where data_date = '"+date + x +"';");
+            for (String key : dict.keySet()) {
+                String id = UUID.randomUUID().toString().replace("-", "");
+                String data_date = date + x;
+                System.out.println(String.format("insert into map_nbjgh(id,src,dest,data_date)values('%s','%s','%s'," +
+                        "'%s');", id, key, dict.get(key), data_date));
+            }
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         //System.out.println(args[0]);
         if (args.length == 0) {
@@ -2489,6 +2538,11 @@ public class MainApplication {
             t.loadProperties();
             String dir = args[1];
             t.test1(dir);
+        } else if (mode.equals("NBJGH")) {
+            MainApplication t = new MainApplication();
+            t.loadProperties();
+            String dir = args[1];
+            t.createNBJGH(dir);
         }
 
     }
