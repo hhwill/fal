@@ -14,6 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+
+import com.gingkoo.root.facility.spring.tx.TransactionHelper;
 
 import static com.gingkoo.imas.hsbc.service.EtlConst.*;
 import static com.gingkoo.imas.hsbc.service.EtlUtils.*;
@@ -27,14 +30,17 @@ public class CustEtlWPB {
 
     private final JdbcTemplate jdbcTemplate;
 
+    private final TransactionHelper transactionTemplate;
+
     private final DataSource dataSource;
 
     private int threadSize;
 
     private int pageSize;
 
-    public CustEtlWPB(EtlInsertService insertService, DataSource dataSource) {
+    public CustEtlWPB(EtlInsertService insertService, TransactionHelper transactionTemplate, DataSource dataSource) {
         this.insertService = insertService;
+        this.transactionTemplate = transactionTemplate;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.dataSource = dataSource;
         threadSize = 10;
@@ -45,7 +51,7 @@ public class CustEtlWPB {
         ExecutorService execservice = Executors.newFixedThreadPool(threadSize);
         String sql = "select * from ods_wpb_dd where data_date = '"+now+"' and group_id = '"+group_id+"'";
         CompletionService<List<List<List<String>>>> completionService = new ExecutorCompletionService<List<List<List<String>>>>(execservice);
-        String querySql = "SELECT COUNT(1) FROM (" + sql + ")";
+        String querySql = "SELECT COUNT(1) FROM (" + sql + ") a";
         Integer totalCount = jdbcTemplate.queryForObject(querySql, Integer.class);
         int times = totalCount / pageSize;
         if (totalCount % pageSize != 0) {
@@ -77,7 +83,7 @@ public class CustEtlWPB {
         ExecutorService execservice = Executors.newFixedThreadPool(threadSize);
         String sql = "select * from ods_wpb_td where data_date = '"+now+"' and group_id = '"+group_id+"'";
         CompletionService<List<List<List<String>>>> completionService = new ExecutorCompletionService<List<List<List<String>>>>(execservice);
-        String querySql = "SELECT COUNT(1) FROM (" + sql + ")";
+        String querySql = "SELECT COUNT(1) FROM (" + sql + ") a";
         Integer totalCount = jdbcTemplate.queryForObject(querySql, Integer.class);
         int times = totalCount / pageSize;
         if (totalCount % pageSize != 0) {
@@ -114,9 +120,9 @@ public class CustEtlWPB {
                         + " = '%s') a inner join (select * from ods_wpb_dd where data_date = '%s') b "
                         + " on a.dfacb=b.dfacb and a.dfacs=b.dfacs and a.dfacx = b.dfacx and a.ledger <> b.ledger"
                         + " union "
-                        + " select a.*, 0 as OLDLEDGER from (select * from ods_wpb_bb where data_date"
+                        + " select a.*, 0 as OLDLEDGER from (select * from ods_wpb_dd where data_date"
                         + " = '%s') a where not exists (select * from (select dfacb,dfacs,dfacx from ods_wpb_dd "
-                        + " where data_date = '%s') b where a.dfacb=b.dfacb and a.dfacs=b.dfacs and a.dfacx = b.dfacx",
+                        + " where data_date = '%s') b where a.dfacb=b.dfacb and a.dfacs=b.dfacs and a.dfacx = b.dfacx)",
                 now, previous, now, previous);
         List<Map<String, Object>> lst = jdbcTemplate.queryForList(sql);
         List<List<String>> grckfs = new ArrayList<List<String>>();
@@ -134,7 +140,7 @@ public class CustEtlWPB {
             while (DPDLNO.length() < 5) {
                 DPDLNO = "0" + DPDLNO;
             }
-            subgrckfs.add(now+formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX"))+DPDLNO);
+            subgrckfs.add(now+formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")).substring(6)+DPDLNO);
             subgrckfs.add(getString(src.get("DPCPDT")));
             subgrckfs.add("");
             //实际利率
@@ -178,12 +184,25 @@ public class CustEtlWPB {
             }
             grckfs.add(subgrckfs);
         }
-        insertService.insertData(SQL_GRCKFS, group_id, group_id, grckfs);
+        try {
+            insertService.insertData(SQL_GRCKFS, group_id, group_id, grckfs);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         return true;
     }
 
 
     public boolean process(String now, String group_id) {
+
+        logger.info(">>>开始WPB" + now + " " + group_id);
+        String sql = String.format("delete from imas_pm_grckjc where sjrq = '%s' and group_id = '%s'", now, group_id);
+        execUpdSqlCommit(sql);
+        sql = String.format("delete from imas_pm_grckye where sjrq = '%s' and group_id = '%s'", now, group_id);
+        execUpdSqlCommit(sql);
+        sql = String.format("delete from imas_pm_grckfs where sjrq = '%s' and group_id = '%s'", now, group_id);
+        execUpdSqlCommit(sql);
+
         processdd(now, group_id);
         processtd(now, group_id);
         processfs(now, group_id);
@@ -216,5 +235,11 @@ public class CustEtlWPB {
         r.add("1");
         dwckjc.add(r);
         insertService.insertData(SQL_DWCKJC, "a", "a", dwckjc);
+    }
+
+    private void execUpdSqlCommit(String sql) {
+        transactionTemplate.run(Propagation.REQUIRES_NEW, () -> {
+            jdbcTemplate.update(sql);
+        });
     }
 }
