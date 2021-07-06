@@ -729,86 +729,88 @@ public class MainApplication {
         return false;
     }
 
-    public void loadExcel(String filename, String tablename, String data_date) throws Exception {
+    public void loadExcel(String filename, String tablename, String data_date, int all) throws Exception {
         FileInputStream in = new FileInputStream(filename);
         try {
             Workbook wk = StreamingReader.builder()
                     .rowCacheSize(100)  //缓存到内存中的行数，默认是10
                     .bufferSize(4096)  //读取资源时，缓存到内存的字节大小，默认是1024
                     .open(in);  //打开资源，必须，可以是InputStream或者是File，注意：只能打开XLSX格式的文件
-            Sheet sheet = wk.getSheetAt(0);
-            String columns = "";
-            int columncnt = 0;
-            sqls.clear();
-            //遍历所有的行
-            String puresql = "";
-            String purevalues = "";
-            int expectcolumn = 0;
-            for (Row row0 : sheet) {
-                if (row0.getRowNum() == 0) {
-                    for (Cell cell0 : row0) {
-                        expectcolumn++;
-                        columns += "`"+cell0.getStringCellValue() + "`,";
-                        columncnt++;
+            for (int i = 0; i < all; i++) {
+                Sheet sheet = wk.getSheetAt(i);
+                String columns = "";
+                int columncnt = 0;
+                sqls.clear();
+                //遍历所有的行
+                String puresql = "";
+                String purevalues = "";
+                int expectcolumn = 0;
+                for (Row row0 : sheet) {
+                    if (row0.getRowNum() == 0) {
+                        for (Cell cell0 : row0) {
+                            expectcolumn++;
+                            columns += "`" + cell0.getStringCellValue() + "`,";
+                            columncnt++;
 
-                    }
-                    columns = columns.substring(0, columns.length() - 1);
-                    sql = "insert into " + tablename + "(" + columns + ",data_date) values (";
+                        }
+                        columns = columns.substring(0, columns.length() - 1);
+                        sql = "insert into " + tablename + "(" + columns + ",data_date) values (";
 
-                    puresql = sql;
-                    for (int k = 0; k < columncnt; k++) {
-                        sql += "?,";
+                        puresql = sql;
+                        for (int k = 0; k < columncnt; k++) {
+                            sql += "?,";
+                        }
+                        sql = sql.substring(0, sql.length() - 1) + ",'" + data_date + "')";
+                        //System.out.println(sql);
+                        break;
                     }
-                    sql = sql.substring(0, sql.length() - 1) + ",'"+data_date+"')";
-                    //System.out.println(sql);
-                    break;
                 }
-            }
-            for (Row row : sheet) {
-                //System.out.println("开始遍历第" + row.getRowNum() + "行数据：");
-                //遍历所有的列
-                ArrayList<String> values = null;
-                if (row.getRowNum() != 0) {
-                    values = new ArrayList<String>();
-                    purevalues = "";
-                }
-                for (int m = 0; m < expectcolumn; m++) {
+                for (Row row : sheet) {
+                    //System.out.println("开始遍历第" + row.getRowNum() + "行数据：");
+                    //遍历所有的列
+                    ArrayList<String> values = null;
+                    if (row.getRowNum() != 0) {
+                        values = new ArrayList<String>();
+                        purevalues = "";
+                    }
+                    for (int m = 0; m < expectcolumn; m++) {
+                        if (row.getRowNum() == -1) {
+                            columns += "`" + row.getCell(m).getStringCellValue() + "`,";
+                            columncnt++;
+                        } else {
+                            boolean colFlag = isColumnEmpty(row, m);
+                            String valuem = "";
+                            if (colFlag)
+                                valuem = "";
+                            else
+                                valuem = getCellValue(row.getCell(m));
+                            values.add(valuem);
+                            purevalues += "'" + valuem + "',";
+                        }
+                    }
                     if (row.getRowNum() == -1) {
-                        columns += "`"+row.getCell(m).getStringCellValue() + "`,";
-                        columncnt++;
+                        columns = columns.substring(0, columns.length() - 1);
+                        sql = "insert into " + tablename + "(" + columns + ",data_date) values (";
+                        puresql = sql;
+                        for (int k = 0; k < columncnt; k++) {
+                            sql += "?,";
+                        }
+                        sql = sql.substring(0, sql.length() - 1) + ")";
+                        //log.error(sql);
                     } else {
-                        boolean colFlag = isColumnEmpty(row, m);
-                        String valuem = "";
-                        if (colFlag)
-                            valuem = "";
-                        else
-                            valuem = getCellValue(row.getCell(m));
-                        values.add(valuem);
-                        purevalues += "'" + valuem + "',";
+                        processcnt++;
+                        sqls.add(values);
+                        purevalues = purevalues.substring(0, purevalues.length() - 1);
+                        puresqls.add(puresql + purevalues + ",'" + data_date + "')");
+                        //log.error(puresql + purevalues + ")");
+                        if (processcnt == batchCount) {
+                            loadBatch();
+                        }
                     }
                 }
-                if (row.getRowNum() == -1) {
-                    columns = columns.substring(0, columns.length() - 1);
-                    sql = "insert into " + tablename + "(" + columns + ",data_date) values (";
-                    puresql = sql;
-                    for (int k = 0; k < columncnt; k++) {
-                        sql += "?,";
-                    }
-                    sql = sql.substring(0, sql.length() - 1) + ")";
-                    //log.error(sql);
-                } else {
-                    processcnt++;
-                    sqls.add(values);
-                    purevalues = purevalues.substring(0, purevalues.length() - 1);
-                    puresqls.add(puresql + purevalues + ",'"+data_date+"')");
-                    //log.error(puresql + purevalues + ")");
-                    if (processcnt == batchCount) {
-                        loadBatch();
-                    }
+                if (processcnt > 0) {
+                    loadBatch();
                 }
-            }
-            if (processcnt > 0) {
-                loadBatch();
             }
         } finally {
             in.close();
@@ -2322,8 +2324,8 @@ public class MainApplication {
             Row row = st.getRow(i);
             if (row != null) {
                 String id1 = getCellValue(row.getCell(1));
-                String id2 = getCellValue(row.getCell(1));
-                String id3 = getCellValue(row.getCell(1));
+                String id2 = getCellValue(row.getCell(2));
+                String id3 = getCellValue(row.getCell(3));
                 String id4 = getCellValue(row.getCell(12));
                 String DJJZLX = getCellValue(row.getCell(13));
                 String LVLX = getCellValue(row.getCell(14));
@@ -2520,7 +2522,19 @@ public class MainApplication {
                 System.out.println("无法从文件名定位表名，检查application.properties中的映射");
                 return;
             }
-            t.loadExcel(filename, tablename, data_date);
+            t.loadExcel(filename, tablename, data_date, 7);
+            t.clearConnect();
+        }  else if (mode.equals("II")) {
+            String filename = args[1];
+            String data_date = args[2];
+            MainApplication t = new MainApplication();
+            t.loadProperties();
+            String tablename = t.parseTableName(filename);
+            if (tablename.equals("")) {
+                System.out.println("无法从文件名定位表名，检查application.properties中的映射");
+                return;
+            }
+            t.loadExcel(filename, tablename, data_date, 7);
             t.clearConnect();
         } else if (mode.equals("P")) {
             String type = args[1];
