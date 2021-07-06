@@ -5,20 +5,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+
+import com.gingkoo.imas.core.batch.ImasBatchBasicValidateService;
 
 import static com.gingkoo.imas.hsbc.service.EtlConst.*;
 import static com.gingkoo.imas.hsbc.service.EtlUtils.*;
 
-@Slf4j
 @Component
 public class CustEtlWCAS {
 
+    private final Logger logger = LoggerFactory.getLogger(CustEtlWCAS.class);
+
     private final EtlInsertService insertService;
 
-    public CustEtlWCAS(EtlInsertService insertService) {
+    private final JdbcTemplate jdbcTemplate;
+
+    private ImasBatchBasicValidateService imasBatchBasicValidateService;
+
+    public CustEtlWCAS(EtlInsertService insertService,ImasBatchBasicValidateService imasBatchBasicValidateService,
+                       DataSource dataSource) {
         this.insertService = insertService;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.imasBatchBasicValidateService = imasBatchBasicValidateService;
     }
 
     private List<String> addWCAS_DGKHXX(String now, Map<String, Object> src) {
@@ -225,7 +240,7 @@ public class CustEtlWCAS {
             String[] rateType = new String[4];
             rateType[0] = "TR01";
             rateType[1] = "RF01";
-            rateType[2] ="5.2";
+            rateType[2] ="0.0";
             rateType[3] = "01";
             if (!value.equals("")) {
                 try {
@@ -327,7 +342,7 @@ public class CustEtlWCAS {
         String[] rateType = new String[4];
         rateType[0] = "TR01";
         rateType[1] = "RF01";
-        rateType[2] ="5.2";
+        rateType[2] ="0.0000";
         rateType[3] = "01";
         if (!value.equals("")) {
             try {
@@ -399,7 +414,7 @@ public class CustEtlWCAS {
         String[] rateType = new String[4];
         rateType[0] = "TR01";
         rateType[1] = "RF01";
-        rateType[2] ="5.2";
+        rateType[2] ="0.0";
         rateType[3] = "01";
         if (!value.equals("")) {
             try {
@@ -504,7 +519,7 @@ public class CustEtlWCAS {
         String[] rateType = new String[4];
         rateType[0] = "TR01";
         rateType[1] = "RF01";
-        rateType[2] ="5.2";
+        rateType[2] ="0.0";
         rateType[3] = "01";
         if (!value.equals("")) {
             try {
@@ -559,7 +574,7 @@ public class CustEtlWCAS {
             String[] rateType = new String[4];
             rateType[0] = "TR01";
             rateType[1] = "RF01";
-            rateType[2] = "5.2";
+            rateType[2] = "0.0";
             rateType[3] = "01";
             if (!value.equals("")) {
                 try {
@@ -627,7 +642,7 @@ public class CustEtlWCAS {
             String[] rateType = new String[4];
             rateType[0] = "TR01";
             rateType[1] = "RF01";
-            rateType[2] ="5.2";
+            rateType[2] ="0.0";
             rateType[3] = "01";
             if (!value.equals("")) {
                 try {
@@ -657,7 +672,47 @@ public class CustEtlWCAS {
         }
     }
 
-    public void processCORPDDAC(String now, List<Map<String, Object>> lstNow, List<Map<String, Object>> lstPrevious,
+    public boolean process(String now, String group_id) throws Exception {
+        logger.info(">>>开始WCAS" + now + " " + group_id);
+        String sql = String.format("delete from imas_pm_dwckjc where sjrq = '%s' and group_id = '%s'", now, group_id);
+        jdbcTemplate.update(sql);
+        sql = String.format("delete from imas_pm_dwckye where sjrq = '%s' and group_id = '%s'", now, group_id);
+        jdbcTemplate.update(sql);
+        sql = String.format("delete from imas_pm_tyckjc where sjrq = '%s' and group_id = '%s'", now, group_id);
+        jdbcTemplate.update(sql);
+        sql = String.format("delete from imas_pm_tyckye where sjrq = '%s' and group_id = '%s'", now, group_id);
+        jdbcTemplate.update(sql);
+        sql = String.format("delete from imas_pm_dwckfs where sjrq = '%s' and group_id = '%s'", now, group_id);
+        jdbcTemplate.update(sql);
+        sql = String.format("delete from imas_pm_tyckfs where sjrq = '%s' and group_id = '%s'", now, group_id);
+        jdbcTemplate.update(sql);
+        sql = "select * from ODS_WCAS_CORPDDAC where data_date = '" + now + "' and group_id = '" + group_id + "'";
+        List<Map<String, Object>> lst = jdbcTemplate.queryForList(sql);
+        processCORPDDAC(now, lst, group_id);
+        sql = "select * from ODS_WCAS_CORPTDAC3 where data_date = '" + now + "' and group_id = '" + group_id + "'";
+        lst = jdbcTemplate.queryForList(sql);
+        processCORPTDAC3(now, lst, group_id);
+
+        sql = String.format("update imas_pm_dwckjc set bdsyl = sjll where group_id='%s' and sjrq='%s' and ckcplb='D08'", now, group_id);
+        int result = jdbcTemplate.update(sql);
+        logger.info(">>>>D08 " + result + ",开始校验");
+        try {
+            List<String> lst2 = new ArrayList<String>();
+            lst2.add("DWCKJC");
+            lst2.add("DWCKYE");
+            lst2.add("TYCKJC");
+            lst2.add("TYCKTE");
+            lst2.add("DWCKFS");
+            lst2.add("TYCKFS");
+            imasBatchBasicValidateService.validate(now, lst2, "HSBC", group_id, null, true);
+        } catch (Exception ex) {
+            logger.error(">>>>校验出错");
+        }
+        logger.info(">>>>结束校验");
+        return true;
+    }
+
+    public void processCORPDDAC(String now, List<Map<String, Object>> lstNow,
                                 String group_id) throws Exception {
         List<List<String>> dwckjc = new ArrayList<List<String>>();
         List<List<String>> dwckye = new ArrayList<List<String>>();
@@ -681,7 +736,7 @@ public class CustEtlWCAS {
         insertService.insertData(SQL_TYCKYE, group_id, group_id, tyckye);
     }
 
-    public void processCORPTDAC3(String now, List<Map<String, Object>> lstNow, List<Map<String, Object>> lstPrevious,
+    public void processCORPTDAC3(String now, List<Map<String, Object>> lstNow,
                                  String group_id) throws Exception {
         List<List<String>> dwckjc = new ArrayList<List<String>>();
         List<List<String>> dwckye = new ArrayList<List<String>>();
