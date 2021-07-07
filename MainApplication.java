@@ -2459,6 +2459,14 @@ public class MainApplication {
         System.out.println(s1);
     }
 
+    public void testExcel(String dir) throws Exception {
+        Workbook wb = new XSSFWorkbook(new FileInputStream("票据贴现.xlsx"));
+        Sheet st = wb.getSheetAt(0);
+        System.out.println("Row:"+st.getLastRowNum());
+        System.out.println(getCellValue(st.getRow(0).getCell(0));
+        System.out.println(getCellValue(st.getRow(st.getLastRowNum()-1).getCell(0));
+    }
+
     public void createNBJGH(String dir) throws Exception {
         String date = dir.substring(dir.indexOf(".")-10, dir.indexOf(".")-3).replace("-","");
         Workbook wb = new XSSFWorkbook(new FileInputStream(dir));
@@ -2547,7 +2555,7 @@ public class MainApplication {
             MainApplication t = new MainApplication();
             t.loadProperties();
             t.createMap();
-        } else if (mode.equals("T")) {
+        } else if (mode.equals("COMPILE")) {
             MainApplication t = new MainApplication();
             t.loadProperties();
             String dir = args[1];
@@ -2557,6 +2565,11 @@ public class MainApplication {
             t.loadProperties();
             String dir = args[1];
             t.createNBJGH(dir);
+        } else if (mode.equals("T")) {
+            MainApplication t = new MainApplication();
+            t.loadProperties();
+            String dir = args[1];
+            t.testExcel(dir);
         }
 
     }
