@@ -2447,10 +2447,10 @@ public class MainApplication {
     public void test1(String dir) {
         File file = new File(dir);
         File[] files = file.listFiles();
-        String s = "javac -cp .:";
+        String s = "javac -cp .;";
         for (int i = 0; i < files.length; i++) {
             if (files[i].getName().toUpperCase().endsWith(".JAR")) {
-                s += files[i].getAbsolutePath().replace("\\","/") + ":";
+                s += files[i].getAbsolutePath().replace("\\","/") + ";";
             }
         }
         String s1 = s.substring(0, s.length()-1) + " com/gingkoo/imas/hsbc/service/CustLoadFileService.java";
@@ -2460,11 +2460,14 @@ public class MainApplication {
     }
 
     public void testExcel(String dir) throws Exception {
-        Workbook wb = new XSSFWorkbook(new FileInputStream("票据贴现.xlsx"));
+        Workbook wb = new XSSFWorkbook(new FileInputStream(dir));
         Sheet st = wb.getSheetAt(0);
         System.out.println("Row:"+st.getLastRowNum());
-        System.out.println(getCellValue(st.getRow(0).getCell(0));
-        System.out.println(getCellValue(st.getRow(st.getLastRowNum()-1).getCell(0));
+        System.out.println(getCellValue(st.getRow(0).getCell(0)));
+        Row row = st.getRow(1);
+        for (int i = 0; i <= row.getLastCellNum(); i++) {
+            System.out.print(getCellValue(row.getCell(i)) + ",");
+        }
     }
 
     public void createNBJGH(String dir) throws Exception {
