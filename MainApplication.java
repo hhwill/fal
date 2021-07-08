@@ -2119,266 +2119,248 @@ public class MainApplication {
         System.out.println("delete from MAP_INFO;");
         Workbook wb = new XSSFWorkbook(new FileInputStream("票据贴现.xlsx"));
         Sheet st = wb.getSheet("mapping");
-//        for (int i = 1; i < 10; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(0));
-//                String type_value = getCellValue(row.getCell(1));
-//                printDict("X1", type_no, type_value);
-//            }
-//        }
-//        for (int i = 1; i < 10; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(0));
-//                String type_value = getCellValue(row.getCell(3));
-//                printDict("X2", type_no, type_value);
-//            }
-//        }
-//        for (int i = 12; i < 15; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(0));
-//                String type_value = getCellValue(row.getCell(1));
-//                printDict("X3", type_no, type_value);
-//            }
-//        }
-//        wb.close();
-//        wb = new XSSFWorkbook(new FileInputStream("同业借贷.xlsx"));
-//        st = wb.getSheet("mapping");
-//        for (int i = 3; i < 136; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(0));
-//                String type_value = getCellValue(row.getCell(1));
-//                printDict("X11", type_no, type_value);
-//            }
-//        }
-//        for (int i = 2; i < 16; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(3));
-//                String type_value = getCellValue(row.getCell(4));
-//                printDict("X12", type_no, type_value);
-//            }
-//        }
-//        for (int i = 2; i < 6; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(6));
-//                String type_value = getCellValue(row.getCell(7));
-//                printDict("X13", type_no, type_value);
-//            }
-//        }
-//        for (int i = 1; i < 16; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(10));
-//                String type_value = getCellValue(row.getCell(11));
-//                printDict("X14", type_no, type_value);
-//            }
-//        }
-//        wb.close();
-//        wb = new XSSFWorkbook(new FileInputStream("非同业单位贷款.xlsx"));
-//        st = wb.getSheet("mapping");
-//        for (int i = 1; i < 36; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(0));
-//                String type_value = getCellValue(row.getCell(1));
-//                printDict("X21", type_no, type_value);
-//            }
-//        }
-//        for (int i = 1; i < 15; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(3));
-//                String type_value = getCellValue(row.getCell(4));
-//                printDict("X22", type_no, type_value);
-//            }
-//        }
-//        for (int i = 1; i < 17; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(7));
-//                String type_value = getCellValue(row.getCell(8));
-//                printDict("X23", type_no, type_value);
-//            }
-//        }
-//        for (int i = 1; i < 472; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(10));
-//                String type_value = getCellValue(row.getCell(12));
-//                printDict("X24", type_no, type_value);
-//            }
-//        }
-//        wb.close();
-//        wb = new XSSFWorkbook(new FileInputStream("非同业-scsai.xlsx"));
-//        st = wb.getSheet("mapping");
-//        for (int i = 1; i < 116; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(0));
-//                String type_value = getCellValue(row.getCell(1));
-//                printDict("X31", type_no, type_value);
-//            }
-//        }
-//        for (int i = 1; i < 17; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(4));
-//                String type_value = getCellValue(row.getCell(5));
-//                printDict("X32", type_no, type_value);
-//            }
-//        }
-//        for (int i = 1; i < 15; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(7));
-//                String type_value = getCellValue(row.getCell(8));
-//                printDict("X33", type_no, type_value);
-//            }
-//        }
-//        for (int i = 1; i < 164; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(10));
-//                String type_value = getCellValue(row.getCell(11));
-//                printDict("X34", type_no, type_value);
-//            }
-//        }
-//        for (int i = 1; i < 90; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(13));
-//                String type_value = getCellValue(row.getCell(14));
-//                printDict("X35", type_no, type_value);
-//            }
-//        }
-//        for (int i = 1; i < 472; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(17));
-//                String type_value = getCellValue(row.getCell(18));
-//                printDict("X36", type_no, type_value);
-//            }
-//        }
-//        wb.close();
-//        wb = new XSSFWorkbook(new FileInputStream("CB_Code.xlsx"));
-//        st = wb.getSheet("CB Code");
-//        for (int i = 1; i < 139; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(6));
-//                String type_value = getCellValue(row.getCell(7));
-//                String type_value1 = getCellValue(row.getCell(8));
-//                String type_value2 = getCellValue(row.getCell(9));
-//                String type_value3 = getCellValue(row.getCell(10));
-//                printDict("X41", type_no, type_value);
-//                printDict("X42", type_no, type_value1);
-//                printDict("X43", type_no, type_value2);
-//                printDict("WCAS_TYBZ", type_no, type_value3);
-//            }
-//        }
-//        wb.close();
-//        wb = new XSSFWorkbook(new FileInputStream("FinData.xlsx"));
-//        st = wb.getSheetAt(0);
-//        for (int i = 1; i < 3901; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(0));
-//                String type_value = getCellValue(row.getCell(1));
-//                String type_value1 = getCellValue(row.getCell(2));
-//                printDict("X44", type_no, type_value);
-//                printDict("X45", type_no, type_value1);
-//            }
-//        }
-//        wb.close();
-//        wb = new XSSFWorkbook(new FileInputStream("ProductType.xlsx"));
-//        st = wb.getSheetAt(0);
-//        for (int i = 1; i < 36; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(0));
-//                String type_value = getCellValue(row.getCell(5));
-//                printDict("WCAS_ProductType", type_no, type_value);
-//            }
-//        }
-//        wb.close();
-//        wb = new XSSFWorkbook(new FileInputStream("IndustryCode.xlsx"));
-//        st = wb.getSheetAt(0);
-//        for (int i = 5; i < 1882; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(6));
-//                String type_value = getCellValue(row.getCell(7));
-//                if (!type_no.trim().equals("") && type_no.length() > 1)
-//                printDict("X46", type_no, type_value);
-//            }
-//        }
-//        wb.close();
-//        wb = new XSSFWorkbook(new FileInputStream("RateType.xlsx"));
-//        st = wb.getSheetAt(0);
-//        for (int i = 1; i < 614; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String id1 = getCellValue(row.getCell(1));
-//                String id2 = getCellValue(row.getCell(2));
-//                String id3 = getCellValue(row.getCell(3));
-//                String id4 = getCellValue(row.getCell(12));
-//                String DJJZLX = getCellValue(row.getCell(13));
-//                String LVLX = getCellValue(row.getCell(14));
-//                String JZLV = getCellValue(row.getCell(18));
-//                String LVFDPV = getCellValue(row.getCell(19));
-//                if (id4.equals("DD") || id4.equals("TD")) {
-//                    System.out.println(String.format("insert into MAP_WCAS_RATE_TYPE(id1,id2,id3,DJJZLX,LVLX,JZLV," +
-//                            "LVFDPL)values('%s','%s','%s','%s','%s','%s','%s');",id1,id2,id3,DJJZLX,LVLX,JZLV,LVFDPV));
-//                }
-//            }
-//        }
-//        wb.close();
-//        wb = new XSSFWorkbook(new FileInputStream("TermCode.xlsx"));
-//        st = wb.getSheetAt(0);
-//        for (int i = 1; i < 10; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(0));
-//                String type_value = getCellValue(row.getCell(1));
-//                if (!type_no.trim().equals("") && type_no.length() > 1)
-//                    printDict("WCAS_TERMCODE_FIX", type_no, type_value);
-//            }
-//        }
-//
-//        for (int i = 1; i < 16; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(3));
-//                String type_value = getCellValue(row.getCell(4));
-//                if (!type_no.trim().equals("") && type_no.length() > 1)
-//                    printDict("WCAS_TERMCODE", type_no, type_value);
-//            }
-//        }
-//        wb.close();
-//        wb = new XSSFWorkbook(new FileInputStream("WPB.xlsx"));
-//        st = wb.getSheetAt(6);
-//        for (int i = 8; i < 109; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String type_no = getCellValue(row.getCell(0));
-//                String type_value = getCellValue(row.getCell(10));
-//                if (!type_no.trim().equals("") && type_no.length() > 1) {
-//                    if (type_value.indexOf("：") > 0) {
-//                        type_value = type_value.substring(0, type_value.indexOf("："));
-//                    }
-//                    type_value = type_value.trim();
-//                    if (type_value.length() > 5) {
-//                        type_value = type_value.substring(0,5);
-//                    }
-//                    printDict("WPB_CKCPLB", type_no, type_value);
-//                }
-//            }
-//        }
+        for (int i = 1; i < 10; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(1));
+                printDict("X1", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 10; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(3));
+                printDict("X2", type_no, type_value);
+            }
+        }
+        for (int i = 12; i < 15; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(1));
+                printDict("X3", type_no, type_value);
+            }
+        }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("同业借贷.xlsx"));
+        st = wb.getSheet("mapping");
+        for (int i = 3; i < 136; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(1));
+                printDict("X11", type_no, type_value);
+            }
+        }
+        for (int i = 2; i < 16; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(3));
+                String type_value = getCellValue(row.getCell(4));
+                printDict("X12", type_no, type_value);
+            }
+        }
+        for (int i = 2; i < 6; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(6));
+                String type_value = getCellValue(row.getCell(7));
+                printDict("X13", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 16; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(10));
+                String type_value = getCellValue(row.getCell(11));
+                printDict("X14", type_no, type_value);
+            }
+        }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("非同业单位贷款.xlsx"));
+        st = wb.getSheet("mapping");
+        for (int i = 1; i < 36; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(1));
+                printDict("X21", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 15; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(3));
+                String type_value = getCellValue(row.getCell(4));
+                printDict("X22", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 17; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(7));
+                String type_value = getCellValue(row.getCell(8));
+                printDict("X23", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 472; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(10));
+                String type_value = getCellValue(row.getCell(12));
+                printDict("X24", type_no, type_value);
+            }
+        }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("非同业-scsai.xlsx"));
+        st = wb.getSheet("mapping");
+        for (int i = 1; i < 116; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(1));
+                printDict("X31", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 17; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(4));
+                String type_value = getCellValue(row.getCell(5));
+                printDict("X32", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 15; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(7));
+                String type_value = getCellValue(row.getCell(8));
+                printDict("X33", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 164; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(10));
+                String type_value = getCellValue(row.getCell(11));
+                printDict("X34", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 90; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(13));
+                String type_value = getCellValue(row.getCell(14));
+                printDict("X35", type_no, type_value);
+            }
+        }
+        for (int i = 1; i < 472; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(17));
+                String type_value = getCellValue(row.getCell(18));
+                printDict("X36", type_no, type_value);
+            }
+        }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("CB_Code.xlsx"));
+        st = wb.getSheet("CB Code");
+        for (int i = 1; i < 139; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(6));
+                String type_value = getCellValue(row.getCell(7));
+                String type_value1 = getCellValue(row.getCell(8));
+                String type_value2 = getCellValue(row.getCell(9));
+                String type_value3 = getCellValue(row.getCell(10));
+                printDict("X41", type_no, type_value);
+                printDict("X42", type_no, type_value1);
+                printDict("X43", type_no, type_value2);
+                printDict("WCAS_TYBZ", type_no, type_value3);
+            }
+        }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("FinData.xlsx"));
+        st = wb.getSheetAt(0);
+        for (int i = 1; i < 3901; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(1));
+                String type_value1 = getCellValue(row.getCell(2));
+                printDict("X44", type_no, type_value);
+                printDict("X45", type_no, type_value1);
+            }
+        }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("ProductType.xlsx"));
+        st = wb.getSheetAt(0);
+        for (int i = 1; i < 36; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(5));
+                printDict("WCAS_ProductType", type_no, type_value);
+            }
+        }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("IndustryCode.xlsx"));
+        st = wb.getSheetAt(0);
+        for (int i = 5; i < 1882; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(6));
+                String type_value = getCellValue(row.getCell(7));
+                if (!type_no.trim().equals("") && type_no.length() > 1)
+                printDict("X46", type_no, type_value);
+            }
+        }
+        wb.close();
+
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("TermCode.xlsx"));
+        st = wb.getSheetAt(0);
+        for (int i = 1; i < 10; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(1));
+                if (!type_no.trim().equals("") && type_no.length() > 1)
+                    printDict("WCAS_TERMCODE_FIX", type_no, type_value);
+            }
+        }
+
+        for (int i = 1; i < 16; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(3));
+                String type_value = getCellValue(row.getCell(4));
+                if (!type_no.trim().equals("") && type_no.length() > 1)
+                    printDict("WCAS_TERMCODE", type_no, type_value);
+            }
+        }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("WPB.xlsx"));
+        st = wb.getSheetAt(6);
+        for (int i = 8; i < 109; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String type_no = getCellValue(row.getCell(0));
+                String type_value = getCellValue(row.getCell(10));
+                if (!type_no.trim().equals("") && type_no.length() > 1) {
+                    if (type_value.indexOf("：") > 0) {
+                        type_value = type_value.substring(0, type_value.indexOf("："));
+                    }
+                    type_value = type_value.trim();
+                    if (type_value.length() > 5) {
+                        type_value = type_value.substring(0,5);
+                    }
+                    printDict("WPB_CKCPLB", type_no, type_value);
+                }
+            }
+        }
 
         wb.close();
         wb = new XSSFWorkbook(new FileInputStream("Appendix.xlsx"));
@@ -2410,6 +2392,25 @@ public class MainApplication {
 //                String type_value = getCellValue(row.getCell(1));
 //                System.out.println(String.format("insert into map_nbjgh(`id`,`src`,`dest`)values('%s'," +
 //                        "'%s','%s');", String.valueOf(i), type_no, type_value));
+//            }
+//        }
+//        wb = new XSSFWorkbook(new FileInputStream("RateType.xlsx"));
+//        st = wb.getSheetAt(0);
+//        for (int i = 1; i < 614; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String id1 = getCellValue(row.getCell(1));
+//                String id2 = getCellValue(row.getCell(2));
+//                String id3 = getCellValue(row.getCell(3));
+//                String id4 = getCellValue(row.getCell(12));
+//                String DJJZLX = getCellValue(row.getCell(13));
+//                String LVLX = getCellValue(row.getCell(14));
+//                String JZLV = getCellValue(row.getCell(18));
+//                String LVFDPV = getCellValue(row.getCell(19));
+//                if (id4.equals("DD") || id4.equals("TD")) {
+//                    System.out.println(String.format("insert into MAP_WCAS_RATE_TYPE(id1,id2,id3,DJJZLX,LVLX,JZLV," +
+//                            "LVFDPL)values('%s','%s','%s','%s','%s','%s','%s');",id1,id2,id3,DJJZLX,LVLX,JZLV,LVFDPV));
+//                }
 //            }
 //        }
     }
