@@ -1,0 +1,5 @@
+1.    https://alm-confluence.systems.uk.hsbc/confluence/display/PRJZ/Recommended+solution+to+integrate+business+application+with+AD
+
+2.    https://alm-confluence.systems.uk.hsbc/confluence/display/PRJZ/Chart+-+Group+IAM+Tool+Onboarding+Flow
+
+3.    https://alm-confluence.systems.uk.hsbc/confluence/display/PRJZ/REQ07+-+Onboard+to+Group+Standard+IAM+Tools
