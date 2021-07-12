@@ -2,6 +2,7 @@ package com.gingkoo.imas.hsbc.service;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,27 +11,74 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.gingkoo.imas.core.batch.ImasBatchBasicValidateService;
 import com.gingkoo.root.facility.spring.tx.TransactionHelper;
 
 @Component
 public class EtlInsertService {
 
+    private final Logger logger = LoggerFactory.getLogger(EtlInsertService.class);
+
     private final JdbcTemplate jdbcTemplate;
 
     private final TransactionHelper transactionTemplate;
 
-    public EtlInsertService(TransactionHelper transactionTemplate, DataSource dataSource) {
+    private ImasBatchBasicValidateService imasBatchBasicValidateService;
+
+    public EtlInsertService(TransactionHelper transactionTemplate, DataSource dataSource, ImasBatchBasicValidateService imasBatchBasicValidateService) {
         this.transactionTemplate = transactionTemplate;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.imasBatchBasicValidateService = imasBatchBasicValidateService;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean updateData(String sql, String now, List<List<String>> params) {
+        String newsql = String.format(sql, now.substring(6,8));
+        if (params != null && params.size() > 0) {
+            try {
+                jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement pstmt, int i) throws SQLException {
+                        int index = 1;
+                        List<String> param = params.get(i);
+                        for (int j = 0; j < param.size(); j++) {
+                            if (param.get(j) == null || param.get(j).equals("")) {
+                                pstmt.setNull(index, Types.VARCHAR);
+                            } else {
+                                pstmt.setString(index, param.get(j));
+                            }
+                            index++;
+                        }
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return params.size();
+                    }
+                });
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return true;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean insertData(String sql, String groupId, String user, List<List<String>> params) {
+        String newsql = sql;
+        if(params.size() > 0) {
+            String now = params.get(0).get(0);
+            newsql = String.format(sql, now.substring(6,8));
+        }
         int times = params.size() / 1000;
         if (params.size() % 1000 != 0) {
             times += 1;
@@ -46,18 +94,28 @@ public class EtlInsertService {
                     currentUpdates.add(params.get(m));
                 }
             }
-            batchInsert(sql, groupId, user, currentUpdates);
+            batchInsert(newsql, groupId, user, currentUpdates);
         }
-        if (params.size() > 0) {
-            try{
-                String tableName = sql.substring(13, 27);
-                String nbjgh = "update " + tableName + " a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest " +
-                    "where a.sjrq = '" + params.get(0).get(0) + "'";
-                jdbcTemplate.execute(nbjgh);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
+//        if (params.size() > 0) {
+//            try {
+//                String tableName = sql.substring(21, 27).toUpperCase();
+//                List<String> lst = new ArrayList<String>();
+//                lst.add(tableName);
+//                imasBatchBasicValidateService.validate(params.get(0).get(0), lst, "HSBC", groupId, null, false);
+//            } catch (Exception ex) {
+//
+//            }
+//        }
+//        if (params.size() > 0) {
+//            try{
+//                String tableName = sql.substring(13, 27);
+//                String nbjgh = "update " + tableName + " a inner join map_nbjgh b on a.nbjgh = b.src set a.nbjgh = b.dest " +
+//                    "where a.sjrq = '" + params.get(0).get(0) + "'";
+//                jdbcTemplate.execute(nbjgh);
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            }
+//        }
         return true;
     }
 
@@ -78,7 +136,11 @@ public class EtlInsertService {
                     pstmt.setString(index, groupId);
                     index++;
                     for (int j = 0; j < param.size(); j++) {
-                        pstmt.setString(index, param.get(j));
+                        if (param.get(j) == null || param.get(j).equals("")) {
+                            pstmt.setNull(index, Types.VARCHAR);
+                        } else {
+                            pstmt.setString(index, param.get(j));
+                        }
                         index++;
                     }
                     pstmt.setString(index, user);
@@ -97,7 +159,7 @@ public class EtlInsertService {
             for (int i = 0; i < params.size(); i++) {
                 try {
                     final List<String> param = params.get(i);
-                    transactionTemplate.run(Propagation.REQUIRES_NEW, () -> {
+//                    transactionTemplate.run(Propagation.REQUIRES_NEW, () -> {
                         jdbcTemplate.update(sql, new PreparedStatementSetter() {
                             @Override
                             public void setValues(PreparedStatement pstmt) throws SQLException {
@@ -109,7 +171,11 @@ public class EtlInsertService {
                                 pstmt.setString(index, groupId);
                                 index++;
                                 for (int j = 0; j < param.size(); j++) {
-                                    pstmt.setString(index, param.get(j));
+                                    if (param.get(j) == null || param.get(j).equals("")) {
+                                        pstmt.setNull(index, Types.VARCHAR);
+                                    } else {
+                                        pstmt.setString(index, param.get(j));
+                                    }
                                     index++;
                                 }
                                 pstmt.setString(index, user);
@@ -119,12 +185,14 @@ public class EtlInsertService {
                                 pstmt.setString(index, time);
                             }
                         });
-                    });
+//                    });
                 } catch (Exception singleex) {
+                    logger.info(params.get(i).toString());
                     singleex.printStackTrace();
                 }
             }
         }
         return true;
     }
+
 }
