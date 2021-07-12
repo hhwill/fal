@@ -622,28 +622,33 @@ public class MainApplication {
         }
     }
 
-    String getCellValue(Cell cell) {
+    public static String getCellValue(Cell cell) {
         if (cell == null)
             return "";
         if (cell.getCellType() == CellType.STRING) {
             return cell.getStringCellValue().trim();
         } else {
             if (cell.getCellType() == CellType.FORMULA)
-                return "="+cell.getCellFormula();
+                return String.valueOf(cell.getNumericCellValue());
             else {
                 if (DateUtil.isCellDateFormatted(cell)) {
                     Date date = org.apache.poi.ss.usermodel.DateUtil
                             .getJavaDate(cell.getNumericCellValue());
                     return new SimpleDateFormat("yyyyMMdd").format(date);
                 }
-                String samount = new DecimalFormat("0.00").format(cell.getNumericCellValue());
-                if (samount.endsWith("0")) {
-                    samount = samount.substring(0, samount.length()-1);
+                double d = cell.getNumericCellValue();
+//                String samount = new DecimalFormat("0.00").format(cell.getNumericCellValue());
+//                if (samount.endsWith("0")) {
+//                    samount = samount.substring(0, samount.length()-1);
+//                }
+//                if (samount.endsWith(".0")) {
+//                    samount = samount.substring(0, samount.length()-2);
+//                }
+                if (String.valueOf(d).equals("0.0")) {
+                    return "";
+                } else {
+                    return String.valueOf(d);
                 }
-                if (samount.endsWith(".0")) {
-                    samount = samount.substring(0, samount.length()-2);
-                }
-                return samount;
             }
         }
     }
@@ -2117,7 +2122,7 @@ public class MainApplication {
     }
 
     public void createMap() throws Exception {
-        System.out.println("delete from MAP_INFO;");
+//        System.out.println("delete from MAP_INFO;");
         Workbook wb = new XSSFWorkbook(new FileInputStream("票据贴现.xlsx"));
         Sheet st = wb.getSheet("mapping");
 //        for (int i = 1; i < 10; i++) {
@@ -2273,8 +2278,17 @@ public class MainApplication {
 //            if (row != null) {
 //                String type_no = getCellValue(row.getCell(6));
 //                String type_value = getCellValue(row.getCell(7));
+//                if (type_value.length() > 3) {
+//                    type_value = type_value.substring(0,3).trim();
+//                }
 //                String type_value1 = getCellValue(row.getCell(8));
+//                if (type_value1.length() > 3) {
+//                    type_value1 = type_value1.substring(0,3).trim();
+//                }
 //                String type_value2 = getCellValue(row.getCell(9));
+//                if (type_value2.length() > 3) {
+//                    type_value2 = type_value2.substring(0,3).trim();
+//                }
 //                String type_value3 = getCellValue(row.getCell(10));
 //                printDict("X41", type_no, type_value);
 //                printDict("X42", type_no, type_value1);
@@ -2363,35 +2377,35 @@ public class MainApplication {
 //            }
 //        }
 
-        wb.close();
-        wb = new XSSFWorkbook(new FileInputStream("Appendix.xlsx"));
-        st = wb.getSheetAt(1);
-        for (int i = 1; i < 8683; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(4));
-                String type_value = getCellValue(row.getCell(20));
-                try {
-                    BigDecimal d = new BigDecimal(type_value);
-                } catch (Exception ex) {
-                    BigDecimal d = new BigDecimal(type_value);
-                }
-                printDict("WPB_BDSYL", type_no, type_value);
-            }
-        }
-        for (int i = 1; i < 8683; i++) {
-            Row row = st.getRow(i);
-            if (row != null) {
-                String type_no = getCellValue(row.getCell(4));
-                String type_value = getCellValue(row.getCell(21));
-                try {
-                    BigDecimal d = new BigDecimal(type_value);
-                } catch (Exception ex) {
-                    BigDecimal d = new BigDecimal(type_value);
-                }
-                printDict("WPB_ZGSYL", type_no, type_value);
-            }
-        }
+//        wb.close();
+//        wb = new XSSFWorkbook(new FileInputStream("Appendix.xlsx"));
+//        st = wb.getSheetAt(1);
+//        for (int i = 1; i < 8683; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(4));
+//                String type_value = getCellValue(row.getCell(20));
+//                try {
+//                    BigDecimal d = new BigDecimal(type_value);
+//                } catch (Exception ex) {
+//                    type_value = "";
+//                }
+//                printDict("WPB_BDSYL", type_no, type_value);
+//            }
+//        }
+//        for (int i = 1; i < 8683; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(4));
+//                String type_value = getCellValue(row.getCell(21));
+//                try {
+//                    BigDecimal d = new BigDecimal(type_value);
+//                } catch (Exception ex) {
+//                    type_value = "";
+//                }
+//                printDict("WPB_ZGSYL", type_no, type_value);
+//            }
+//        }
 
 //        wb.close();
 //        wb = new XSSFWorkbook(new FileInputStream("NBJGH.xlsx"));
@@ -2405,25 +2419,51 @@ public class MainApplication {
 //                        "'%s','%s');", String.valueOf(i), type_no, type_value));
 //            }
 //        }
-//        wb = new XSSFWorkbook(new FileInputStream("RateType.xlsx"));
-//        st = wb.getSheetAt(0);
-//        for (int i = 1; i < 614; i++) {
-//            Row row = st.getRow(i);
-//            if (row != null) {
-//                String id1 = getCellValue(row.getCell(1));
-//                String id2 = getCellValue(row.getCell(2));
-//                String id3 = getCellValue(row.getCell(3));
-//                String id4 = getCellValue(row.getCell(12));
-//                String DJJZLX = getCellValue(row.getCell(13));
-//                String LVLX = getCellValue(row.getCell(14));
-//                String JZLV = getCellValue(row.getCell(18));
-//                String LVFDPV = getCellValue(row.getCell(19));
-//                if (id4.equals("DD") || id4.equals("TD")) {
-//                    System.out.println(String.format("insert into MAP_WCAS_RATE_TYPE(id1,id2,id3,DJJZLX,LVLX,JZLV," +
-//                            "LVFDPL)values('%s','%s','%s','%s','%s','%s','%s');",id1,id2,id3,DJJZLX,LVLX,JZLV,LVFDPV));
-//                }
-//            }
-//        }
+        wb = new XSSFWorkbook(new FileInputStream("RateType.xlsx"));
+        st = wb.getSheetAt(0);
+        for (int i = 1; i < 614; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String id1 = getCellValue(row.getCell(1));
+                String id2 = getCellValue(row.getCell(2));
+                String id3 = getCellValue(row.getCell(3));
+                String id4 = getCellValue(row.getCell(12));
+                String DJJZLX = getCellValue(row.getCell(13));
+                String LVLX = getCellValue(row.getCell(14));
+                String JZLV = getCellValue(row.getCell(18));
+                String LVFDPV = getCellValue(row.getCell(19));
+                if (id4.equals("DD") || id4.equals("TD")) {
+                    System.out.println(String.format("insert into MAP_WCAS_RATE_TYPE(id1,id2,id3,DJJZLX,LVLX,JZLV," +
+                            "LVFDPL)values('%s','%s','%s','%s','%s','%s','%s');",id1,id2,id3,DJJZLX,LVLX,JZLV,LVFDPV));
+                }
+            }
+        }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream("RateTypeSD.xlsx"));
+        st = wb.getSheetAt(0);
+        for (int i = 1; i < 614; i++) {
+            Row row = st.getRow(i);
+            if (row != null) {
+                String id1 = getCellValue(row.getCell(0));
+                String id2 = getCellValue(row.getCell(1));
+                String id3 = getCellValue(row.getCell(2));
+                String id4 = getCellValue(row.getCell(3));
+                String id5 = getCellValue(row.getCell(4));
+                if (id5.equals("留空")) {
+                    id5 = "";
+                }
+                String id6 = getCellValue(row.getCell(5));
+                    System.out.println(String.format("insert into MAP_WCAS_RATE_TYPE_SD(cplx,`desc`,djjzlx,lllx,jzlv," +
+                            "llfdpl" +
+                            ")" +
+                            "values" +
+                            "('%s'," +
+                            "'%s'," +
+                     "'%s'," +
+ "'%s'," +
+                            "'%s','%s','%s');",id1,id2,id3,id4,id5,id6));
+            }
+        }
     }
 
     public void test() throws Exception {
