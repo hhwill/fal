@@ -238,6 +238,12 @@ public class EtlUtils {
                 return dict.get("");
             }
         }
+        if (sdays.endsWith(".00")) {
+            sdays = sdays.substring(0,sdays.length()-3);
+        }
+        if (sdays.endsWith(".0")) {
+            sdays = sdays.substring(0,sdays.length()-2);
+        }
         int days = Integer.parseInt(sdays);
         String result = "";
         for (String key : dict.keySet()) {
@@ -348,6 +354,10 @@ public class EtlUtils {
     //实际利率 账户余额 存款序号 存款产品类别  的列表
     public static List<List<String>> getCKXH(Map<String, Object> src) {
         List<List<String>> result = new ArrayList<List<String>>();
+        String ccy = getString(src.get("DFCYCD"));
+        if (ccy.equals("")) {
+            ccy = getString(src.get("TDCYCD"));
+        }
         //默认不分层的返回
         List<String> record = new ArrayList<String>();
         String LEDGER = getString(src.get("LEDGER"));
