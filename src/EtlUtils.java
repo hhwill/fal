@@ -1,9 +1,13 @@
 package com.gingkoo.imas.hsbc.service;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.security.access.method.P;
 
 public class EtlUtils {
@@ -17,6 +21,37 @@ public class EtlUtils {
             return Math.abs(days);
         } catch (Exception ex) {
             return 0;
+        }
+    }
+
+    public static String getCellValue(Cell cell) {
+        if (cell == null)
+            return "";
+        if (cell.getCellType() == CellType.STRING) {
+            return cell.getStringCellValue().trim();
+        } else {
+            if (cell.getCellType() == CellType.FORMULA)
+                return String.valueOf(cell.getNumericCellValue());
+            else {
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    Date date = org.apache.poi.ss.usermodel.DateUtil
+                            .getJavaDate(cell.getNumericCellValue());
+                    return new SimpleDateFormat("yyyyMMdd").format(date);
+                }
+                double d = cell.getNumericCellValue();
+//                String samount = new DecimalFormat("0.00").format(cell.getNumericCellValue());
+//                if (samount.endsWith("0")) {
+//                    samount = samount.substring(0, samount.length()-1);
+//                }
+//                if (samount.endsWith(".0")) {
+//                    samount = samount.substring(0, samount.length()-2);
+//                }
+                if (String.valueOf(d).equals("0.0")) {
+                    return "";
+                } else {
+                    return String.valueOf(d);
+                }
+            }
         }
     }
 
@@ -57,10 +92,22 @@ public class EtlUtils {
         return result;
     }
 
+    public static String formatGM_NBJGH(String dealing) {
+        if (dealing.equals("177") || dealing.equals("179") || dealing.equals("109") || dealing.equals("135")
+                || dealing.equals("213") || dealing.equals("224") || dealing.equals("274") || dealing.equals("255") ) {
+            return "CNHSBC001";
+        } else {
+            return "CNHSBC900";
+        }
+    }
+
     public static String formatNBJGH(Object src) {
         String ssrc = "";
         if (src != null) {
             ssrc = src.toString();
+        }
+        if (ssrc.trim().equals("")) {
+            return "";
         }
         String result = ssrc;
         while (result.length() < 3) {
@@ -74,6 +121,24 @@ public class EtlUtils {
             result = dest;
         }
         return result;
+    }
+
+    public static String getGMONBJGH(String dpos) {
+        return dpos;
+    }
+
+    public static String getGMOKHH(String src) {
+        String khh = src;
+        if (src.equals("")) {
+            if (src.equals("BOCHFTZ")) {
+                khh = "CNHSBC001365006";
+            } else if (src.equals("BOMMFTZ")) {
+                khh = "CNHSBC001365006";
+            } else if (src.equals("FJIBFTZ")) {
+                khh = "CNHSBC001232313";
+            }
+        }
+        return khh;
     }
 
     public static String formatKHH(Object src) {
@@ -198,6 +263,34 @@ public class EtlUtils {
         return result;
     }
 
+    public static String getDXEBZ(Object ccy, Object ledger) {
+        String result = "";
+        if (ccy.equals("CNY")) {
+            return result;
+        } else {
+            //usd >=300W then A else B
+            if (ccy.equals("EUR") || ccy.equals("HKD") || ccy.equals("JPY") || ccy.equals("USD")) {
+                String currate = "1";
+                if (!ccy.equals("USD")) {
+                    currate = getMap("RATE", ccy +"/USD");
+                }
+                if (!currate.equals("")) {
+                    BigDecimal x = new BigDecimal(getString(ledger)).multiply(new BigDecimal(currate));
+                    if (x.compareTo(new BigDecimal("3000000")) > -1) {
+                        result = "A";
+                    } else {
+                        result = "B";
+                    }
+                } else {
+                    result = "";
+                }
+            } else {
+                result = "";
+            }
+        }
+        return result;
+    }
+
     //交易流水 交易日期 发生金额 交易方向 的列表
     public static List<List<String>> getWCASJYLS(String now, Map<String, Object> src) {
         List<List<String>> result = new ArrayList<List<String>>();
@@ -243,7 +336,7 @@ public class EtlUtils {
             record.add("0");
             result.add(record);
             List<String> record1 = new ArrayList<String>();
-            record1.add(getString(src.get("TDSTDT"))+formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
+            record1.add(getString(src.get("TDSTDT"))+formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX"))+"N");
             record1.add(getString(src.get("TDSTDT")));
             record1.add(getString(src.get("LEDGER")));
             record1.add("1");
@@ -260,10 +353,19 @@ public class EtlUtils {
         String LEDGER = getString(src.get("LEDGER"));
         String DGCIBL = getString(src.get("DGCIBL"));
 
+        //TD默认返回
+        if (!src.containsKey("DFAPTY")) {
+            record.add(getString(src.get("TDCNTR")));
+            record.add(getString(src.get("LEDGER")));
+            record.add("01");
+            record.add(getMap("WCAS_ProductType", src.get("TDAPTY")));
+            result.add(record);
+            return result;
+        }
         String defCKCPLB = getMap("WCAS_ProductType", src.get("DFAPTY"));
         String DGCIRS = getString(src.get("DGCIRS"));
         if (DGCIRS == null || DGCIRS.trim().equals("")) {
-            DGCIRS = "0";
+            DGCIRS = "0.0";
         }
 
         String lastCKCPLB = defCKCPLB;
@@ -332,15 +434,15 @@ public class EtlUtils {
                     if (DGCIBL.equals("N")) {
                         record.add(new BigDecimal(DGCIRS).add(new BigDecimal(X5INR1)).toString());
                     } else {
-                        record.add(DGCIRS);
+                        record.add(X5INR1);
                     }
                     if (new BigDecimal(LEDGER).compareTo(new BigDecimal(X5BAL1)) > 0) {
                         record.add(new BigDecimal(X5BAL1).toString());
                         record.add(lastCKXH);
                         lastCKXH = "02";
                         record.add(lastCKCPLB);
-                        if (lastCKCPLB.equals("D0501")) {
-                            lastCKCPLB = "D0502";
+                        if (lastCKCPLB.equals("D051")) {
+                            lastCKCPLB = "D052";
                         }
                         result.add(record);
                     } else {
@@ -348,29 +450,29 @@ public class EtlUtils {
                         record.add(lastCKXH);
                         lastCKXH = "02";
                         record.add(defCKCPLB);
-                        if (lastCKCPLB.equals("D0501")) {
-                            lastCKCPLB = "D0502";
+                        if (lastCKCPLB.equals("D051")) {
+                            lastCKCPLB = "D052";
                         }
                         result.add(record);
                     }
                     lastBAL = X5BAL1;
                 }
-                if (!X5INR2.equals("0") && new BigDecimal(LEDGER).compareTo(new BigDecimal(lastBAL)) > 0) {
+                if (!X5INR2.equals("0")) {
                     List<String> record2 = new ArrayList<String>();
                     if (DGCIBL.equals("N")) {
                         record2.add(new BigDecimal(DGCIRS).add(new BigDecimal(X5INR2)).toString());
                     } else {
-                        record2.add(DGCIRS);
+                        record2.add(X5INR2);
                     }
                     if (new BigDecimal(LEDGER).compareTo(new BigDecimal(X5BAL2)) > 0) {
-                        record2.add(X5BAL2);
+                        record2.add(new BigDecimal(X5BAL2).subtract(new BigDecimal(X5BAL1)).toString());
                         record2.add(lastCKXH);
                         if (lastCKXH.equals("02")) {
                             lastCKXH = "03";
                         } else if (lastCKXH.equals("01")) {
                             lastCKXH = "02";
                         }
-                        record2.add(lastCKCPLB);
+                        record2.add("D052");
                         result.add(record2);
                     } else {
                         if (new BigDecimal(LEDGER).compareTo(new BigDecimal(lastBAL)) > 0) {
@@ -381,24 +483,37 @@ public class EtlUtils {
                             } else if (lastCKXH.equals("01")) {
                                 lastCKXH = "02";
                             }
-                            record2.add(lastCKCPLB);
-                            if (lastCKCPLB.equals("D0501")) {
-                                lastCKCPLB = "D0502";
+                            record2.add("D052");
+                            if (lastCKCPLB.equals("D051")) {
+                                lastCKCPLB = "D052";
+                            }
+                            result.add(record2);
+                        } else {
+                            record2.add("0");
+                            record2.add(lastCKXH);
+                            if (lastCKXH.equals("02")) {
+                                lastCKXH = "03";
+                            } else if (lastCKXH.equals("01")) {
+                                lastCKXH = "02";
+                            }
+                            record2.add("D052");
+                            if (lastCKCPLB.equals("D051")) {
+                                lastCKCPLB = "D052";
                             }
                             result.add(record2);
                         }
                     }
                     lastBAL = X5BAL2;
                 }
-                if (!X5INR3.equals("0") && new BigDecimal(LEDGER).compareTo(new BigDecimal(lastBAL)) > 0) {
+                if (!X5INR3.equals("0")) {
                     List<String> record3 = new ArrayList<String>();
                     if (DGCIBL.equals("N")) {
                         record3.add(new BigDecimal(DGCIRS).add(new BigDecimal(X5INR3)).toString());
                     } else {
-                        record3.add(DGCIRS);
+                        record3.add(X5INR3);
                     }
                     if (new BigDecimal(LEDGER).compareTo(new BigDecimal(X5BAL3)) > 0) {
-                        record3.add(X5BAL3);
+                        record3.add(new BigDecimal(X5BAL3).subtract(new BigDecimal(X5BAL2)).subtract(new BigDecimal(X5BAL1)).toString());
                         record3.add(lastCKXH);
                         if (lastCKXH.equals("03")) {
                             lastCKXH = "04";
@@ -407,7 +522,7 @@ public class EtlUtils {
                         } else if (lastCKXH.equals("01")) {
                             lastCKXH = "02";
                         }
-                        record3.add(lastCKCPLB);
+                        record3.add("D052");
                         result.add(record3);
                     } else {
                         if (new BigDecimal(LEDGER).compareTo(new BigDecimal(X5BAL2)) > 0) {
@@ -420,32 +535,52 @@ public class EtlUtils {
                             } else if (lastCKXH.equals("01")) {
                                 lastCKXH = "02";
                             }
-                            record3.add(lastCKCPLB);
-                            if (lastCKCPLB.equals("D0501")) {
-                                lastCKCPLB = "D0502";
+                            record3.add("D052");
+                            if (lastCKCPLB.equals("D051")) {
+                                lastCKCPLB = "D052";
+                            }
+                            result.add(record3);
+                        } else {
+                            record3.add("0");
+                            record3.add(lastCKXH);
+                            if (lastCKXH.equals("03")) {
+                                lastCKXH = "04";
+                            } else if (lastCKXH.equals("02")) {
+                                lastCKXH = "03";
+                            } else if (lastCKXH.equals("01")) {
+                                lastCKXH = "02";
+                            }
+                            record3.add("D052");
+                            if (lastCKCPLB.equals("D051")) {
+                                lastCKCPLB = "D052";
                             }
                             result.add(record3);
                         }
                     }
                     lastBAL = X5BAL3;
                 }
-                if (!X5INR4.equals("0") && new BigDecimal(LEDGER).compareTo(new BigDecimal(lastBAL)) > 0) {
+                if (!X5INR4.equals("0")) {
                     List<String> record4 = new ArrayList<String>();
                     if (DGCIBL.equals("N")) {
                         record4.add(new BigDecimal(DGCIRS).add(new BigDecimal(X5INR4)).toString());
                     } else {
-                        record4.add(DGCIRS);
+                        record4.add(X5INR4);
                     }
                     if (new BigDecimal(LEDGER).compareTo(new BigDecimal(X5BAL4)) > 0) {
-                        record4.add(X5BAL4);
+                        record4.add(new BigDecimal(X5BAL4).subtract(new BigDecimal(X5BAL3)).subtract(new BigDecimal(X5BAL2)).subtract(new BigDecimal(X5BAL1)).toString());
                         record4.add(lastCKXH);
-                        record4.add(lastCKCPLB);
+                        record4.add("D052");
                         result.add(record4);
                     } else {
                         if (new BigDecimal(LEDGER).compareTo(new BigDecimal(X5BAL3)) > 0) {
                             record4.add(new BigDecimal(LEDGER).subtract(new BigDecimal(lastBAL)).toString());
                             record4.add(lastCKXH);
-                            record4.add(lastCKCPLB);
+                            record4.add("D052");
+                            result.add(record4);
+                        } else {
+                            record4.add("0");
+                            record4.add(lastCKXH);
+                            record4.add("D052");
                             result.add(record4);
                         }
                     }
@@ -480,6 +615,6 @@ public class EtlUtils {
         if (s == null) {
             return "";
         }
-        return s.toString();
+        return s.toString().trim();
     }
 }
