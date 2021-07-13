@@ -45,11 +45,12 @@ public class CustEtlGM {
 
     public void initPCBase(String dir, String now, String group_id) throws Exception {
         pService.initMap(now);
-        String sql = "delete from imas_pm_TYCKJC where sjrq = '"+now+"' and group_id = '"+group_id+"'";
+        String day = now.substring(6,8);
+        String sql = "delete from imas_pm_"+day+"_TYCKJC where sjrq = '"+now+"' and group_id = '"+group_id+"'";
         execUpdSqlCommit(sql);
-        sql = "delete from imas_pm_TYJDJC where sjrq = '"+now+"' and group_id = '"+group_id+"'";
+        sql = "delete from imas_pm_"+day+"_TYJDJC where sjrq = '"+now+"' and group_id = '"+group_id+"'";
         execUpdSqlCommit(sql);
-        sql = "delete from imas_pm_MRFSJC where sjrq = '"+now+"' and group_id = '"+group_id+"'";
+        sql = "delete from imas_pm_"+day+"_MRFSJC where sjrq = '"+now+"' and group_id = '"+group_id+"'";
         execUpdSqlCommit(sql);
         Workbook wb = new XSSFWorkbook(new FileInputStream(dir));
         Sheet st = wb.getSheetAt(0);
@@ -192,11 +193,12 @@ public class CustEtlGM {
 
     public void initBalance(String dir, String now, String group_id) throws Exception {
         pService.initMap(now);
-        String sql = "delete from imas_pm_TYCKYE where sjrq = '"+now+"' and group_id = '"+group_id+"'";
+        String day = now.substring(6,8);
+        String sql = "delete from imas_pm_"+day+"_TYCKYE where sjrq = '"+now+"' and group_id = '"+group_id+"'";
         execUpdSqlCommit(sql);
-        sql = "delete from imas_pm_TYJDYE where sjrq = '"+now+"' and group_id = '"+group_id+"'";
+        sql = "delete from imas_pm_"+day+"_TYJDYE where sjrq = '"+now+"' and group_id = '"+group_id+"'";
         execUpdSqlCommit(sql);
-        sql = "delete from imas_pm_MRFSYE where sjrq = '"+now+"' and group_id = '"+group_id+"'";
+        sql = "delete from imas_pm_"+day+"_MRFSYE where sjrq = '"+now+"' and group_id = '"+group_id+"'";
         execUpdSqlCommit(sql);
         Workbook wb = new XSSFWorkbook(new FileInputStream(dir));
         Sheet st = wb.getSheetAt(0);
@@ -275,34 +277,36 @@ public class CustEtlGM {
 
     public void initJC(String now, String group_id) throws Exception {
         pService.initMap(now);
-        String sql = "delete from imas_pm_TYCKJC where sjrq = '"+now+"' and group_id = '"+group_id+"'";
+        String day = now.substring(6,8);
+        String sql = "delete from imas_pm_"+day+"_TYCKJC where sjrq = '"+now+"' and group_id = '"+group_id+"'";
         jdbcTemplate.execute(sql);
-        sql = "delete from imas_pm_TYJDJC where sjrq = '"+now+"' and group_id = '"+group_id+"'";
+        sql = "delete from imas_pm_"+day+"_TYJDJC where sjrq = '"+now+"' and group_id = '"+group_id+"'";
         jdbcTemplate.execute(sql);
-        sql = "delete from imas_pm_MRFSJC where sjrq = '"+now+"' and group_id = '"+group_id+"'";
+        sql = "delete from imas_pm_"+day+"_MRFSJC where sjrq = '"+now+"' and group_id = '"+group_id+"'";
         jdbcTemplate.execute(sql);
-        sql = "select max(sjrq) from imas_pm_jgfrxx where data_date < '" + now + "'";
+        sql = "select max(sjrq) from map_nbjgh where data_date < '" + now + "'";
         String previous = jdbcTemplate.queryForObject(sql, String.class);
-        sql = String.format("insert into imas_pm_TYCKJC select * from imas_pm_TYCKJC a where sjrq = '%s' and rsv5 <> " +
-                "'0' and not exists (select * from imas_pm_TYCKJC b where b.sjrq = '%s' and a.ckzhbm = b.ckzhbm and a" +
+        sql = String.format("insert into imas_pm_"+day+"_TYCKJC select * from imas_pm_"+day+"_TYCKJC a where sjrq = '%s' and rsv5 <> " +
+                "'0' and not exists (select * from imas_pm_"+day+"_TYCKJC b where b.sjrq = '%s' and a.ckzhbm = b.ckzhbm and a" +
                 ".sjrq = '%s')", previous, now, previous);
         jdbcTemplate.execute(sql);
-        sql = String.format("insert into imas_pm_TYJDJC select * from imas_pm_TYJDJC a where sjrq = '%s' and rsv5 <> " +
-                "'0' and not exists (select * from imas_pm_TYJDJC b where b.sjrq = '%s' and a.ywbm = b.ywbm and a" +
+        sql = String.format("insert into imas_pm_"+day+"_TYJDJC select * from imas_pm_"+day+"_TYJDJC a where sjrq = '%s' and rsv5 <> " +
+                "'0' and not exists (select * from imas_pm_"+day+"_TYJDJC b where b.sjrq = '%s' and a.ywbm = b.ywbm and a" +
                 ".sjrq = '%s')", previous, now, previous);
         jdbcTemplate.execute(sql);
-        sql = String.format("insert into imas_pm_MRFSJC select * from imas_pm_MRFSJC a where sjrq = '%s' and rsv5 <> " +
-                "'0' and not exists (select * from imas_pm_MRFSC b where b.sjrq = '%s' and a.ywbm = b.ywbm and a" +
+        sql = String.format("insert into imas_pm_"+day+"_MRFSJC select * from imas_pm_"+day+"_MRFSJC a where sjrq = '%s' and rsv5 <> " +
+                "'0' and not exists (select * from imas_pm_"+day+"_MRFSC b where b.sjrq = '%s' and a.ywbm = b.ywbm and a" +
                 ".sjrq = '%s')", previous, now, previous);
         jdbcTemplate.execute(sql);
     }
 
     public void initGMOTYCKJC(String dir, String now, String group_id) throws Exception {
         pService.initMap(now);
-        String sql = "delete from imas_pm_TYCKJC where sjrq = '" + now + "' and group_id = '" + group_id + "'";
+        String day = now.substring(6,8);
+        String sql = "delete from imas_pm_"+day+"_TYCKJC where sjrq = '" + now + "' and group_id = '" + group_id + "'";
         execUpdSqlCommit(sql);
         List<Map<String, Object>> lst =
-                jdbcTemplate.queryForList("select * from imas_pm_TYCKJC where sjrq = '" + now + "'");
+                jdbcTemplate.queryForList("select * from imas_pm_"+day+"_TYCKJC where sjrq = '" + now + "'");
         Workbook wb = new XSSFWorkbook(new FileInputStream(dir));
         Sheet st = wb.getSheetAt(0);
         List<List<String>> tyckjc = new ArrayList<List<String>>();
@@ -375,10 +379,11 @@ public class CustEtlGM {
 
     public void initGMOTYJDJC(String dir, String now, String group_id) throws Exception {
         pService.initMap(now);
-        String sql = "delete from imas_pm_TYJDJC where sjrq = '" + now + "' and group_id = '" + group_id + "'";
+        String day = now.substring(6,8);
+        String sql = "delete from imas_pm_"+day+"TYJDJC where sjrq = '" + now + "' and group_id = '" + group_id + "'";
         execUpdSqlCommit(sql);
         List<Map<String, Object>> lst =
-                jdbcTemplate.queryForList("select * from imas_pm_TYJDJC where sjrq = '" + now + "'");
+                jdbcTemplate.queryForList("select * from imas_pm_"+day+"TYJDJC where sjrq = '" + now + "'");
         Workbook wb = new XSSFWorkbook(new FileInputStream(dir));
         Sheet st = wb.getSheetAt(0);
         List<List<String>> tyjdjc = new ArrayList<List<String>>();
@@ -453,10 +458,11 @@ public class CustEtlGM {
 
     public void initGMOMRFSJC(String dir, String now, String group_id) throws Exception {
         pService.initMap(now);
-        String sql = "delete from imas_pm_MRFSJC where sjrq = '" + now + "' and group_id = '" + group_id + "'";
+        String day = now.substring(6,8);
+        String sql = "delete from imas_pm_"+day+"MRFSJC where sjrq = '" + now + "' and group_id = '" + group_id + "'";
         execUpdSqlCommit(sql);
         List<Map<String, Object>> lst =
-                jdbcTemplate.queryForList("select * from imas_pm_MRFSJC where sjrq = '" + now + "'");
+                jdbcTemplate.queryForList("select * from imas_pm_"+day+"MRFSJC where sjrq = '" + now + "'");
         Workbook wb = new XSSFWorkbook(new FileInputStream(dir));
         Sheet st = wb.getSheetAt(0);
         List<List<String>> mrfsjc = new ArrayList<List<String>>();
@@ -530,11 +536,12 @@ public class CustEtlGM {
 
     public void initGMOTYCKFS(String dir, String now, String group_id) throws Exception {
         pService.initMap(now);
-        String sql = "delete from imas_pm_TYCKFS where sjrq = '" + now + "' and group_id = '" + group_id + "'";
+        String day =now.substring(6,8);
+        String sql = "delete from imas_pm_"+day+"_TYCKFS where sjrq = '" + now + "' and group_id = '" + group_id + "'";
         execUpdSqlCommit(sql);
-        sql = "delete from imas_pm_TYCKYE where sjrq = '" + now + "' and group_id = '" + group_id + "'";
+        sql = "delete from imas_pm_"+day+"_TYCKYE where sjrq = '" + now + "' and group_id = '" + group_id + "'";
         execUpdSqlCommit(sql);
-        sql = "select * from imas_pm_TYCKYE where sjrq = '" + now + "'";
+        sql = "select * from imas_pm_"+day+"_TYCKYE where sjrq = '" + now + "'";
         List<Map<String, Object>> lst = jdbcTemplate.queryForList(sql);
         Workbook wb = new XSSFWorkbook(new FileInputStream(dir));
         Sheet st = wb.getSheetAt(0);
@@ -601,11 +608,12 @@ public class CustEtlGM {
 
     public void initGMOTYJDFS(String dir, String now, String group_id) throws Exception {
         pService.initMap(now);
-        String sql = "delete from imas_pm_TYJDFS where sjrq = '" + now + "' and group_id = '" + group_id + "'";
+        String day = now.substring(6,8);
+        String sql = "delete from imas_pm_"+day+"_TYJDFS where sjrq = '" + now + "' and group_id = '" + group_id + "'";
         execUpdSqlCommit(sql);
-        sql = "delete from imas_pm_TYJDYE where sjrq = '" + now + "' and group_id = '" + group_id + "'";
+        sql = "delete from imas_pm_"+day+"_TYJDYE where sjrq = '" + now + "' and group_id = '" + group_id + "'";
         execUpdSqlCommit(sql);
-        sql = "select * from imas_pm_TYJDYE where sjrq = '" + now + "'";
+        sql = "select * from imas_pm_"+day+"_TYJDYE where sjrq = '" + now + "'";
         List<Map<String, Object>> lst = jdbcTemplate.queryForList(sql);
         Workbook wb = new XSSFWorkbook(new FileInputStream(dir));
         Sheet st = wb.getSheetAt(0);
@@ -672,11 +680,12 @@ public class CustEtlGM {
 
     public void initGMOMRFSFS(String dir, String now, String group_id) throws Exception {
         pService.initMap(now);
-        String sql = "delete from imas_pm_MRFSFS where sjrq = '" + now + "' and group_id = '" + group_id + "'";
+        String day = now.substring(6,8);
+        String sql = "delete from imas_pm_"+day+"_MRFSFS where sjrq = '" + now + "' and group_id = '" + group_id + "'";
         execUpdSqlCommit(sql);
-        sql = "delete from imas_pm_MRFSYE where sjrq = '" + now + "' and group_id = '" + group_id + "'";
+        sql = "delete from imas_pm_"+day+"_MRFSYE where sjrq = '" + now + "' and group_id = '" + group_id + "'";
         execUpdSqlCommit(sql);
-        sql = "select * from imas_pm_MRFSYE where sjrq = '" + now + "'";
+        sql = "select * from imas_pm_"+day+"_MRFSYE where sjrq = '" + now + "'";
         List<Map<String, Object>> lst = jdbcTemplate.queryForList(sql);
         Workbook wb = new XSSFWorkbook(new FileInputStream(dir));
         Sheet st = wb.getSheetAt(0);
