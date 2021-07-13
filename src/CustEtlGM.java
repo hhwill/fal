@@ -549,10 +549,10 @@ public class CustEtlGM {
             List<String> subtyckfs = new ArrayList<String>();
             subtyckfs.add(now);
             String khh = getCellValue(row.getCell(3));
-            String dlno = getCellValue(row.getCell(17));
-            String cpac = getCellValue(row.getCell(18));
-            String bkcs = getCellValue(row.getCell(19));
-            String dpos = getCellValue(row.getCell(20));
+            String dlno = getCellValue(row.getCell(11));
+            String cpac = getCellValue(row.getCell(12));
+            String bkcs = getCellValue(row.getCell(13));
+            String dpos = getCellValue(row.getCell(14));
             if (khh.equals("")) {
                 khh = getGMOKHH(cpac);
             }
@@ -566,7 +566,7 @@ public class CustEtlGM {
             }
             subtyckfs.add(khh);
             subtyckfs.add(getCellValue(row.getCell(4)));
-            subtyckfs.add(getCellValue(row.getCell(5)));
+            subtyckfs.add(getCellValue(row.getCell(5)).replace("-",""));
             subtyckfs.add(getCellValue(row.getCell(6)));
             subtyckfs.add(getCellValue(row.getCell(7)));
             subtyckfs.add(getCellValue(row.getCell(8)));
@@ -588,7 +588,7 @@ public class CustEtlGM {
                     subtyckye.add(now);
                     subtyckye.add(ckzhbm);
                     subtyckye.add(khh);
-                    subtyckfs.add(getCellValue(row.getCell(6)));
+                    subtyckye.add(getCellValue(row.getCell(6)));
                     subtyckye.add("0");
                     tyckye.add(subtyckye);
                 }
