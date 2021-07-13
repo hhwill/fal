@@ -587,6 +587,7 @@ public class CustEtlGM {
                     List<String> subtyckye = new ArrayList<String>();
                     subtyckye.add(now);
                     subtyckye.add(ckzhbm);
+                    subtyckye.add(nbjgh);
                     subtyckye.add(khh);
                     subtyckye.add(getCellValue(row.getCell(6)));
                     subtyckye.add("0");
@@ -657,6 +658,7 @@ public class CustEtlGM {
                     List<String> subtyjdye = new ArrayList<String>();
                     subtyjdye.add(now);
                     subtyjdye.add(ywbm);
+                    subtyjdye.add(nbjgh);
                     subtyjdye.add(khh);
                     subtyjdye.add(getCellValue(row.getCell(6)));
                     subtyjdye.add("0");
@@ -726,6 +728,7 @@ public class CustEtlGM {
                     List<String> submrfsye = new ArrayList<String>();
                     submrfsye.add(now);
                     submrfsye.add(ywbm);
+                    submrfsye.add(nbjgh);
                     submrfsye.add(khh);
                     submrfsye.add(getCellValue(row.getCell(6)));
                     submrfsye.add("0");
