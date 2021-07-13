@@ -342,8 +342,8 @@ public class CustEtlGM {
             String YWBM = getCellValue(row.getCell(4));
             subtyckjc.add(YWBM);
             subtyckjc.add(getCellValue(row.getCell(5)));
-            subtyckjc.add(getCellValue(row.getCell(6)));
-            subtyckjc.add(getCellValue(row.getCell(7)));
+            subtyckjc.add(getCellValue(row.getCell(6)).replace("-",""));
+            subtyckjc.add(getCellValue(row.getCell(7)).replace("-",""));
             //存款期限类型s
             subtyckjc.add(checkTyjdTenor(getCellValue(row.getCell(8)), map.get("X14")));
             subtyckjc.add(getCellValue(row.getCell(9)));
@@ -393,11 +393,11 @@ public class CustEtlGM {
             List<String> subtyjdjcupd = new ArrayList<String>();
             subtyjdjc.add(now);
             String khh = getCellValue(row.getCell(2));
-            String dlno = getCellValue(row.getCell(14));
-            String cpac = getCellValue(row.getCell(15));
-            String bkcs = getCellValue(row.getCell(16));
-            String dpos = getCellValue(row.getCell(17));
-            String jyfx = getCellValue(row.getCell(18));
+            String dlno = getCellValue(row.getCell(16));
+            String cpac = getCellValue(row.getCell(17));
+            String bkcs = getCellValue(row.getCell(18));
+            String dpos = getCellValue(row.getCell(19));
+            String jyfx = getCellValue(row.getCell(20));
             if (khh.equals("")) {
                 khh = getGMOKHH(cpac);
             }
@@ -417,15 +417,18 @@ public class CustEtlGM {
             String YWBM = getCellValue(row.getCell(4));
             subtyjdjc.add(YWBM);
             subtyjdjc.add(getCellValue(row.getCell(5)));
-            subtyjdjc.add(getCellValue(row.getCell(6)));
-            subtyjdjc.add(getCellValue(row.getCell(7)));
+            subtyjdjc.add(getCellValue(row.getCell(6)).replace("-",""));
+            subtyjdjc.add(getCellValue(row.getCell(7)).replace("-",""));
+            subtyjdjc.add(getCellValue(row.getCell(8)));
             //存款期限类型s
-            subtyjdjc.add(checkTyjdTenor(getCellValue(row.getCell(8)), map.get("X14")));
-            subtyjdjc.add(getCellValue(row.getCell(9)));
+            subtyjdjc.add(checkTyjdTenor(getCellValue(row.getCell(9)), map.get("X14")));
+
             subtyjdjc.add(getCellValue(row.getCell(10)));
             subtyjdjc.add(getCellValue(row.getCell(11)));
             subtyjdjc.add(getCellValue(row.getCell(12)));
             subtyjdjc.add(getCellValue(row.getCell(13)));
+            subtyjdjc.add(getCellValue(row.getCell(14)));
+            subtyjdjc.add(getCellValue(row.getCell(15)));
             subtyjdjc.add(jyfx);
             boolean find = false;
             for (Map<String, Object> record : lst) {
@@ -493,9 +496,9 @@ public class CustEtlGM {
             submrfsjc.add(YWBM);
             submrfsjc.add(getCellValue(row.getCell(5)));
             submrfsjc.add(getCellValue(row.getCell(6)));
-            submrfsjc.add(getCellValue(row.getCell(7)));
-            submrfsjc.add(getCellValue(row.getCell(8)));
-            submrfsjc.add(getCellValue(row.getCell(9)));
+            submrfsjc.add(getCellValue(row.getCell(7)).replace("-",""));
+            submrfsjc.add(getCellValue(row.getCell(8)).replace("-",""));
+            submrfsjc.add(getCellValue(row.getCell(9)).replace("-",""));
             submrfsjc.add(checkTyjdTenor(getCellValue(row.getCell(10)), map.get("X14")));
             submrfsjc.add(getCellValue(row.getCell(11)));
             submrfsjc.add(getCellValue(row.getCell(12)));
