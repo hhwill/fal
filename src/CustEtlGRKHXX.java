@@ -2,6 +2,7 @@ package com.gingkoo.imas.hsbc.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -93,7 +94,7 @@ public class CustEtlGRKHXX {
             mode = id.substring(0,6);
         } else {
             //所属内部机构的地区代码
-            mode = getMap("XDQDM", formatKHH(src.get("客户号")));
+            mode = getMap("XDQDM", nbjgh);
         }
         result.add(mode);
 
@@ -221,18 +222,77 @@ public class CustEtlGRKHXX {
 
     public boolean processAll(String now, String group_id) throws Exception {
         logger.info(">>>Start GRKHXX " + now + " " + group_id);
-        String sql = String.format("delete from imas_pm_grkhxx where sjrq = '%s'", now);
+        String day = now.substring(6,8);
+        String sql = String.format("delete from imas_pm_"+day+"_grkhxx where sjrq = '%s'", now);
         execUpdSqlCommit(sql);
         sql = "select * from ODS_BOSC_GRKHXX where data_date = '" + now + "'";
         List<Map<String, Object>> lstBase = jdbcTemplate.queryForList(sql);
         sql = "select * from ODS_GRKHXX where data_date = '" + now + "'";
         List<Map<String, Object>> lstOther = jdbcTemplate.queryForList(sql);
-        processNew(now, lstBase, lstOther, group_id);
+        processNew2(now, lstBase, lstOther, group_id);
         return true;
+    }
+
+    public void processNew2(String now, List<Map<String, Object>> lstBase, List<Map<String, Object>> lstOther,
+                           String groupId) throws Exception {
+
+        List<List<String>> base = new ArrayList<List<String>>();
+        Map<String, Map<String, Object>> all = new HashMap<String, Map<String, Object>>();
+        for (Map<String, Object> record : lstOther) {
+            String khh = getString(record.get("客户号"));
+            if (!all.containsKey(khh)) {
+                all.put(khh, record);
+            } else {
+                Map<String, Object> top = all.get(khh);
+                String nbjgh = getString(record.get("内部机构号"));
+                if (!nbjgh.equals("")) {
+                    nbjgh = formatNBJGH(nbjgh);
+                    top.put("内部机构号", nbjgh);
+                }
+                String CZDHZQHDM = getString(record.get("常住地行政区划代码"));
+                if (!CZDHZQHDM.equals("")) {
+                    top.put("常住地行政区划代码", CZDHZQHDM);
+                }
+                String SXED = getString(record.get("授信额度"));
+                if (!SXED.equals("")) {
+                    Object oSXED = top.get("授信额度");
+                    if (oSXED == null || oSXED.equals("")) {
+                        oSXED = "0";
+                    }
+                    top.put("授信额度", new BigDecimal(oSXED.toString()).add(new BigDecimal(SXED)).toString());
+                }
+                String YYED = getString(record.get("已用额度"));
+                if (!YYED.equals("")) {
+                    Object oYYED = top.get("已用额度");
+                    if (oYYED == null || oYYED.equals("")) {
+                        oYYED = "0";
+                    }
+                    top.put("授信额度", new BigDecimal(oYYED.toString()).add(new BigDecimal(YYED)).toString());
+                }
+                String KHXL = getString(record.get("客户细类"));
+                if (!KHXL.equals("")) {
+                    top.put("客户细类", KHXL);
+                }
+                String NHBZ = getString(record.get("农户标志"));
+                if (!NHBZ.equals("")) {
+                    top.put("农户标志", NHBZ);
+                }
+            }
+        }
+        for (Map<String, Object> record : lstBase) {
+            String khh = formatKHH(record.get("客户号")+"-"+record.get("客户号1"));
+            if (!all.containsKey(khh)) {
+                base.add(addGRKHXXBASE(now, record, groupId));
+            }
+        }
+        for (Map<String, Object> record : all.values()) {
+            base.add(addGRKHXX(now, record, groupId));
+        }
     }
 
     public void processNew(String now, List<Map<String, Object>> lstBase, List<Map<String, Object>> lstOther,
                            String groupId) throws Exception {
+
         List<List<String>> base = new ArrayList<List<String>>();
         for (Map<String, Object> record : lstBase) {
             base.add(addGRKHXXBASE(now, record, groupId));
@@ -281,9 +341,10 @@ public class CustEtlGRKHXX {
                 }
             }
             if (!find) {
-                base.add(addGRKHXX(now, record, groupId));
+                base.add(addGRKHXX(now, record, getString(record.get("GROUP_ID"))));
             }
         }
+        
 
         /*
         List<List<String>> base = new ArrayList<List<String>>();
@@ -331,7 +392,7 @@ public class CustEtlGRKHXX {
                 }
             }
             if (!find) {
-                base.add(addGRKHXX(now, record, groupId));
+                base.add(addGRKHXX(now, record, getString(record.get("GROUP_ID"))));
             }
         }
         int cnt = base.size();
@@ -348,7 +409,8 @@ public class CustEtlGRKHXX {
                 base.add(addGRKHXXBASE(now, record, groupId));
             }
         }
-         */
+        */
+
 
         insertService.insertData(SQL_GRKHXX, groupId, groupId, base);
     }
