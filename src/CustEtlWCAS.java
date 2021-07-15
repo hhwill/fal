@@ -56,6 +56,7 @@ public class CustEtlWCAS {
         }
         result.add(gmjjbmfl);
 
+        //金融机构类型代码
         String JRJGLXDM = getMap("X42", ZGCUCL).trim();
         if (JRJGLXDM.length() > 3) {
             JRJGLXDM = JRJGLXDM.substring(0,3);
@@ -151,10 +152,48 @@ public class CustEtlWCAS {
         }
         result.add(kglx);
         result.add("Y");
-        result.add(getMap("XDQDM", nbjgh));
-        result.add(getString(src.get("ADDRESS")).replace("（注册地址）","").trim());
-        result.add("0");
-        result.add("0");
+        //区划代码
+        String xzqhdm = getMap("XDQDM", nbjgh);
+        String ZUCSSN = getString(src.get("ZUCSSN"));
+        if (ZUCSSN.contains("PARENT") || ZUCSSN.startsWith("P")) {
+        } else {
+            String ZUIDTY = getString(src.get("ZUIDTY"));
+            if (ZUIDTY.equals("Z")) {
+                String ZUIDNO = getString(src.get("ZUIDNO"));
+                if (ZUIDNO.trim().length() == 18) {
+                    String dqdm = ZUIDNO.substring(2,8);
+                    if (getMap("DQQHDM", dqdm).equals("")) {
+                        dqdm = dqdm.substring(0,4) + "00";
+                        if (getMap("DQQHDM", dqdm).equals("")) {
+                            dqdm = dqdm.substring(0,2) + "0000";
+                            if (getMap("DQQHDM", dqdm).equals("")) {
+
+                            } else {
+                                xzqhdm = dqdm;
+                            }
+                        } else {
+                            xzqhdm = dqdm;
+                        }
+                    } else {
+                        xzqhdm = dqdm;
+                    }
+                }
+            }
+        }
+        result.add(xzqhdm);
+        //注册地址
+        String ZBADID = getString(src.get("ZBADID"));
+        String newAddress = getString(src.get("ADDRESS")).replace("（注册地址）","")
+                .replace("（营业地址）","").replace("(REGISTERED ADDRESS)","")
+                .replace("（REGISTERED ADDRESS）","").replace("(REGISTRATION ADDRESS)","")
+                .replace("VAT USE ONLY","").replace(" ","").trim();
+        if (ZBADID.equals("P9")) {
+            result.add(getMap("DGHKXX_ADDRESS", nbjgh));
+        } else {
+            result.add(newAddress);
+        }
+        result.add("");
+        result.add("");
         result.add(getMap("X46", src.get("ZGINDY")));
         result.add("");
         return result;
@@ -192,9 +231,17 @@ public class CustEtlWCAS {
                         }
                     }
                 }
-                String ZBADID = getString(src.get("ZBADID"));
-                if (ZBADID.equals("09")) {
-                    base.get(i).set(9, getString(src.get("ADDRESS")).replace("（注册地址）","").trim());
+                if (base.get(i).get(9).trim().equals("")) {
+                    String ZBADID = getString(src.get("ZBADID"));
+                    String newAddress = getString(src.get("ADDRESS")).replace("（注册地址）", "")
+                            .replace("（营业地址）", "").replace("(REGISTERED ADDRESS)", "")
+                            .replace("（REGISTERED ADDRESS）", "").replace("(REGISTRATION ADDRESS)", "")
+                            .replace("VAT USE ONLY", "").replace(" ", "").trim();
+                    if (ZBADID.equals("P9")) {
+                        base.get(i).set(9, getMap("DGHKXX_ADDRESS", base.get(i).get(2)));
+                    } else {
+                        base.get(i).set(9, newAddress);
+                    }
                 }
                 break;
             }
@@ -210,8 +257,17 @@ public class CustEtlWCAS {
                                    List<Map<String, Object>> lstPrevious, String group_id) throws Exception {
         List<List<String>> base = new ArrayList<List<String>>();
         for (Map<String, Object> record : lstNow) {
+            String ZGC2CN = getString(record.get("ZGC2CN"));
+            if (ZGC2CN.contains("DUMMY") || ZGC2CN.contains("INTERNAL TEST") || ZGC2CN.contains("过渡")) {
+                continue;
+            }
             if (!checkDGKHXX(base, record)) {
                 base.add(addWCAS_DGKHXX(now, record));
+            }
+        }
+        for (List<String> src : base) {
+            if (src.get(9).equals("")) {
+                src.set(9, getMap("DGHKXX_ADDRESS", src.get(2)));
             }
         }
         insertService.insertData(SQL_DGKHXX, group_id, group_id, base);
@@ -220,7 +276,8 @@ public class CustEtlWCAS {
     public void addDWCK_CORPDDAC(String now, Map<String, Object> src, List<List<String>> dwckjc,
                                  List<List<String>> dwckye) {
         List<List<String>> ckxx = getCKXH(src);
-        for (List<String> subckxx : ckxx) {
+        for (int i = 0; i < ckxx.size(); i++) {
+            List<String> subckxx = ckxx.get(i);
             List<String> subdwckjc = new ArrayList<String>();
             List<String> subdwckye = new ArrayList<String>();
             subdwckjc.add(now);
@@ -228,20 +285,44 @@ public class CustEtlWCAS {
             subdwckjc.add(subckxx.get(2));
             subdwckjc.add(formatNBJGH(src.get("DFDCB")));
             subdwckjc.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
-            subdwckjc.add(subckxx.get(3));
+            //存款产品类别
+            String CKCPLB = subckxx.get(3);
+            Object DFAPTY = src.get("DFAPTY");
+            Object DGCIRT = src.get("DGCIRT");
+            if (DFAPTY.equals("CDP")) {
+                if (DGCIRT.equals("C24")) {
+                    CKCPLB = "D031";
+                } else {
+                    CKCPLB = "D032";
+                }
+            }
+            if (ckxx.size() > 1) {
+                CKCPLB = subckxx.get(3);
+            }
+            subdwckjc.add(CKCPLB);
             subdwckjc.add("");
             subdwckjc.add(getString(src.get("DFDTAO")));
-            subdwckjc.add("");
+            //到期日期
+            String DQRQ = "";
+            if (DFAPTY.equals("CDP") || DFAPTY.equals("S12"))  {
+                if (DGCIRT.equals("C24")) {
+                    DQRQ = "19990101";
+                } else {
+                    DQRQ = "19990107";
+                }
+            }
+            subdwckjc.add(DQRQ);
+            //实际终止日期
             String ZIDTAS = getMap("WCAS_CLOSEDAC", src.get("DFACB")+"_"+src.get("DFACS")+"_"+src.get("DFACX"));
             subdwckjc.add(ZIDTAS);
             subdwckjc.add("01");
             String key = src.get("DGCIRT") + "__" + src.get("DFCYCD");
-            String value = getMap("RATETYPE", key);
+            String value = getMap("WCAS_RATETYPE_DD", key);
             String[] rateType = new String[4];
-            rateType[0] = "TR01";
-            rateType[1] = "RF01";
-            rateType[2] ="0.0";
-            rateType[3] = "01";
+            rateType[0] = "";
+            rateType[1] = "";
+            rateType[2] ="";
+            rateType[3] = "";
             if (!value.equals("")) {
                 try {
                     String[] ss = value.split("\\|");
@@ -264,7 +345,20 @@ public class CustEtlWCAS {
             subdwckjc.add(rateType[0]);
             subdwckjc.add(rateType[1]);
             subdwckjc.add(subckxx.get(0));
-            subdwckjc.add(rateType[2]);
+            //基准利率
+            if (ckxx.size() > 1) {
+                if (getString(src.get("DFCYCD")).equals("CNY")) {
+                    if (i == 0) {
+                        subdwckjc.add("0.35");
+                    } else {
+                        subdwckjc.add("1.15");
+                    }
+                } else {
+                    subdwckjc.add("");
+                }
+            } else {
+                subdwckjc.add(rateType[2]);
+            }
             subdwckjc.add(rateType[3]);
             if (subckxx.get(3).equals("D08")) {
                 subdwckjc.add(subckxx.get(0));
@@ -274,27 +368,7 @@ public class CustEtlWCAS {
             subdwckjc.add("");
             subdwckjc.add("01");
             subdwckjc.add("N");
-            String ccy = getString(src.get("DFCYCD"));
-            if (ccy.equals("CNY")) {
-                subdwckjc.add("");
-            } else {
-                //usd >=300W then A else B
-                if (ccy.equals("EUR") || ccy.equals("HKD") || ccy.equals("JPY")) {
-                    String currate = getMap("RATE", ccy +"/USD");
-                    if (!currate.equals("")) {
-                        BigDecimal x = new BigDecimal(subckxx.get(1)).multiply(new BigDecimal(currate));
-                        if (x.compareTo(new BigDecimal("3000000")) > -1) {
-                            subdwckjc.add("A");
-                        } else {
-                            subdwckjc.add("B");
-                        }
-                    } else {
-                        subdwckjc.add("");
-                    }
-                } else {
-                    subdwckjc.add("");
-                }
-            }
+            subdwckjc.add(getDXEBZ(src.get("DFCYCD"), subckxx.get(1)));
             dwckjc.add(subdwckjc);
             subdwckye.add(now);
             subdwckye.add(formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX")));
@@ -306,7 +380,11 @@ public class CustEtlWCAS {
                 if (subckxx.get(1).startsWith("-")) {
                     subdwckye.add("0");
                 } else {
-                    subdwckye.add(subckxx.get(1));
+                    if (subckxx.get(1).startsWith("-")) {
+                        subdwckye.add("0");
+                    } else {
+                        subdwckye.add(subckxx.get(1));
+                    }
                 }
             } else {
                 subdwckye.add("0");
@@ -338,12 +416,12 @@ public class CustEtlWCAS {
         subtyckjc.add("");
         subtyckjc.add("01");
         String key = src.get("DGCIRT") + "__" + src.get("DFCYCD");
-        String value = getMap("RATETYPE", key);
+        String value = getMap("WCAS_RATETYPE_DD", key);
         String[] rateType = new String[4];
-        rateType[0] = "TR01";
-        rateType[1] = "RF01";
-        rateType[2] ="0.0000";
-        rateType[3] = "01";
+        rateType[0] = "";
+        rateType[1] = "";
+        rateType[2] ="";
+        rateType[3] = "";
         if (!value.equals("")) {
             try {
                 String[] ss = value.split("\\|");
@@ -374,7 +452,11 @@ public class CustEtlWCAS {
         subtyckye.add(formatNBJGH(src.get("DFDCB")));
         subtyckye.add(formatKHH(src.get("DFDCB")+"-"+src.get("DFDCS")));
         subtyckye.add(getString(src.get("DFCYCD")));
-        subtyckye.add(getString(src.get("LEDGER")));
+        String LEDGER = getString(src.get("LEDGER"));
+        if (LEDGER.startsWith("-")) {
+            LEDGER = "0";
+        }
+        subtyckye.add(LEDGER);
         tyckjc.add(subtyckjc);
         tyckye.add(subtyckye);
     }
@@ -392,6 +474,7 @@ public class CustEtlWCAS {
         subdwckjc.add(getMap("WCAS_ProductType", src.get("TDAPTY")));
         subdwckjc.add("");
         subdwckjc.add(getString(src.get("TDSTDT")));
+        //到期日期
         String TDAPTY = getString(src.get("TDAPTY"));
         if (TDAPTY.equals("CDT")) {
             subdwckjc.add("19990107");
@@ -409,13 +492,19 @@ public class CustEtlWCAS {
                     getString(src.get("TDSTDT")))),
                     map.get("WCAS_TERMCODE")));
         }
-        String key = src.get("TDCRTY") + "_"+src.get("TDTERM")+"_" + src.get("TDCYCD");
-        String value = getMap("RATETYPE", key);
+        String TDCRTY = getString(src.get("TDCRTY"));
+        String value = "";
+        if (TDAPTY.equals("D11") || TDAPTY.equals("D51") || TDAPTY.equals("D52") ||
+                TDAPTY.equals("D54") || TDAPTY.equals("D55") ) {
+            value = getMap("WCAS_RATETYPE_SD", TDAPTY) ;
+        } else {
+            value = getMap("WCAS_RATETYPE_TD", TDCRTY) ;
+        }
         String[] rateType = new String[4];
-        rateType[0] = "TR01";
-        rateType[1] = "RF01";
-        rateType[2] ="0.0";
-        rateType[3] = "01";
+        rateType[0] = "";
+        rateType[1] = "";
+        rateType[2] ="";
+        rateType[3] = "";
         if (!value.equals("")) {
             try {
                 String[] ss = value.split("\\|");
@@ -448,27 +537,7 @@ public class CustEtlWCAS {
         subdwckjc.add("");
         subdwckjc.add("01");
         subdwckjc.add("N");
-        String ccy = getString(src.get("TDCYCD"));
-        if (ccy.equals("CNY")) {
-            subdwckjc.add("");
-        } else {
-            //usd >=300W then A else B
-            if (ccy.equals("EUR") || ccy.equals("HKD") || ccy.equals("JPY")) {
-                String currate = getMap("RATE", ccy +"/USD");
-                if (!currate.equals("")) {
-                    BigDecimal x = new BigDecimal(ckxx.get(0).get(1)).multiply(new BigDecimal(currate));
-                    if (x.compareTo(new BigDecimal("3000000")) > -1) {
-                        subdwckjc.add("A");
-                    } else {
-                        subdwckjc.add("B");
-                    }
-                } else {
-                    subdwckjc.add("");
-                }
-            } else {
-                subdwckjc.add("");
-            }
-        }
+        subdwckjc.add(getDXEBZ(src.get("TDCYCD"), ckxx.get(0).get(1)));
         dwckjc.add(subdwckjc);
         subdwckye.add(now);
         subdwckye.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
@@ -476,7 +545,11 @@ public class CustEtlWCAS {
         subdwckye.add(formatNBJGH(src.get("TDDCB")));
         subdwckye.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
         subdwckye.add(getString(src.get("TDCYCD")));
-        subdwckye.add(getString(src.get("LEDGER")));
+        String LEDGER = getString(src.get("LEDGER"));
+        if (LEDGER.startsWith("-")) {
+            LEDGER = "0";
+        }
+        subdwckye.add(LEDGER);
         dwckye.add(subdwckye);
     }
 
@@ -514,13 +587,19 @@ public class CustEtlWCAS {
                     getString(src.get("TDSTDT")))),
                     map.get("WCAS_TERMCODE")));
         }
-        String key = src.get("TDCRTY") + "_"+src.get("TDTERM")+"_" + src.get("TDCYCD");
-        String value = getMap("RATETYPE", key);
+        String TDCRTY = getString(src.get("TDCRTY"));
+        String value = "";
+        if (TDAPTY.equals("D11") || TDAPTY.equals("D51") || TDAPTY.equals("D52") ||
+                TDAPTY.equals("D54") || TDAPTY.equals("D55") ) {
+            value = getMap("WCAS_RATETYPE_SD", TDAPTY) ;
+        } else {
+            value = getMap("WCAS_RATETYPE_TD", TDCRTY) ;
+        }
         String[] rateType = new String[4];
-        rateType[0] = "TR01";
-        rateType[1] = "RF01";
-        rateType[2] ="0.0";
-        rateType[3] = "01";
+        rateType[0] = "";
+        rateType[1] = "";
+        rateType[2] ="";
+        rateType[3] = "";
         if (!value.equals("")) {
             try {
                 String[] ss = value.split("\\|");
@@ -551,7 +630,11 @@ public class CustEtlWCAS {
         subtyckye.add(formatNBJGH(src.get("TDDCB")));
         subtyckye.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
         subtyckye.add(getString(src.get("TDCYCD")));
-        subtyckye.add(getString(src.get("LEDGER")));
+        String LEDGER = getString(src.get("LEDGER"));
+        if (LEDGER.startsWith("-")) {
+            LEDGER = "0";
+        }
+        subtyckye.add(LEDGER);
         tyckjc.add(subtyckjc);
         tyckye.add(subtyckye);
     }
@@ -569,13 +652,20 @@ public class CustEtlWCAS {
             result.add(subjyls.get(0));
             result.add(subjyls.get(1));
             result.add(ckxx.get(0).get(0));
-            String key = src.get("TDCRTY") + "_" + src.get("TDTERM") + "_" + src.get("TDCYCD");
-            String value = getMap("RATETYPE", key);
+            String TDAPTY = getString(src.get("TDAPTY"));
+            String TDCRTY = getString(src.get("TDCRTY"));
+            String value = "";
+            if (TDAPTY.equals("D11") || TDAPTY.equals("D51") || TDAPTY.equals("D52") ||
+                    TDAPTY.equals("D54") || TDAPTY.equals("D55") ) {
+                value = getMap("WCAS_RATETYPE_SD", TDAPTY) ;
+            } else {
+                value = getMap("WCAS_RATETYPE_TD", TDCRTY) ;
+            }
             String[] rateType = new String[4];
-            rateType[0] = "TR01";
-            rateType[1] = "RF01";
-            rateType[2] = "0.0";
-            rateType[3] = "01";
+            rateType[0] = "";
+            rateType[1] = "";
+            rateType[2] = "";
+            rateType[3] = "";
             if (!value.equals("")) {
                 try {
                     String[] ss = value.split("\\|");
@@ -600,27 +690,7 @@ public class CustEtlWCAS {
             result.add(subjyls.get(2));
             result.add("03");
             result.add(subjyls.get(3));
-            String ccy = getString(src.get("TDCYCD"));
-            if (ccy.equals("CNY")) {
-                result.add("");
-            } else {
-                //usd >=300W then A else B
-                if (ccy.equals("EUR") || ccy.equals("HKD") || ccy.equals("JPY")) {
-                    String currate = getMap("RATE", ccy + "/USD");
-                    if (!currate.equals("")) {
-                        BigDecimal x = new BigDecimal(subjyls.get(2)).multiply(new BigDecimal(currate));
-                        if (x.compareTo(new BigDecimal("3000000")) > -1) {
-                            result.add("A");
-                        } else {
-                            result.add("B");
-                        }
-                    } else {
-                        result.add("");
-                    }
-                } else {
-                    result.add("");
-                }
-            }
+            result.add(getDXEBZ(src.get("TDCYCD"), subjyls.get(2)));
             dwckfs.add(result);
         }
     }
@@ -637,13 +707,20 @@ public class CustEtlWCAS {
             result.add(subjyls.get(0));
             result.add(subjyls.get(1));
             result.add(getString(src.get("TDCYCD")));
-            String key = src.get("TDCRTY") + "_"+src.get("TDTERM")+"_" + src.get("TDCYCD");
-            String value = getMap("RATETYPE", key);
+            String TDAPTY = getString(src.get("TDAPTY"));
+            String TDCRTY = getString(src.get("TDCRTY"));
+            String value = "";
+            if (TDAPTY.equals("D11") || TDAPTY.equals("D51") || TDAPTY.equals("D52") ||
+                    TDAPTY.equals("D54") || TDAPTY.equals("D55") ) {
+                value = getMap("WCAS_RATETYPE_SD", TDAPTY) ;
+            } else {
+                value = getMap("WCAS_RATETYPE_TD", TDCRTY) ;
+            }
             String[] rateType = new String[4];
-            rateType[0] = "TR01";
-            rateType[1] = "RF01";
-            rateType[2] ="0.0";
-            rateType[3] = "01";
+            rateType[0] = "";
+            rateType[1] = "";
+            rateType[2] ="";
+            rateType[3] = "";
             if (!value.equals("")) {
                 try {
                     String[] ss = value.split("\\|");
@@ -674,17 +751,19 @@ public class CustEtlWCAS {
 
     public boolean process(String now, String group_id) throws Exception {
         logger.info(">>>开始WCAS" + now + " " + group_id);
-        String sql = String.format("delete from imas_pm_dwckjc where sjrq = '%s' and group_id = '%s'", now, group_id);
+        String day = now.substring(6,8);
+        String sql = String.format("delete from imas_pm_"+day+"_dwckjc where sjrq = '%s' and group_id = '%s'", now,
+                group_id);
         jdbcTemplate.update(sql);
-        sql = String.format("delete from imas_pm_dwckye where sjrq = '%s' and group_id = '%s'", now, group_id);
+        sql = String.format("delete from imas_pm_"+day+"_dwckye where sjrq = '%s' and group_id = '%s'", now, group_id);
         jdbcTemplate.update(sql);
-        sql = String.format("delete from imas_pm_tyckjc where sjrq = '%s' and group_id = '%s'", now, group_id);
+        sql = String.format("delete from imas_pm_"+day+"_tyckjc where sjrq = '%s' and group_id = '%s'", now, group_id);
         jdbcTemplate.update(sql);
-        sql = String.format("delete from imas_pm_tyckye where sjrq = '%s' and group_id = '%s'", now, group_id);
+        sql = String.format("delete from imas_pm_"+day+"_tyckye where sjrq = '%s' and group_id = '%s'", now, group_id);
         jdbcTemplate.update(sql);
-        sql = String.format("delete from imas_pm_dwckfs where sjrq = '%s' and group_id = '%s'", now, group_id);
+        sql = String.format("delete from imas_pm_"+day+"_dwckfs where sjrq = '%s' and group_id = '%s'", now, group_id);
         jdbcTemplate.update(sql);
-        sql = String.format("delete from imas_pm_tyckfs where sjrq = '%s' and group_id = '%s'", now, group_id);
+        sql = String.format("delete from imas_pm_"+day+"_tyckfs where sjrq = '%s' and group_id = '%s'", now, group_id);
         jdbcTemplate.update(sql);
         sql = "select * from ODS_WCAS_CORPDDAC where data_date = '" + now + "' and group_id = '" + group_id + "'";
         List<Map<String, Object>> lst = jdbcTemplate.queryForList(sql);
@@ -693,22 +772,22 @@ public class CustEtlWCAS {
         lst = jdbcTemplate.queryForList(sql);
         processCORPTDAC3(now, lst, group_id);
 
-        sql = String.format("update imas_pm_dwckjc set bdsyl = sjll where group_id='%s' and sjrq='%s' and ckcplb='D08'", now, group_id);
-        int result = jdbcTemplate.update(sql);
-        logger.info(">>>>D08 " + result + ",开始校验");
-        try {
-            List<String> lst2 = new ArrayList<String>();
-            lst2.add("DWCKJC");
-            lst2.add("DWCKYE");
-            lst2.add("TYCKJC");
-            lst2.add("TYCKTE");
-            lst2.add("DWCKFS");
-            lst2.add("TYCKFS");
-            imasBatchBasicValidateService.validate(now, lst2, "HSBC", group_id, null, true);
-        } catch (Exception ex) {
-            logger.error(">>>>校验出错");
-        }
-        logger.info(">>>>结束校验");
+//        sql = String.format("update imas_pm_dwckjc set bdsyl = sjll where group_id='%s' and sjrq='%s' and ckcplb='D08'", now, group_id);
+//        int result = jdbcTemplate.update(sql);
+//        logger.info(">>>>D08 " + result + ",开始校验");
+//        try {
+//            List<String> lst2 = new ArrayList<String>();
+//            lst2.add("DWCKJC");
+//            lst2.add("DWCKYE");
+//            lst2.add("TYCKJC");
+//            lst2.add("TYCKTE");
+//            lst2.add("DWCKFS");
+//            lst2.add("TYCKFS");
+//            imasBatchBasicValidateService.validate(now, lst2, "HSBC", group_id, null, true);
+//        } catch (Exception ex) {
+//            logger.error(">>>>校验出错", ex);
+//        }
+//        logger.info(">>>>结束校验");
         return true;
     }
 
@@ -719,8 +798,22 @@ public class CustEtlWCAS {
         List<List<String>> tyckjc = new ArrayList<List<String>>();
         List<List<String>> tyckye = new ArrayList<List<String>>();
         for (Map<String, Object> record : lstNow) {
+            boolean need = false;
+            String ZGC2CN = getString(record.get("ZGC2CN"));
+            if (ZGC2CN.contains("DUMMY") || ZGC2CN.contains("INTERNAL TEST") || ZGC2CN.contains("过渡")) {
+                continue;
+            }
             String DFSTUS = getString(record.get("DFSTUS"));
             if (DFSTUS != null && !DFSTUS.equals("4") && !DFSTUS.equals("5") ) {
+                need = true;
+            }
+            String ZIDTAS = getMap("WCAS_CLOSEDAC",
+                    getString(record.get("DFACB"))+"_"+getString(record.get("DFACS"))+"_"+getString(record.get(
+                    "DFACX")));
+            if (!ZIDTAS.equals("")) {
+                need = true;
+            }
+            if (need) {
                 String ZGCUCL = getString(record.get("ZGCUCL"));
                 String tybz = getMap("WCAS_TYBZ", ZGCUCL);
                 if (tybz.equals("非同业")) {
@@ -745,10 +838,24 @@ public class CustEtlWCAS {
         List<List<String>> dwckfs = new ArrayList<List<String>>();
         List<List<String>> tyckfs = new ArrayList<List<String>>();
         for (Map<String, Object> record : lstNow) {
+            boolean need = false;
+            String ZGC2CN = getString(record.get("ZGC2CN"));
+            if (ZGC2CN.contains("DUMMY") || ZGC2CN.contains("INTERNAL TEST") || ZGC2CN.contains("过渡")) {
+                continue;
+            }
+            String ZIDTAS = getMap("WCAS_CLOSEDAC",
+                    getString(record.get("TDACB"))+"_"+getString(record.get("TDACS"))+"_"+getString(record.get(
+                    "TDACX")));
+            if (!ZIDTAS.equals("")) {
+                need = true;
+            }
             String DFSTUS = getString(record.get("TDSTUS"));
             String ZGCUCL = getString(record.get("ZGCUCL"));
             String tybz = getMap("WCAS_TYBZ", ZGCUCL);
             if (DFSTUS != null && !DFSTUS.equals("4") && !DFSTUS.equals("5") ) {
+                need = true;
+            }
+            if (need) {
                 if (tybz.equals("非同业")) {
                     addDWCK_CORPTDAC3(now, record, dwckjc, dwckye);
                 } else {
