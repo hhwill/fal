@@ -2570,6 +2570,32 @@ public class MainApplication {
         }
     }
 
+    public void createSP(String dir) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir), "utf-8"));//GBK
+        String line = null;
+        int cnt = 0;
+        while((line=reader.readLine())!=null){
+            if (line.indexOf("update imas_pm_") >= 0) {
+                cnt++;
+                String s = "";
+                int index = line.indexOf("update imas_pm_");
+                String key = line.substring(index+15, index+21);
+                String rest = line.substring(index+21);
+                rest = rest.replace("'","''").replace("dataRptDate)", "', dataRptDate,')")
+                        .replace("dataRptDate;", "',dataRptDate);");
+                s = "  set @sqlStmt" + String.valueOf(cnt) + " = CONCAT('update imas_pm_', substr(dataRptDate,7,2)," +
+                        "'_"+key + " " + rest;
+                System.out.println(s);
+                System.out.println("  prepare stmt from @sqlStmt"+String.valueOf(cnt) );
+                System.out.println("  EXECUTE stmt;");
+            } else {
+                System.out.println(line);
+            }
+
+        }
+        reader.close();
+    }
+
     public static void main(String[] args) throws Exception {
         //System.out.println(args[0]);
         if (args.length == 0) {
@@ -2645,6 +2671,11 @@ public class MainApplication {
             t.loadProperties();
             String dir = args[1];
             t.testExcel(dir);
+        } else if (mode.equals("SP")) {
+            MainApplication t = new MainApplication();
+            t.loadProperties();
+            String dir = args[1];
+            t.createSP(dir);
         }
 
     }
