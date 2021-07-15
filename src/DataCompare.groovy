@@ -150,112 +150,112 @@ class DataCompare implements ComputeScript {
         String busDiffCond = buses.stream().map(pk -> " a.${pk} != b.${pk} or (a.${pk} is null and b.${pk} is not null) or (a.${pk} is not null and b.${pk} is null)").collect(Collectors.joining(" or "))
         String busEqCond = buses.stream().map(pk -> " (a.${pk} = b.${pk} or (a.${pk} is null and b.${pk} is null)) ").collect(Collectors.joining(" and "))
 
-        if (tableName.equals("IMAS_PM_TYCKJC")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("TYCKJC")) {
             sql.execute("call SP_UPDATE_TYCKJC('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_TYCKYE")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("TYCKYE")) {
             sql.execute("call SP_UPDATE_TYCKYE('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_DWDKJC")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("DWDKJC")) {
             sql.execute("call SP_UPDATE_DWDKJC('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_DWDKYE")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("DWDKYE")) {
             sql.execute("call SP_UPDATE_DWDKYE('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_TYJDJC")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("TYJDJC")) {
             sql.execute("call SP_UPDATE_TYJDJC('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_TYJDYE")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("TYJDYE")) {
             sql.execute("call SP_UPDATE_TYJDYE('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_TZYWJY")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("TZYWJY")) {
             sql.execute("call SP_UPDATE_TZYWJY('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_TZYWYE")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("TZYWYE")) {
             sql.execute("call SP_UPDATE_TZYWYE('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_GRDKJC")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("GRDKJC")) {
             sql.execute("call SP_UPDATE_GRDKJC('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_GRDKYE")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("GRDKYE")) {
             sql.execute("call SP_UPDATE_GRDKYE('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_GRDKFK")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("GRDKFK")) {
             sql.execute("call SP_UPDATE_GRDKFK('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_WTDKJC")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("WTDKJC")) {
             sql.execute("call SP_UPDATE_WTDKJC('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_WTDKYE")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("WTDKYE")) {
             sql.execute("call SP_UPDATE_WTDKYE('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_WTDKFK")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("WTDKFK")) {
             sql.execute("call SP_UPDATE_WTDKFK('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_DGKHXX")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("DGKHXX")) {
             sql.execute("call SP_UPDATE_DGKHXX('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_DWCKFS")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("DWCKFS")) {
             sql.execute("call SP_UPDATE_DWCKFS('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_DWCKJC")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("DWCKJC")) {
             sql.execute("call SP_UPDATE_DWCKJC('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_DWCKYE")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("DWCKYE")) {
             sql.execute("call SP_UPDATE_DWCKYE('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_DWDKFK")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("DWDKFK")) {
             sql.execute("call SP_UPDATE_DWDKFK('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_FTPDJB")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("FTPDJB")) {
             sql.execute("call SP_UPDATE_FTPDJB('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_GRCKFS")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("GRCKFS")) {
             sql.execute("call SP_UPDATE_GRCKFS('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_GRCKJC")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("GRCKJC")) {
             sql.execute("call SP_UPDATE_GRCKJC('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_GRCKYE")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("GRCKYE")) {
             sql.execute("call SP_UPDATE_GRCKYE('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_JGFRXX")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("JGFRXX")) {
             sql.execute("call SP_UPDATE_JGFRXX('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_JGFZXX")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("JGFZXX")) {
             sql.execute("call SP_UPDATE_JGFZXX('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_LCXCTJ")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("LCXCTJ")) {
             sql.execute("call SP_UPDATE_LCXCTJ('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_MRFSFS")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("MRFSFS")) {
             sql.execute("call SP_UPDATE_MRFSFS('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_MRFSJC")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("MRFSJC")) {
             sql.execute("call SP_UPDATE_MRFSJC('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_MRFSYE")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("MRFSYE")) {
             sql.execute("call SP_UPDATE_MRFSYE('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_PJTXFS")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("PJTXFS")) {
             sql.execute("call SP_UPDATE_PJTXFS('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_PJTXJC")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("PJTXJC")) {
             sql.execute("call SP_UPDATE_PJTXJC('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_PJTXYE")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("PJTXYE")) {
             sql.execute("call SP_UPDATE_PJTXYE('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_TYCKFS")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("TYCKFS")) {
             sql.execute("call SP_UPDATE_TYCKFS('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_TYJDFS")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("TYJDFS")) {
             sql.execute("call SP_UPDATE_TYJDFS('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_TZYWFQ")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("TZYWFQ")) {
             sql.execute("call SP_UPDATE_TZYWFQ('${dataRptDate}')");
         }
-        else if (tableName.equals("IMAS_PM_TZYWZD")) {
+        if (tableName.startsWith("IMAS_PM_") && tableName.endsWith("TZYWZD")) {
             sql.execute("call SP_UPDATE_TZYWZD('${dataRptDate}')");
         }
 
