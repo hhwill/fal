@@ -12,8 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 
 import com.gingkoo.imas.core.batch.ImasBatchBasicValidateService;
+import com.gingkoo.root.facility.spring.tx.TransactionHelper;
 
 import static com.gingkoo.imas.hsbc.service.EtlConst.*;
 import static com.gingkoo.imas.hsbc.service.EtlUtils.*;
@@ -27,13 +29,17 @@ public class CustEtlWCAS {
 
     private final JdbcTemplate jdbcTemplate;
 
+    private final TransactionHelper transactionTemplate;
+
     private ImasBatchBasicValidateService imasBatchBasicValidateService;
 
-    public CustEtlWCAS(EtlInsertService insertService,ImasBatchBasicValidateService imasBatchBasicValidateService,
+    public CustEtlWCAS(EtlInsertService insertService,TransactionHelper transactionTemplate,
+                       ImasBatchBasicValidateService imasBatchBasicValidateService,
                        DataSource dataSource) {
         this.insertService = insertService;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.imasBatchBasicValidateService = imasBatchBasicValidateService;
+        this.transactionTemplate = transactionTemplate;
     }
 
     private List<String> addWCAS_DGKHXX(String now, Map<String, Object> src) {
@@ -188,9 +194,9 @@ public class CustEtlWCAS {
                 .replace("（REGISTERED ADDRESS）","").replace("(REGISTRATION ADDRESS)","")
                 .replace("VAT USE ONLY","").replace(" ","").trim();
         if (ZBADID.equals("P9")) {
-            result.add(getMap("DGHKXX_ADDRESS", nbjgh));
-        } else {
             result.add(newAddress);
+        } else {
+            result.add("");
         }
         result.add("");
         result.add("");
@@ -238,8 +244,6 @@ public class CustEtlWCAS {
                             .replace("（REGISTERED ADDRESS）", "").replace("(REGISTRATION ADDRESS)", "")
                             .replace("VAT USE ONLY", "").replace(" ", "").trim();
                     if (ZBADID.equals("P9")) {
-                        base.get(i).set(9, getMap("DGHKXX_ADDRESS", base.get(i).get(2)));
-                    } else {
                         base.get(i).set(9, newAddress);
                     }
                 }
@@ -255,6 +259,8 @@ public class CustEtlWCAS {
 
     public void processWCAS_DGHKXX(String now, List<Map<String, Object>> lstNow,
                                    List<Map<String, Object>> lstPrevious, String group_id) throws Exception {
+        String day = now.substring(6,8);
+        jdbcTemplate.update("delete from imas_pm_" + day + "_DGKHXX where sjrq = '"+now+"'");
         List<List<String>> base = new ArrayList<List<String>>();
         for (Map<String, Object> record : lstNow) {
             String ZGC2CN = getString(record.get("ZGC2CN"));
@@ -297,7 +303,11 @@ public class CustEtlWCAS {
                 }
             }
             if (ckxx.size() > 1) {
-                CKCPLB = subckxx.get(3);
+                if (i == 0) {
+                    CKCPLB = "D051";
+                } else {
+                    CKCPLB = "D052";
+                }
             }
             subdwckjc.add(CKCPLB);
             subdwckjc.add("");
@@ -467,7 +477,8 @@ public class CustEtlWCAS {
         List<String> subdwckjc = new ArrayList<String>();
         List<String> subdwckye = new ArrayList<String>();
         subdwckjc.add(now);
-        subdwckjc.add(formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX")));
+        String CKZHBM = formatCKZHBH(src.get("TDACB"),src.get("TDACS"),src.get("TDACX"));
+        subdwckjc.add(CKZHBM);
         subdwckjc.add("01");
         subdwckjc.add(formatNBJGH(src.get("TDDCB")));
         subdwckjc.add(formatKHH(src.get("TDDCB")+"-"+src.get("TDDCS")));
@@ -494,12 +505,23 @@ public class CustEtlWCAS {
         }
         String TDCRTY = getString(src.get("TDCRTY"));
         String value = "";
+        if (CKZHBM.equals("CNHSBC270000029204")) {
+            logger.info(">>><<<");
+            logger.info(src.toString());
+            logger.info("TDAPTY:["+TDAPTY+"]");
+        }
         if (TDAPTY.equals("D11") || TDAPTY.equals("D51") || TDAPTY.equals("D52") ||
                 TDAPTY.equals("D54") || TDAPTY.equals("D55") ) {
+            if (CKZHBM.equals("CNHSBC270000029204"))
+                logger.info(">>><<<SD");
             value = getMap("WCAS_RATETYPE_SD", TDAPTY) ;
         } else {
+            if (CKZHBM.equals("CNHSBC270000029204"))
+                logger.info(">>><<<TD");
             value = getMap("WCAS_RATETYPE_TD", TDCRTY) ;
         }
+        if (CKZHBM.equals("CNHSBC270000029204"))
+            logger.info(">>><<<value:"+value);
         String[] rateType = new String[4];
         rateType[0] = "";
         rateType[1] = "";
@@ -524,6 +546,8 @@ public class CustEtlWCAS {
 
             }
         }
+        if (CKZHBM.equals("CNHSBC270000029204"))
+            logger.info(">>><<<ratetype:"+rateType);
         subdwckjc.add(rateType[0]);
         subdwckjc.add(rateType[1]);
         subdwckjc.add(ckxx.get(0).get(0));
@@ -637,6 +661,106 @@ public class CustEtlWCAS {
         subtyckye.add(LEDGER);
         tyckjc.add(subtyckjc);
         tyckye.add(subtyckye);
+    }
+
+    private void addDDDWCKFS(String now, Map<String, Object> src, List<List<String>> dwckfs) {
+        List<List<String>> ckxx = getCKXH(src);
+        List<List<String>> jyls = getWCASJYLS(now, src);
+        for (List<String> subjyls : jyls){
+            List<String> result = new ArrayList<String>();
+            result.add(now);
+            String CKZHBH = formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX"));
+            result.add(CKZHBH);
+            result.add("01");
+            result.add(formatNBJGH(src.get("DFDCB")));
+            result.add(formatKHH(src.get("DFDCB") + "-" + src.get("DFDCS")));
+            //交易流水号
+            result.add(now+CKZHBH.substring(6)+getString(src.get("FSTYPE")));
+            result.add(now);
+            result.add(ckxx.get(0).get(0));
+            String key = src.get("DGCIRT") + "__" + src.get("DFCYCD");
+            String value = getMap("WCAS_RATETYPE_DD", key);
+            String[] rateType = new String[4];
+            rateType[0] = "";
+            rateType[1] = "";
+            rateType[2] ="";
+            rateType[3] = "";
+            if (!value.equals("")) {
+                try {
+                    String[] ss = value.split("\\|");
+                    if (ss.length > 0) {
+                        rateType[0] = ss[0];
+                    }
+                    if (ss.length > 1) {
+                        rateType[1] = ss[1];
+                    }
+                    if (ss.length > 2) {
+                        rateType[2] = ss[2];
+                    }
+                    if (ss.length > 3) {
+                        rateType[3] = ss[3];
+                    }
+                } catch (Exception ex) {
+
+                }
+            }
+            result.add(rateType[2]);
+            result.add(getString(src.get("DFCYCD")));
+            result.add(getString(src.get("LEDGER")));
+            result.add("03");
+            result.add(getString(src.get("JYFX")));
+            result.add(getDXEBZ(src.get("DFCYCD"), src.get("LEDGER")));
+            dwckfs.add(result);
+        }
+    }
+
+    private void addDDTYCKFS(String now, Map<String, Object> src, List<List<String>> tyckfs) {
+        List<List<String>> ckxx = getCKXH(src);
+        List<List<String>> jyls = getWCASJYLS(now, src);
+        for (List<String> subjyls : jyls) {
+            List<String> result = new ArrayList<String>();
+            result.add(now);
+            String CKZHBH = formatCKZHBH(src.get("DFACB"),src.get("DFACS"),src.get("DFACX"));
+            result.add(CKZHBH);
+            result.add(formatNBJGH(src.get("DFDCB")));
+            result.add(formatKHH(src.get("DFDCB") + "-" + src.get("DFDCS")));
+            result.add(now+CKZHBH.substring(6)+getString(src.get("FSTYPE")));
+            result.add(now);
+            result.add(getString(src.get("DFCYCD")));
+
+            String key = src.get("DGCIRT") + "__" + src.get("DFCYCD");
+            String value = getMap("WCAS_RATETYPE_DD", key);
+            String[] rateType = new String[4];
+            rateType[0] = "";
+            rateType[1] = "";
+            rateType[2] ="";
+            rateType[3] = "";
+            if (!value.equals("")) {
+                try {
+                    String[] ss = value.split("\\|");
+                    if (ss.length > 0) {
+                        rateType[0] = ss[0];
+                    }
+                    if (ss.length > 1) {
+                        rateType[1] = ss[1];
+                    }
+                    if (ss.length > 2) {
+                        rateType[2] = ss[2];
+                    }
+                    if (ss.length > 3) {
+                        rateType[3] = ss[3];
+                    }
+                } catch (Exception ex) {
+
+                }
+            }
+            result.add(ckxx.get(0).get(0));
+            result.add(rateType[2]);
+
+            result.add(getString(src.get("LEDGER")));
+            result.add(getString(src.get("JYFX")));
+            tyckfs.add(result);
+        }
     }
 
     private void addWCASDWCKFS(String now, Map<String, Object> src, List<List<String>> dwckfs) {
@@ -829,6 +953,44 @@ public class CustEtlWCAS {
         insertService.insertData(SQL_TYCKYE, group_id, group_id, tyckye);
     }
 
+    private boolean processfs(String now, String group_id) {
+        String sql = "select max(data_date) from ods_wpb_corpddac where data_date < '" + now + "'";
+        String previous = jdbcTemplate.queryForObject(sql, String.class);
+        sql = String.format("select a.*, 'W' as FSTYPE, '2' as JYFX from ( select * from ods_wpb_corpddac where " +
+                        "data_date"
+                        + " = '%s') a inner join (select * from ods_wpb_corpddac where data_date = '%s') b "
+                        + " on a.dfacb=b.dfacb and a.dfacs=b.dfacs and a.dfacx = b.dfacx and a.ledger=0 and b" +
+                        ".ledger<>0" +
+                        " and" +
+                        " a.DFAPTY in ('CDP','S12')"
+                        + " union "
+                        + " select a.*, 'N' as FSTYPE, '1' as JYFX from (select * from ods_wpb_corpddac where data_date"
+                        + " = '%s' and DFAPTY in ('CDP','S12')) a where not exists (select * " +
+                        "from (select dfacb,dfacs,dfacx from ods_wpb_corpddac "
+                        + " where data_date = '%s') b where a.dfacb=b.dfacb and a.dfacs=b.dfacs and a.dfacx = b.dfacx)",
+                now, previous, now, previous);
+        List<Map<String, Object>> lst = jdbcTemplate.queryForList(sql);
+        List<List<String>> dwckfs = new ArrayList<List<String>>();
+        List<List<String>> tyckfs = new ArrayList<List<String>>();
+        for (Map<String, Object> src : lst) {
+
+            String ZGCUCL = getString(src.get("ZGCUCL"));
+            String tybz = getMap("WCAS_TYBZ", ZGCUCL);
+            if (tybz.equals("非同业")) {
+                addDDDWCKFS(now, src, dwckfs);
+            } else {
+                addDDTYCKFS(now, src, tyckfs);
+            }
+        }
+        try {
+            insertService.insertData(SQL_DWCKFS, group_id, group_id, dwckfs);
+            insertService.insertData(SQL_TYCKFS, group_id, group_id, tyckfs);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return true;
+    }
+
     public void processCORPTDAC3(String now, List<Map<String, Object>> lstNow,
                                  String group_id) throws Exception {
         List<List<String>> dwckjc = new ArrayList<List<String>>();
@@ -852,7 +1014,8 @@ public class CustEtlWCAS {
             String DFSTUS = getString(record.get("TDSTUS"));
             String ZGCUCL = getString(record.get("ZGCUCL"));
             String tybz = getMap("WCAS_TYBZ", ZGCUCL);
-            if (DFSTUS != null && !DFSTUS.equals("4") && !DFSTUS.equals("5") ) {
+            String THCPDT = getString(record.get("THCPDT"));
+            if (DFSTUS.equals("1") || DFSTUS.equals("2") || DFSTUS.equals("3") || (DFSTUS.equals("4") && THCPDT.equals(now))) {
                 need = true;
             }
             if (need) {
@@ -880,7 +1043,15 @@ public class CustEtlWCAS {
         insertService.insertData(SQL_TYCKFS, group_id, group_id, tyckfs);
     }
 
+    private void execUpdSqlCommit(String sql) {
+        transactionTemplate.run(Propagation.REQUIRES_NEW, () -> {
+            jdbcTemplate.update(sql);
+        });
+    }
+
     public void test() {
+        //jdbcTemplate.update("delete from imas_pm_31_dwckjc");
+        execUpdSqlCommit("delete from imas_pm_31_dwckjc");
         List<List<String>> dwckjc = new ArrayList<List<String>>();
         List<String> r = new ArrayList<String>();
         r.add("20210531");
@@ -906,5 +1077,8 @@ public class CustEtlWCAS {
         r.add("1");
         dwckjc.add(r);
         insertService.insertData(SQL_DWCKJC, "a", "a", dwckjc);
+        List<Map<String, Object>> lst = jdbcTemplate.queryForList("select * from imas_pm_31_dwckjc");
+        System.out.println(">>><<<");
+        System.out.println(lst);
     }
 }
