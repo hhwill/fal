@@ -2569,6 +2569,31 @@ public class MainApplication {
             }
         }
     }
+    public void createClear(String dir) throws Exception {
+        Workbook wb = new XSSFWorkbook(new FileInputStream(dir));
+        Sheet st = wb.getSheetAt(9);
+        for (int i = 1; i < 38;i++) {
+            Row row = st.getRow(i);
+            String table = getCellValue(row.getCell(0));
+            for (int j = 1; j <=31; i++) {
+                String k = String.valueOf(j);
+                if (k.length() == 1) {
+                    k = "0" + k;
+                }
+                String s = "truncate table imas_pm_" + k + "_" + table + ";";
+                System.out.println(s);
+            }
+        }
+//        for (int i = 1; i < 10; i++) {
+//            Row row = st.getRow(i);
+//            if (row != null) {
+//                String type_no = getCellValue(row.getCell(0));
+//                String type_value = getCellValue(row.getCell(1));
+//                printDict("X1", type_no, type_value);
+//            }
+//        }
+    }
+
 
     public void createSP(String dir) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir), "utf-8"));//GBK
@@ -2676,6 +2701,11 @@ public class MainApplication {
             t.loadProperties();
             String dir = args[1];
             t.createSP(dir);
+        }else if (mode.equals("T2")) {
+            MainApplication t = new MainApplication();
+            t.loadProperties();
+            String dir = args[1];
+            t.createClear(dir);
         }
 
     }
