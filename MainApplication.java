@@ -2575,7 +2575,7 @@ public class MainApplication {
         for (int i = 1; i < 38;i++) {
             Row row = st.getRow(i);
             String table = getCellValue(row.getCell(0));
-            for (int j = 1; j <=31; i++) {
+            for (int j = 1; j <=31; j++) {
                 String k = String.valueOf(j);
                 if (k.length() == 1) {
                     k = "0" + k;
@@ -2592,6 +2592,38 @@ public class MainApplication {
 //                printDict("X1", type_no, type_value);
 //            }
 //        }
+    }
+
+    public void createCheck(String dir, String dir1) throws Exception {
+        Workbook wb = new XSSFWorkbook(new FileInputStream(dir));
+        Map<String,String> tt = new HashMap<String,String>();
+        Sheet st = wb.getSheetAt(9);
+        for (int i = 1; i < 38;i++) {
+            Row row = st.getRow(i);
+            String table = getCellValue(row.getCell(0));
+            String tableName = getCellValue(row.getCell(1));
+            tt.put(tableName, table);
+        }
+        wb.close();
+        wb = new XSSFWorkbook(new FileInputStream(dir1));
+        st = wb.getSheetAt(0);
+        for (int i = 1; i < 36;i++) {
+            Row row = st.getRow(i);
+            String tableName = getCellValue(row.getCell(0));
+            String group = getCellValue(row.getCell(1));
+            String[] ss = group.split("\\/");
+            for (String s : ss) {
+                if (s.indexOf("(") > 0) {
+                    s = s.substring(0, s.indexOf("("));
+                }
+                s = s.trim().replace("-","_").replace(" ", "_");
+                String table = tt.get(tableName);
+                String sql = String.format("insert into ods_check_template(table_name,group_id,whereclause,odscheck," +
+                        "qccheck,errmsg)values('%s','%s',%s',%d,%d,'%s'","IMAS_PM_"+table, s, "sjrq=':DATA_DATE'",0,1
+                        ,tableName+ " "+ s + " 无数据");
+                System.out.println(sql);
+            }
+        }
     }
 
 
@@ -2706,6 +2738,12 @@ public class MainApplication {
             t.loadProperties();
             String dir = args[1];
             t.createClear(dir);
+        }else if (mode.equals("CC")) {
+            MainApplication t = new MainApplication();
+            t.loadProperties();
+            String dir = args[1];
+            String dir1 = args[2];
+            t.createCheck(dir, dir1);
         }
 
     }
