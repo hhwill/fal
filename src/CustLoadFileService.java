@@ -88,7 +88,7 @@ public class CustLoadFileService {
             String targetPath = file.get("TARGET_PATH").toString();
             for (Map<String, Object> record : records) {
                 if (fileName.startsWith(record.get("FILE_NAME").toString())) {
-                    newProcessFile(targetPath,fileName,backupdir, record, groupidmap);
+                    newProcessFile(targetPath,fileName,backupdir, record, groupidmap, file.get("UPLOAD_GUID").toString());
                     break;
                 }
             }
@@ -96,7 +96,7 @@ public class CustLoadFileService {
     }
 
     private void newProcessFile(String fullFileName, String fileName, String backupdir, Map<String, Object> record,
-                                Map<String,String> groupidmap) {
+                                Map<String,String> groupidmap, String guid) {
         String[] ss = fileName.split("\\_");
         String type = ss[0];
         String group_id = ss[1];
@@ -125,7 +125,7 @@ public class CustLoadFileService {
                     loadExcel(fullFileName, odsTableName, now, sheetNum, groupId);
                     String filler1 = String.format("导入完成;总条数:%d;已导入:%d", rowcountbase, rowcountsuccess);
                     String usql = "update GP_BM_ID_UPLOADLOG set FILLER1 = '"+filler1+"' where UPLOAD_GUID" +
-                            " = '" + record.get("UPLOAD_GUID").toString() + "'";
+                            " = '" + guid + "'";
                     logger.info(">>><<<" + usql);
                     jdbcTemplate.execute(usql);
                 } catch (Exception ex) {
