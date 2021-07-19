@@ -17,6 +17,7 @@ import javax.sql.DataSource;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
+import org.pentaho.di.core.util.UUIDUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +30,7 @@ import org.springframework.transaction.annotation.Propagation;
 import com.gingkoo.gf4j2.framework.service.SysParamService;
 import com.gingkoo.imas.core.batch.ImasBatchBasicValidateService;
 import com.gingkoo.root.facility.spring.tx.TransactionHelper;
+import com.gingkoo.root.facility.string.UuidHelper;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -88,7 +90,8 @@ public class CustLoadFileService {
             String targetPath = file.get("TARGET_PATH").toString();
             for (Map<String, Object> record : records) {
                 if (fileName.startsWith(record.get("FILE_NAME").toString())) {
-                    newProcessFile(targetPath,fileName,backupdir, record, groupidmap, file.get("UPLOAD_GUID").toString());
+                    newProcessFile(targetPath,fileName,backupdir, record, groupidmap,
+                            file.get("UPLOAD_GUID").toString(),file.get("UPLOADER").toString());
                     break;
                 }
             }
@@ -96,7 +99,7 @@ public class CustLoadFileService {
     }
 
     private void newProcessFile(String fullFileName, String fileName, String backupdir, Map<String, Object> record,
-                                Map<String,String> groupidmap, String guid) {
+                                Map<String,String> groupidmap, String guid, String user) {
         String[] ss = fileName.split("\\_");
         String type = ss[0];
         String group_id = ss[1];
@@ -122,12 +125,30 @@ public class CustLoadFileService {
                     int sheetNum = Integer.parseInt(record.get("SHEET_NUM").toString());
                     rowcountsuccess = 0;
                     rowcountbase = 0;
+                    Date start = new Date();
                     loadExcel(fullFileName, odsTableName, now, sheetNum, groupId);
+                    Date end = new Date();
                     String filler1 = String.format("导入完成;总条数:%d;已导入:%d", rowcountbase, rowcountsuccess);
                     String usql = "update GP_BM_ID_UPLOADLOG set FILLER1 = '"+filler1+"' where UPLOAD_GUID" +
                             " = '" + guid + "'";
                     logger.info(">>><<<" + usql);
                     jdbcTemplate.execute(usql);
+
+                    try {
+                        usql = String.format("insert into GP_BM_ID_PROCESS_INF(DATA_ID,IMPORT_ID,IMPORT_NAME," +
+                                        "IMPORT_STATUS,IMPORT_DESC,IMPORT_OWNER,TOTAL_NUM,PROCESSED_NUM,CORRECT_NUM,ERROR_NUM," +
+                                        "FILTER_NUM,START_TIME,END_TIME,DATA_CRT_USER,DATA_CRT_DATE,DATA_CRT_TIME)values('%s',%s'," +
+                                        "'%s',9,'导入完成','%s',%d,%d,%d,0,0,'%s','%s','%s','%s','%s')",
+                                UuidHelper.randomClean(), UuidHelper.randomClean(),
+                                fullFileName.substring(fullFileName.lastIndexOf(File.separator)+1), user, rowcountbase,
+                                rowcountsuccess, rowcountsuccess, new SimpleDateFormat("yyyyMMddHHmmss").format(start),
+                                new SimpleDateFormat("yyyyMMddHHmmss").format(end), user,
+                                new SimpleDateFormat("yyyyMMdd").format(end),
+                                new SimpleDateFormat("yyyyMMddHHmmss").format(end));
+                        jdbcTemplate.execute(usql);
+                    } catch (Exception ex) {
+                        log.error("insert process_inf fail", ex);
+                    }
                 } catch (Exception ex) {
                     log.error("import fail", ex);
                 }
