@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
@@ -16,6 +17,9 @@ import javax.sql.DataSource;
 import com.monitorjbl.xlsx.StreamingReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -31,6 +35,8 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 @Slf4j
 @Component
 public class CustLoadFileService {
+
+    private final Logger logger = LoggerFactory.getLogger(HsbcAutoProcess.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -48,14 +54,12 @@ public class CustLoadFileService {
         this.custLoadFileProcessService = custLoadFileProcessService;
     }
 
+    @Value("${application.home}")
+    private String filePath;
 
     public void run() {
         log.info("CustLoadFileService");
-        String importDir = SysParamService.getSysParamDef("IMAS","MANUAL_IMPORT_DIR","");
-        String backupDir = SysParamService.getSysParamDef("IMAS","MANUAL_BACKUP_DIR","");
-        System.out.println(importDir);
-        System.out.println(backupDir);
-        processFiles(importDir, backupDir);
+        newProcessFiles(filePath);
 //        List<String> lst = new ArrayList<String>();
 //        lst.add("PJTXFS");
 //        lst.add("PJTXJC");
@@ -65,6 +69,89 @@ public class CustLoadFileService {
 //        } catch (Exception ex) {
 //            ex.printStackTrace();
 //        }
+    }
+
+    private void newProcessFiles(String backupdir) {
+        String sql = "select * from gp_bm_id_uploadlog where filler1 = '未导入' order by upload_time";
+        List<Map<String, Object>> files = jdbcTemplate.queryForList(sql);
+        sql = "select * from ods_ctl order by order_no";
+        List<Map<String, Object>> records = jdbcTemplate.queryForList("select * from ods_ctl order by order_no");
+
+        sql = "select * from map_groupid";
+        List<Map<String, Object>> groupids = jdbcTemplate.queryForList(sql);
+        Map<String, String> groupidmap = new HashMap<String, String>();
+        for (Map<String, Object> key : groupids) {
+            groupidmap.put(key.get("SRC").toString(), key.get("DEST").toString());
+        }
+        for (Map<String, Object> file : files) {
+            String fileName = file.get("FILE_NAME").toString();
+            String targetPath = file.get("TARGET_PATH").toString();
+            for (Map<String, Object> record : records) {
+                if (fileName.startsWith(record.get("FILE_NAME").toString())) {
+                    newProcessFile(targetPath,fileName,backupdir, record, groupidmap);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void newProcessFile(String fullFileName, String fileName, String backupdir, Map<String, Object> record,
+                                Map<String,String> groupidmap) {
+        String[] ss = fileName.split("\\_");
+        String type = ss[0];
+        String group_id = ss[1];
+        if (groupidmap.containsKey(group_id)) {
+            group_id = groupidmap.get(group_id);
+        }
+        String now = ss[2];
+        try {
+            if (type.equals(record.get("FILE_NAME").toString())) {
+                String groupId = record.get("GROUP_ID").toString();
+                if (groupId == null || group_id.equals("")) {
+                    groupId = group_id;
+                }
+                String odsTableName = record.get("TABLE_NAME").toString();
+                try {
+
+                    if (record.get("NEED_DELETE").equals("1")) {
+                        String sql = String.format("delete from %s where data_date = '%s' and group_id = '%s'", odsTableName
+                                , now, groupId);
+
+                        jdbcTemplate.execute(sql);
+                    }
+                    int sheetNum = Integer.parseInt(record.get("SHEET_NUM").toString());
+                    rowcountsuccess = 0;
+                    rowcountbase = 0;
+                    loadExcel(fullFileName, odsTableName, now, sheetNum, groupId);
+                    String filler1 = String.format("导入完成;总条数:%d;已导入:%d", rowcountbase, rowcountsuccess);
+                    String usql = "update GP_BM_ID_UPLOADLOG set FILLER1 = '"+filler1+"' where UPLOAD_GUID" +
+                            " = '" + record.get("UPLOAD_GUID").toString() + "'";
+                    logger.info(">>><<<" + usql);
+                    jdbcTemplate.execute(usql);
+                } catch (Exception ex) {
+                    log.error("import fail", ex);
+                }
+                String needOds = record.get("NEED_ODS").toString();
+                if (needOds.equals("1")) {
+                    try {
+                        custLoadFileProcessService.process(odsTableName, now, groupId);
+                    } catch (Exception ex) {
+                        log.error("process fail", ex);
+                    }
+                }
+
+                try {
+                    //TODO backup file & delete
+                    String newbackupdir =
+                            backupdir + File.separator + "backup" + File.separator + now + File.separator + fileName;
+                    moveFiles(new File(fullFileName).toPath(), new File(newbackupdir).toPath());
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } catch (Exception exx) {
+            log.error("now error: " + fileName, exx);
+        }
     }
 
     private void processFiles(String dir, String backupdir) {
@@ -101,20 +188,25 @@ public class CustLoadFileService {
             try {
                 if (type.equals(record.get("FILE_NAME").toString())) {
                     String groupId = record.get("GROUP_ID").toString();
+                    String odsTableName = record.get("TABLE_NAME").toString();
                     try {
-                        String odsTableName = record.get("TABLE_NAME").toString();
-                        String sql = String.format("delete from %s where data_date = '%s' and group_id = '%s'", odsTableName
-                                , now, groupId);
 
-                        jdbcTemplate.execute(sql);
-                        loadExcel(fullFileName, odsTableName, now, groupId);
+                        if (record.get("NEED_DELETE").equals("1")) {
+                            String sql = String.format("delete from %s where data_date = '%s' and group_id = '%s'", odsTableName
+                                    , now, groupId);
+
+                            jdbcTemplate.execute(sql);
+                        }
+                        int sheetNum = Integer.parseInt(record.get("SHEET_NUM").toString());
+                        rowcountbase = 0;
+                        loadExcel(fullFileName, odsTableName, now, sheetNum, groupId);
                     } catch (Exception ex) {
                         log.error("import fail", ex);
                     }
                     String needOds = record.get("NEED_ODS").toString();
                     if (needOds.equals("1")) {
                         try {
-                            custLoadFileProcessService.process(type, now, groupId);
+                            custLoadFileProcessService.process(odsTableName, now, groupId);
                         } catch (Exception ex) {
                             log.error("process fail", ex);
                         }
@@ -148,6 +240,7 @@ public class CustLoadFileService {
     private ArrayList<String> puresqls = new ArrayList<String>();
 
     private int rowcountbase = 0;
+    private int rowcountsuccess = 0;
 
     private int batchCount = 1000;
 
@@ -169,33 +262,36 @@ public class CustLoadFileService {
             return cell.getStringCellValue().trim();
         } else {
             if (cell.getCellType() == CellType.FORMULA)
-                return "="+cell.getCellFormula();
+                return String.valueOf(cell.getNumericCellValue());
             else {
                 if (DateUtil.isCellDateFormatted(cell)) {
                     Date date = org.apache.poi.ss.usermodel.DateUtil
                             .getJavaDate(cell.getNumericCellValue());
                     return new SimpleDateFormat("yyyyMMdd").format(date);
                 }
-                String samount = new DecimalFormat("0.00").format(cell.getNumericCellValue());
-                if (samount.endsWith("0")) {
-                    samount = samount.substring(0, samount.length()-1);
-                }
-                if (samount.endsWith(".0")) {
-                    samount = samount.substring(0, samount.length()-2);
-                }
-                return samount;
+                double d = cell.getNumericCellValue();
+//                String samount = new DecimalFormat("0.00").format(cell.getNumericCellValue());
+//                if (samount.endsWith("0")) {
+//                    samount = samount.substring(0, samount.length()-1);
+//                }
+//                if (samount.endsWith(".0")) {
+//                    samount = samount.substring(0, samount.length()-2);
+//                }
+
+                return NumberFormat.getInstance().format(cell.getNumericCellValue()).replace(",","");
             }
         }
     }
 
-    public void loadExcel(String filename, String tablename, String data_date, String group_id) throws Exception {
+    public void loadExcel(String filename, String tablename, String data_date, int sheetNum,
+                          String group_id) throws Exception {
         FileInputStream in = new FileInputStream(filename);
         try {
             Workbook wk = StreamingReader.builder()
                     .rowCacheSize(100)  //缓存到内存中的行数，默认是10
                     .bufferSize(4096)  //读取资源时，缓存到内存的字节大小，默认是1024
                     .open(in);  //打开资源，必须，可以是InputStream或者是File，注意：只能打开XLSX格式的文件
-            Sheet sheet = wk.getSheetAt(0);
+            Sheet sheet = wk.getSheetAt(sheetNum);
             String columns = "";
             int columncnt = 0;
             sqls.clear();
@@ -292,11 +388,12 @@ public class CustLoadFileService {
                     return sqls.size();
                 }
             });
+            rowcountsuccess += sqls.size();
         } catch (Exception ex) {
             for (int i = 0; i < sqls.size(); i++) {
                 try {
                     final ArrayList<String> record = sqls.get(i);
-                    transactionTemplate.run(Propagation.REQUIRES_NEW, () -> {
+//                    transactionTemplate.run(Propagation.REQUIRES_NEW, () -> {
                         jdbcTemplate.update(sql, new PreparedStatementSetter() {
                             @Override
                             public void setValues(PreparedStatement ps) throws SQLException {
@@ -305,7 +402,8 @@ public class CustLoadFileService {
                                 }
                             }
                         });
-                    });
+//                    });
+                    rowcountsuccess++;
                 } catch (Exception singleex) {
                     singleex.printStackTrace();
                 }
