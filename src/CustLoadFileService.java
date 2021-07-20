@@ -48,10 +48,13 @@ public class CustLoadFileService {
 
     private CustLoadFileProcessService custLoadFileProcessService;
 
-    public CustLoadFileService(TransactionHelper transactionTemplate, DataSource dataSource,
+    private CustEtlGM etlGM;
+
+    public CustLoadFileService(TransactionHelper transactionTemplate, DataSource dataSource,CustEtlGM etlGM,
                                ImasBatchBasicValidateService imasBatchBasicValidateService, CustLoadFileProcessService custLoadFileProcessService) {
         this.transactionTemplate = transactionTemplate;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.etlGM = etlGM;
         this.imasBatchBasicValidateService = imasBatchBasicValidateService;
         this.custLoadFileProcessService = custLoadFileProcessService;
     }
@@ -90,11 +93,53 @@ public class CustLoadFileService {
             String targetPath = file.get("TARGET_PATH").toString();
             for (Map<String, Object> record : records) {
                 if (fileName.startsWith(record.get("FILE_NAME").toString())) {
-                    newProcessFile(targetPath,fileName,backupdir, record, groupidmap,
-                            file.get("UPLOAD_GUID").toString(),file.get("UPLOADER").toString());
+                    int need_ods = (Integer)record.get("NEED_ODS");
+                    if (need_ods == 2) {
+                        newProcessGM(targetPath, fileName, backupdir, record,groupidmap,file.get("UPLOAD_GUID").toString());
+                    } else {
+                        newProcessFile(targetPath, fileName, backupdir, record, groupidmap,
+                                file.get("UPLOAD_GUID").toString(), file.get("UPLOADER").toString());
+                    }
                     break;
                 }
             }
+        }
+    }
+
+    private void newProcessGM(String fullFileName, String fileName, String backupdir, Map<String, Object> record,
+                              Map<String,String> groupidmap, String guid) {
+        String[] ss = fileName.split("\\_");
+        String group_id = ss[1];
+        String now = ss[2];
+        if (groupidmap.containsKey(group_id)) {
+            group_id = groupidmap.get(group_id);
+        }
+        try {
+            String service = record.get("ODS_SERVICE").toString();
+            if (service.equals("JC")) {
+                etlGM.initPCBase(fullFileName, now, group_id);
+            } else if (service.equals("YE")) {
+                etlGM.initBalance(fullFileName, now, group_id);
+            } else if (service.equals("MRFSJC")) {
+                etlGM.initGMOMRFSJC(fullFileName, now, group_id);
+            } else if (service.equals("MRFSFS")) {
+                etlGM.initGMOMRFSFS(fullFileName, now, group_id);
+            } else if (service.equals("TYCKJC")) {
+                etlGM.initGMOTYCKJC(fullFileName, now, group_id);
+            } else if (service.equals("TYCKFS")) {
+                etlGM.initGMOTYCKFS(fullFileName, now, group_id);
+            } else if (service.equals("TYJDJC")) {
+                etlGM.initGMOTYJDJC(fullFileName, now, group_id);
+            } else if (service.equals("TYJDFS")) {
+                etlGM.initGMOTYJDFS(fullFileName, now, group_id);
+            }
+            String filler1 = String.format("导入完成");
+            String usql = "update GP_BM_ID_UPLOADLOG set FILLER1 = '"+filler1+"' where UPLOAD_GUID" +
+                    " = '" + guid + "'";
+            logger.info(">>><<<" + usql);
+            jdbcTemplate.execute(usql);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -108,7 +153,7 @@ public class CustLoadFileService {
         }
         String now = ss[2];
         try {
-            if (type.equals(record.get("FILE_NAME").toString())) {
+            if (true) {
                 String groupId = record.get("GROUP_ID").toString();
                 if (groupId == null || group_id.equals("")) {
                     groupId = group_id;
@@ -137,7 +182,7 @@ public class CustLoadFileService {
                     try {
                         usql = String.format("insert into GP_BM_ID_PROCESS_INF(DATA_ID,IMPORT_ID,IMPORT_NAME," +
                                         "IMPORT_STATUS,IMPORT_DESC,IMPORT_OWNER,TOTAL_NUM,PROCESSED_NUM,CORRECT_NUM,ERROR_NUM," +
-                                        "FILTER_NUM,START_TIME,END_TIME,DATA_CRT_USER,DATA_CRT_DATE,DATA_CRT_TIME)values('%s',%s'," +
+                                        "FILTER_NUM,START_TIME,END_TIME,DATA_CRT_USER,DATA_CRT_DATE,DATA_CRT_TIME)values('%s','%s'," +
                                         "'%s',9,'导入完成','%s',%d,%d,%d,0,0,'%s','%s','%s','%s','%s')",
                                 UuidHelper.randomClean(), UuidHelper.randomClean(),
                                 fullFileName.substring(fullFileName.lastIndexOf(File.separator)+1), user, rowcountbase,
