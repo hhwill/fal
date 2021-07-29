@@ -3,5 +3,5 @@ update gp_qc_rule set exists_sql = 'select 1 from dual where not exists (
   select * from 
  ( 
 select * from mbt_pm_210_H where b_acct_code = :B_ACCT_CODE and data_id <> :DATA_ID order by B_RPT_DATE desc
-) t WHERE rownum = 1) where ((B_ACCT_TYPE = 'C1' and H_ACCT_STATUS =''2'')) or ((B_ACCT_TYPE <> 'C1' and H_ACCT_STATUS in (''3'',''4'',''2''))) and IS_RPT_SUCC = ''Y'' and IS_VALID = ''Y'')'
+) t WHERE rownum = 1) where ((B_ACCT_TYPE = ''C1'' and H_ACCT_STATUS =''2'')) or ((B_ACCT_TYPE <> ''C1'' and H_ACCT_STATUS in (''3'',''4''))) and IS_RPT_SUCC = ''Y'' and IS_VALID = ''Y'')'
 where data_id = 'R2101205_210_H_01';
