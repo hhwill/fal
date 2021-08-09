@@ -1,7 +1,1 @@
-update gp_qc_rule set exists_sql = 'select 1 from dual where not exists (
-  select 1 from (
-  select * from 
- ( 
-select * from mbt_pm_210_H where b_acct_code = :B_ACCT_CODE and data_id <> :DATA_ID order by B_RPT_DATE desc
-) t WHERE rownum = 1) where ((B_ACCT_TYPE = ''C1'' and H_ACCT_STATUS =''2'')) or ((B_ACCT_TYPE <> ''C1'' and H_ACCT_STATUS in (''3'',''4''))) and IS_RPT_SUCC = ''Y'' and IS_VALID = ''Y'')'
-where data_id = 'R2101205_210_H_01';
+insert into imas_bm_rpt_qrycol_rel (DATA_ID, DATA_DATE, CORP_ID, ORG_ID, GROUP_ID, INQ_ORG_ID, INQ_GROUP_ID, REPORT_CODE, REPORT_NAME, QUERY_COLUMN_NAME, QUERY_COLUMN_COMMENT, QUERY_TYPE, IS_REQUIRED, EDIT_TYPE, DATA_TYPE, COLUMN_LENGTH, READONLY, DATA_DIC, CQ_QUERY, REMARKS, CHECK_FLAG, CHECK_DESC, CHECK_ERR_TYPE, NEXT_ACTION, DATA_STATUS, DATA_FLAG, DATA_SOURCE, DATA_VERSION, DATA_REJ_DESC, DATA_DEL_DESC, DATA_CRT_USER, DATA_CRT_DATE, DATA_CRT_TIME, DATA_CHG_USER, DATA_CHG_DATE, DATA_CHG_TIME, DATA_APV_USER, DATA_APV_DATE, DATA_APV_TIME, RSV1, RSV2, RSV3, RSV4, RSV5) values ('GRKHXX-C_RSV1', null, null, null, null, null, null, 'GRKHXX', '个人客户信息表', 'C_RSV1', '原始信息', 'like', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
