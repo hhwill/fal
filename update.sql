@@ -1,0 +1,10 @@
+delete from GP_BM_MENU where MENU_ID = '10060607';
+insert into GP_BM_MENU (DATA_ID, MENU_ID, MENU_NAME, LOCATION, ISDIRECTORY, LASTDIRECTORY, SHOWSEQ, ICON_CLS, PAGE_ID, DATA_DATE, CORP_ID, ORG_ID, GROUP_ID, NEXT_ACTION, DATA_STATUS, DATA_FLAG, DATA_SOURCE, CHECK_FLAG, CHECK_DESC, CHECK_ERR_TYPE, DATA_VERSION, DATA_REJ_DESC, DATA_DEL_DESC, DATA_CRT_USER, DATA_CRT_DATE, DATA_CRT_TIME, DATA_CHG_USER, DATA_CHG_DATE, DATA_CHG_TIME, DATA_APV_USER, DATA_APV_DATE, DATA_APV_TIME, RSV1, RSV2, RSV3, RSV4, RSV5, PARENT_ID, ISVALID, MODULE_ID) values ('10060607', '10060607', '缓存管理', 1, 0, '100606', 7, null, 'PAGE@10060607', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, '1', 'GPMS');
+delete from GP_BM_RES_PAGES where PAGE_ID = 'PAGE@10060607';
+insert into GP_BM_RES_PAGES (DATA_ID, DATA_DATE, CORP_ID, ORG_ID, GROUP_ID, INQ_ORG_ID, INQ_GROUP_ID, CHECK_FLAG, PAGE_ID, PAGE_NAME, PAGE_PATH, SCHE_ID, CHECK_DESC, CHECK_ERR_TYPE, NEXT_ACTION, DATA_STATUS, DATA_FLAG, DATA_OP, DATA_SOURCE, DATA_VERSION, DATA_REJ_DESC, DATA_DEL_DESC, DATA_CRT_USER, DATA_CRT_DATE, DATA_CRT_TIME, DATA_CHG_USER, DATA_CHG_DATE, DATA_CHG_TIME, DATA_APV_USER, DATA_APV_DATE, DATA_APV_TIME, RSV1, RSV2, RSV3, RSV4, RSV5, DATA_HASH, PAGE_TYPE, MODULE_ID) values ('PAGE@10060607', null, null, null, null, null, null, null, 'PAGE@10060607', '缓存管理', '/pages/gpms/system/cache/ftl/CacheRefreshManager.ftl', 'ORG_ID_AND_GROUP_ID', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'GPMS');
+
+update GP_BM_INTER_CONFIG set TARGET_TABLE = 'IMAS_BM_RPT_ORG' where TARGET_TABLE = 'GFDR_BM_RPT_ORG';
+update GP_BM_INTER_CONFIG set TARGET_TABLE = 'IMAS_BM_RPT_QRYCOL_REL' where TARGET_TABLE = 'GFDR_BM_RPT_QRYCOL_REL';
+
+delete from GP_QC_TYPE where DATA_ID = 'STR_CHECK_BLANK';
+insert into GP_QC_TYPE (DATA_ID, TYPE_DESC, PATTERN) values ('STR_CHECK_BLANK', '字符串不包含空格、制表符、换行符', '[\S]*?');
